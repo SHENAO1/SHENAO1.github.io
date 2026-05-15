@@ -33,6 +33,7 @@ jobs:
           cp .nojekyll _site_publish/
           cp -R assets _site_publish/assets
           cp -R notes _site_publish/notes
+          cp -R video-notes _site_publish/video-notes
           for dir in chapter-*; do
             if [ -d "$dir" ]; then
               cp -R "$dir" "_site_publish/$dir"

@@ -41,7 +41,8 @@ $fixedItems = @(
   "index.html",
   ".nojekyll",
   "assets",
-  "notes"
+  "notes",
+  "video-notes"
 )
 
 foreach ($item in $fixedItems) {
