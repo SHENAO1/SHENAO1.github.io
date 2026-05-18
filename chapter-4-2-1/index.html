@@ -1042,6 +1042,21 @@
               <p>$H(s)$ 看“本地相位跟得上多少”，$E(s)$ 看“剩下多少相位误差”。二者互补。</p>
               <p>从式 $(4.115)$ 到式 $(4.116)$ 的推法只有一步：直接用 $\hat\theta(s)=\theta_i(s)-\theta_l(s)$ 代回去，再把分子通分成 $s$。因此误差传递函数总会比闭环传递函数多保留一个 $s$ 因子。</p>
             </div>
+            <div class="formula-card">
+              <strong>用梅森增益公式重算</strong>
+              $$ T=\frac{C(s)}{R(s)}=\frac{\sum_m P_m\Delta_m}{\Delta},\qquad
+              \Delta=1-\sum_iL_i+\sum_{i,j}L_iL_j-\cdots $$
+              <p>$P_m$ 是第 $m$ 条前向通路增益，$L_i$ 是闭合回路增益；$\Delta_m$ 是删去所有与第 $m$ 条前向通路接触的回路后得到的余因子。</p>
+              <p>基本 PLL 的信号流图只有一个闭合回路：$\hat\theta\to F(s)\to k/s\to\theta_l\to-\hat\theta$，所以</p>
+              $$ L_1=-\frac{kF(s)}{s},\qquad \Delta=1-L_1=1+\frac{kF(s)}{s} $$
+              <p>求 $H(s)=\theta_l(s)/\theta_i(s)$ 时，前向通路增益为 $P_1=kF(s)/s$，且该回路接触前向通路，故 $\Delta_1=1$：</p>
+              $$ H(s)=\frac{P_1\Delta_1}{\Delta}
+              =\frac{\dfrac{kF(s)}{s}}{1+\dfrac{kF(s)}{s}}
+              =\frac{kF(s)}{s+kF(s)} $$
+              <p>求 $E(s)=\hat\theta(s)/\theta_i(s)$ 时，前向通路为 $\theta_i\to\hat\theta$，增益 $P_1=1$，同样 $\Delta_1=1$：</p>
+              $$ E(s)=\frac{1}{1+\dfrac{kF(s)}{s}}
+              =\frac{s}{s+kF(s)} $$
+            </div>
           </div>
 
           <div class="demo-block">

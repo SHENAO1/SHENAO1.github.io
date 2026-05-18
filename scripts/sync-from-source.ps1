@@ -52,6 +52,16 @@ foreach ($item in $fixedItems) {
 $chapterDirs = Get-ChildItem -LiteralPath $SourceRoot -Directory |
   Where-Object { $_.Name -like "chapter-*" }
 
+$sourceChapterNames = $chapterDirs.Name
+$targetChapterDirs = Get-ChildItem -LiteralPath $RepoRoot -Directory |
+  Where-Object { $_.Name -like "chapter-*" }
+
+foreach ($targetChapter in $targetChapterDirs) {
+  if ($targetChapter.Name -notin $sourceChapterNames) {
+    Remove-Item -LiteralPath $targetChapter.FullName -Force -Recurse
+  }
+}
+
 foreach ($chapter in $chapterDirs) {
   Copy-SiteItem -SourcePath $chapter.FullName -TargetPath (Join-Path $RepoRoot $chapter.Name)
 }
