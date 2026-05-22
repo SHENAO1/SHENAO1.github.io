@@ -727,6 +727,615 @@
           <p><span class="math display">\[
           \left[1-\cos(\pi fT_s)\right]^2.
           \]</span></p>
+          <section id="先澄清这里的四分之一周期到底是多少" class="level3">
+          <h3>5.1 先澄清：这里的“四分之一周期”到底是多少</h3>
+          <p>余弦相位副载波可以写成</p>
+          <p><span class="math display">\[
+          \operatorname{sgn}\!\left[\cos(2\pi f_s t)\right]
+          =
+          \operatorname{sgn}\!\left[\sin\left(2\pi f_s
+          t+\frac{\pi}{2}\right)\right].
+          \]</span></p>
+          <p>也就是说，它相对正弦相位移动了 <span
+          class="math inline">\(\pi/2\)</span> 的相位。若把完整副载波周期记为</p>
+          <p><span class="math display">\[
+          T_{\mathrm{per}}=\frac{1}{f_s},
+          \]</span></p>
+          <p>这个相位移动对应的时间量为</p>
+          <p><span class="math display">\[
+          \Delta t=
+          \frac{\pi/2}{2\pi f_s}
+          =
+          \frac{1}{4f_s}
+          =
+          \frac{T_{\mathrm{per}}}{4}.
+          \]</span></p>
+          <p>但本节为了推导式 (4.15)–(4.18)，一直把</p>
+          <p><span class="math display">\[
+          T_s=\frac{1}{2f_s}
+          \]</span></p>
+          <p>定义为方波副载波的半周期片段。因此在本节符号下，四分之一完整周期就是</p>
+          <p><span class="math display">\[
+          \Delta t=\frac{T_s}{2}.
+          \]</span></p>
+          <p>这个小小的换算很重要。正弦相位的跳变点正好落在</p>
+          <p><span class="math display">\[
+          0,\ T_s,\ 2T_s,\ldots
+          \]</span></p>
+          <p>这些半周期边界上；余弦相位则整体平移了 <span
+          class="math inline">\(T_s/2\)</span>，所以它的跳变点落在</p>
+          <p><span class="math display">\[
+          \frac{T_s}{2},\ \frac{3T_s}{2},\ \frac{5T_s}{2},\ldots
+          \]</span></p>
+          <p>这就是后面所有差别的来源。</p>
+          </section>
+          <section id="为什么不是把正弦相位公式直接平移一下" class="level3">
+          <h3>5.2 为什么不是把正弦相位公式直接平移一下</h3>
+          <p>如果面对的是无限长周期方波，时移只会在傅里叶级数系数中乘上一个模长为
+          1 的复相位，功率谱形状本身不会改变。傅里叶变换的时移性质给出</p>
+          <p><span class="math display">\[
+          x(t-\Delta t)
+          \longleftrightarrow
+          e^{-j2\pi f\Delta t}X(f).
+          \]</span></p>
+          <p>代入余弦相位相对正弦相位的时间移动量 <span
+          class="math inline">\(\Delta t=T_s/2\)</span>，得到的频域相位因子是</p>
+          <p><span class="math display">\[
+          e^{-j2\pi f(T_s/2)}
+          =
+          e^{-j\pi fT_s}.
+          \]</span></p>
+          <p>如果只看无限长方波，取模平方以后这个相位因子会消失。</p>
+          <p>BOC 的关键区别在于：教材推导的不是无限长副载波，而是被单码片窗口
+          <span class="math inline">\([0,T_c]\)</span>
+          截出来的复合脉冲。正弦相位的单码片片段正好对齐半周期边界；余弦相位平移
+          <span class="math inline">\(T_s/2\)</span>
+          后，在固定窗口的头尾会被切开：</p>
+          <ul>
+          <li>正弦相位：每个内部小区间长度都是 <span
+          class="math inline">\(T_s\)</span>，所以可以直接写成 <span
+          class="math inline">\(\sum_{k=0}^{M-1}(-1)^k\mathbf{1}_{[kT_s,(k+1)T_s)}(t)\)</span>。</li>
+          <li>余弦相位：第一个和最后一个小区间只有 <span
+          class="math inline">\(T_s/2\)</span>，内部小区间才是 <span
+          class="math inline">\(T_s\)</span>。</li>
+          </ul>
+          <p>因此，式 (3) 里的正弦相位单码片表达式不能直接套给余弦相位。以偶数阶
+          <span class="math inline">\(M\)</span>
+          为例，余弦相位单码片脉冲应写成</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          p_c(t)
+          &amp;=
+          \mathbf{1}_{[0,T_s/2)}(t)
+          +
+          \sum_{k=1}^{M-1}(-1)^k
+          \mathbf{1}_{[(k-\frac12)T_s,(k+\frac12)T_s)}(t)\\
+          &amp;\quad
+          +
+          (-1)^M\mathbf{1}_{[(M-\frac12)T_s,MT_s)}(t).
+          \end{aligned}
+          \]</span></p>
+          <p>对偶数 <span class="math inline">\(M\)</span>，最后一项幅值为 <span
+          class="math inline">\(+1\)</span>。这个表达式把“头尾被切开”的边界效应显式写了出来。正是这些半长边界片段，使余弦相位的副载波因子不再是
+          <span class="math inline">\(\sin^2(\pi fT_s)\)</span>。</p>
+          </section>
+          <section id="先用三角恒等式看出两者差在哪里" class="level3">
+          <h3>5.3 先用三角恒等式看出两者差在哪里</h3>
+          <p>令</p>
+          <p><span class="math display">\[
+          \theta=\frac{\pi fT_s}{2}.
+          \]</span></p>
+          <p>正弦相位公式中的副载波因子可写为</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          \sin^2(\pi fT_s)
+          &amp;=
+          \sin^2(2\theta)\\
+          &amp;=
+          \left[2\sin\theta\cos\theta\right]^2\\
+          &amp;=
+          4\sin^2\theta\cos^2\theta.
+          \end{aligned}
+          \]</span></p>
+          <p>余弦相位公式中的副载波因子为</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          \left[1-\cos(\pi fT_s)\right]^2
+          &amp;=
+          \left[1-\cos(2\theta)\right]^2\\
+          &amp;=
+          \left[2\sin^2\theta\right]^2\\
+          &amp;=
+          4\sin^4\theta.
+          \end{aligned}
+          \]</span></p>
+          <p>放在一起看：</p>
+          <ul>
+          <li>正弦相位：<span
+          class="math inline">\(4\sin^2\theta\cos^2\theta\)</span>。</li>
+          <li>余弦相位：<span
+          class="math inline">\(4\sin^2\theta\sin^2\theta\)</span>。</li>
+          </ul>
+          <p>二者共享 <span
+          class="math inline">\(4\sin^2\theta\)</span>，差别在于后一个因子由 <span
+          class="math inline">\(\cos^2\theta\)</span> 变成了 <span
+          class="math inline">\(\sin^2\theta\)</span>。这就是“四分之一周期移动”在有限码片窗口中留下的频域痕迹：边界被切开以后，原来对齐整半周期的那部分余弦权重，被半周期错位后的正弦权重取代。</p>
+          </section>
+          <section id="为什么是差的平方不是平方的差" class="level3">
+          <h3>5.4 为什么是“差的平方”，不是“平方的差”</h3>
+          <p>余弦相位最后出现的是</p>
+          <p><span class="math display">\[
+          \left[1-\cos(\pi fT_s)\right]^2,
+          \]</span></p>
+          <p>而不是</p>
+          <p><span class="math display">\[
+          1-\cos^2(\pi fT_s).
+          \]</span></p>
+          <p>原因在于功率谱要对复数频谱取模平方。设</p>
+          <p><span class="math display">\[
+          z=1-e^{-j\theta}.
+          \]</span></p>
+          <p>复数模长满足</p>
+          <p><span class="math display">\[
+          |z^n|=|z|^n.
+          \]</span></p>
+          <p>可以用极坐标形式证明：若 <span
+          class="math inline">\(z=re^{j\phi}\)</span>，则</p>
+          <p><span class="math display">\[
+          z^n=r^n e^{jn\phi},
+          \qquad
+          |z^n|=r^n=|z|^n.
+          \]</span></p>
+          <p>因此</p>
+          <p><span class="math display">\[
+          \left|(1-e^{-j\theta})^2\right|^2
+          =
+          \left(\left|1-e^{-j\theta}\right|^2\right)^2.
+          \]</span></p>
+          <p>先算内层模平方：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          \left|1-e^{-j\theta}\right|^2
+          &amp;=
+          \left|1-(\cos\theta-j\sin\theta)\right|^2\\
+          &amp;=
+          (1-\cos\theta)^2+\sin^2\theta\\
+          &amp;=
+          1-2\cos\theta+\cos^2\theta+\sin^2\theta\\
+          &amp;=
+          2(1-\cos\theta).
+          \end{aligned}
+          \]</span></p>
+          <p>所以</p>
+          <p><span class="math display">\[
+          \left|(1-e^{-j\theta})^2\right|^2
+          =
+          \left[2(1-\cos\theta)\right]^2
+          =
+          4(1-\cos\theta)^2.
+          \]</span></p>
+          <p>最外层的平方来自“复指数差项本身已经平方，然后功率谱又取模平方”。因此结果必然是差的平方。若写成平方的差，</p>
+          <p><span class="math display">\[
+          1-\cos^2\theta=\sin^2\theta,
+          \]</span></p>
+          <p>那就退化成正弦相位的副载波因子，等价于说余弦相位的边界切割没有改变能量分布，这与余弦相位频谱更向两侧展开的事实不符。展开</p>
+          <p><span class="math display">\[
+          \left[1-\cos\theta\right]^2
+          =
+          1-2\cos\theta+\cos^2\theta
+          \]</span></p>
+          <p>可以看到中间多出来的交叉项 <span
+          class="math inline">\(-2\cos\theta\)</span>。这个交叉项正是头尾半长边界片段与内部整长片段共同叠加后留下的数学痕迹。</p>
+          </section>
+          <section id="用最小例子看完全平方式从哪里来" class="level3">
+          <h3>5.5 用最小例子看完全平方式从哪里来</h3>
+          <p>先取最小偶数阶例子 <span
+          class="math inline">\(M=2\)</span>，也就是</p>
+          <p><span class="math display">\[
+          T_c=2T_s.
+          \]</span></p>
+          <p>在本节的 <span class="math inline">\(T_s\)</span>
+          半周期定义下，余弦相位单码片波形为</p>
+          <ul>
+          <li><span class="math inline">\([0,T_s/2)\)</span> 上取 <span
+          class="math inline">\(+1\)</span>；</li>
+          <li><span class="math inline">\([T_s/2,3T_s/2)\)</span> 上取 <span
+          class="math inline">\(-1\)</span>；</li>
+          <li><span class="math inline">\([3T_s/2,2T_s)\)</span> 上取 <span
+          class="math inline">\(+1\)</span>。</li>
+          </ul>
+          <p>令 <span class="math inline">\(\omega=2\pi
+          f\)</span>。它的傅里叶变换为</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          P_c(f)
+          &amp;=
+          \int_0^{T_s/2}e^{-j\omega t}\,dt
+          -
+          \int_{T_s/2}^{3T_s/2}e^{-j\omega t}\,dt
+          +
+          \int_{3T_s/2}^{2T_s}e^{-j\omega t}\,dt\\
+          &amp;=
+          \frac{1}{-j\omega}
+          \left[
+          \left(e^{-j\omega T_s/2}-1\right)
+          -
+          \left(e^{-j3\omega T_s/2}-e^{-j\omega T_s/2}\right)
+          +
+          \left(e^{-j2\omega T_s}-e^{-j3\omega T_s/2}\right)
+          \right].
+          \end{aligned}
+          \]</span></p>
+          <p>令基础复指数算子</p>
+          <p><span class="math display">\[
+          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}.
+          \]</span></p>
+          <p>则括号内变为</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          B_2
+          &amp;=
+          (A-1)-(A^3-A)+(A^4-A^3)\\
+          &amp;=
+          A^4-2A^3+2A-1.
+          \end{aligned}
+          \]</span></p>
+          <p>对这个多项式因式分解：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          A^4-2A^3+2A-1
+          &amp;=
+          (A^4-1)-2A(A^2-1)\\
+          &amp;=
+          (A^2-1)(A^2+1)-2A(A^2-1)\\
+          &amp;=
+          (A^2-1)(A^2-2A+1)\\
+          &amp;=
+          (A^2-1)(A-1)^2.
+          \end{aligned}
+          \]</span></p>
+          <p>完全平方式 <span class="math inline">\((A-1)^2\)</span>
+          就是在这里出现的。直观上，余弦相位在固定码片边界被切开，跳变沿呈现</p>
+          <p><span class="math display">\[
+          +1,\ -2,\ +2,\ -1
+          \]</span></p>
+          <p>这种二阶差分式的对称结构；这种结构在复指数多项式中表现为 <span
+          class="math inline">\(A=1\)</span> 附近的重根，因此会出现平方因子。</p>
+          <p>求模平方时，</p>
+          <p><span class="math display">\[
+          \left|B_2\right|^2
+          =
+          \left|A^2-1\right|^2
+          \left|A-1\right|^4.
+          \]</span></p>
+          <p>其中</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          \left|A-1\right|^2
+          &amp;=
+          \left|e^{-j\omega T_s/2}-1\right|^2\\
+          &amp;=
+          2-2\cos\left(\frac{\omega T_s}{2}\right)\\
+          &amp;=
+          4\sin^2\left(\frac{\pi fT_s}{2}\right).
+          \end{aligned}
+          \]</span></p>
+          <p>于是</p>
+          <p><span class="math display">\[
+          \left|A-1\right|^4
+          =
+          16\sin^4\left(\frac{\pi fT_s}{2}\right)
+          =
+          4\left[1-\cos(\pi fT_s)\right]^2.
+          \]</span></p>
+          <p>这就把“完全平方式”与最终的 <span class="math inline">\([1-\cos(\pi
+          fT_s)]^2\)</span> 联系起来了。</p>
+          </section>
+          <section id="一般偶数阶余弦相位的严格推导" class="level3">
+          <h3>5.6 一般偶数阶余弦相位的严格推导</h3>
+          <p>下面把上面的例子推广到一般偶数 <span
+          class="math inline">\(M\)</span>。仍令</p>
+          <p><span class="math display">\[
+          \omega=2\pi f,
+          \qquad
+          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}.
+          \]</span></p>
+          <p>由余弦相位单码片表达式可得</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          P_c(f)
+          &amp;=
+          \int_0^{T_s/2}e^{-j\omega t}\,dt
+          +
+          \sum_{k=1}^{M-1}(-1)^k
+          \int_{(k-\frac12)T_s}^{(k+\frac12)T_s}
+          e^{-j\omega t}\,dt\\
+          &amp;\quad
+          +
+          \int_{(M-\frac12)T_s}^{MT_s}e^{-j\omega t}\,dt\\
+          &amp;=
+          \frac{1}{-j\omega}
+          \left[
+          (A-1)
+          +
+          \sum_{k=1}^{M-1}(-1)^k
+          \left(A^{2k+1}-A^{2k-1}\right)
+          +
+          \left(A^{2M}-A^{2M-1}\right)
+          \right].
+          \end{aligned}
+          \]</span></p>
+          <p>把方括号记为 <span
+          class="math inline">\(B_M\)</span>。展开后，它的符号结构为</p>
+          <p><span class="math display">\[
+          B_M
+          =
+          -1+2A-2A^3+2A^5-\cdots-2A^{2M-1}+A^{2M},
+          \qquad M\ \text{为偶数}.
+          \]</span></p>
+          <p>这个式子容易在首尾符号上看乱，所以用 <span
+          class="math inline">\(M=4\)</span> 展开一次：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          B_4
+          &amp;=
+          (A-1)-(A^3-A)+(A^5-A^3)-(A^7-A^5)+(A^8-A^7)\\
+          &amp;=
+          -1+2A-2A^3+2A^5-2A^7+A^8.
+          \end{aligned}
+          \]</span></p>
+          <p>下面不用跳步，直接把一般式化成等比数列。先把首尾项和中间项分开：</p>
+          <p><span class="math display">\[
+          B_M
+          =
+          -(1-A^{2M})
+          +
+          2(A-A^3+A^5-\cdots-A^{2M-1}).
+          \]</span></p>
+          <p>中间括号提取 <span class="math inline">\(A\)</span>：</p>
+          <p><span class="math display">\[
+          A-A^3+A^5-\cdots-A^{2M-1}
+          =
+          A(1-A^2+A^4-\cdots-A^{2M-2}).
+          \]</span></p>
+          <p>括号内是公比为 <span class="math inline">\(-A^2\)</span>、项数为
+          <span class="math inline">\(M\)</span> 的等比数列。由于 <span
+          class="math inline">\(M\)</span> 为偶数，</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          1-A^2+A^4-\cdots-A^{2M-2}
+          &amp;=
+          \frac{1-(-A^2)^M}{1-(-A^2)}\\
+          &amp;=
+          \frac{1-A^{2M}}{1+A^2}.
+          \end{aligned}
+          \]</span></p>
+          <p>代回：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          B_M
+          &amp;=
+          -(1-A^{2M})
+          +
+          2A\frac{1-A^{2M}}{1+A^2}\\
+          &amp;=
+          (1-A^{2M})
+          \left[
+          -1+\frac{2A}{1+A^2}
+          \right]\\
+          &amp;=
+          (1-A^{2M})
+          \frac{-(1+A^2)+2A}{1+A^2}\\
+          &amp;=
+          -(1-A^{2M})
+          \frac{(1-A)^2}{1+A^2}.
+          \end{aligned}
+          \]</span></p>
+          <p>也就是</p>
+          <p><span class="math display">\[
+          B_M
+          =
+          -(1-A^{2M})\frac{(1-A)^2}{1+A^2}.
+          \]</span></p>
+          <p>这一步就是余弦相位推导中的核心：<span
+          class="math inline">\((1-A)^2\)</span> 是边界切割造成的完全平方式，<span
+          class="math inline">\(1+A^2\)</span>
+          则会在三角化简中给出教材公式分母里的 <span
+          class="math inline">\(\cos(\pi fT_s)\)</span>。</p>
+          <p>将 <span class="math inline">\(A=e^{-j\theta}\)</span>、<span
+          class="math inline">\(\theta=\pi fT_s\)</span> 代入，化简残余因子：</p>
+          <p><span class="math display">\[
+          1-A
+          =
+          1-e^{-j\theta}
+          =
+          2je^{-j\theta/2}\sin\frac{\theta}{2},
+          \]</span></p>
+          <p>所以</p>
+          <p><span class="math display">\[
+          (1-A)^2
+          =
+          -4e^{-j\theta}\sin^2\frac{\theta}{2}.
+          \]</span></p>
+          <p>同时</p>
+          <p><span class="math display">\[
+          1+A^2
+          =
+          1+e^{-j2\theta}
+          =
+          2e^{-j\theta}\cos\theta.
+          \]</span></p>
+          <p>因此</p>
+          <p><span class="math display">\[
+          -\frac{(1-A)^2}{1+A^2}
+          =
+          \frac{4e^{-j\theta}\sin^2(\theta/2)}
+          {2e^{-j\theta}\cos\theta}
+          =
+          \frac{2\sin^2(\theta/2)}{\cos\theta}
+          =
+          \frac{1-\cos\theta}{\cos\theta}.
+          \]</span></p>
+          <p>这里也顺手澄清一个容易混淆的式子：</p>
+          <p><span class="math display">\[
+          \frac{A-1}{A+1}
+          =
+          \frac{e^{-j\theta}-1}{e^{-j\theta}+1}
+          =
+          -j\tan\frac{\theta}{2}.
+          \]</span></p>
+          <p>这个恒等式本身成立，但余弦相位一般偶数阶推导中更精确出现的是</p>
+          <p><span class="math display">\[
+          -\frac{(1-A)^2}{1+A^2}
+          =
+          \frac{1-\cos\theta}{\cos\theta},
+          \]</span></p>
+          <p>它的模平方才会给出教材中的</p>
+          <p><span class="math display">\[
+          \frac{[1-\cos(\pi fT_s)]^2}{\cos^2(\pi fT_s)}.
+          \]</span></p>
+          <p>现在回到 <span class="math inline">\(P_c(f)\)</span>：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          P_c(f)
+          &amp;=
+          \frac{1}{-j2\pi f}
+          B_M\\
+          &amp;=
+          \frac{1}{-j2\pi f}
+          \left(1-e^{-j2\pi fMT_s}\right)
+          \frac{1-\cos(\pi fT_s)}{\cos(\pi fT_s)}.
+          \end{aligned}
+          \]</span></p>
+          <p>又因为</p>
+          <p><span class="math display">\[
+          1-e^{-j2\pi fMT_s}
+          =
+          2je^{-j\pi fMT_s}\sin(\pi fMT_s),
+          \]</span></p>
+          <p>所以</p>
+          <p><span class="math display">\[
+          P_c(f)
+          =
+          -e^{-j\pi fMT_s}
+          \frac{\sin(\pi fMT_s)\left[1-\cos(\pi fT_s)\right]}
+          {\pi f\cos(\pi fT_s)}.
+          \]</span></p>
+          <p>整体负号和指数只影响相位，不影响功率谱。由 <span
+          class="math inline">\(MT_s=T_c\)</span>，取模平方并除以 <span
+          class="math inline">\(T_c\)</span> 得</p>
+          <p><span class="math display">\[
+          G_{\mathrm{BOC}_c(f_s,f_c)}(f)
+          =
+          \frac{
+          \sin^2(\pi fT_c)
+          \left[1-\cos(\pi fT_s)\right]^2
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          },
+          \qquad M\ \text{为偶数}.
+          \]</span></p>
+          <p>这就是教材式 (4.17)。</p>
+          </section>
+          <section id="正弦相位为什么最后仍是-sin2pi-ft_s" class="level3">
+          <h3>5.7 正弦相位为什么最后仍是 <span class="math inline">\(\sin^2(\pi
+          fT_s)\)</span></h3>
+          <p>正弦相位也可以从复指数差分角度看到平方结构，但它的差分步长和整半周期
+          <span class="math inline">\(T_s\)</span>
+          对齐。以偶数阶为例，前面已经推到</p>
+          <p><span class="math display">\[
+          P_s(f)=
+          j\frac{\sin(\pi fT_s)\sin(\pi fT_c)}
+          {\pi f\cos(\pi fT_s)}
+          e^{-j\pi fT_c}.
+          \]</span></p>
+          <p>因此</p>
+          <p><span class="math display">\[
+          |P_s(f)|^2
+          =
+          \frac{
+          \sin^2(\pi fT_s)\sin^2(\pi fT_c)
+          }
+          {
+          \left[\pi f\cos(\pi fT_s)\right]^2
+          }.
+          \]</span></p>
+          <p>若从复数块看，正弦相位中的基本差分是 <span
+          class="math inline">\(1-e^{-j2\pi fT_s}\)</span>，它的模平方为</p>
+          <p><span class="math display">\[
+          \left|1-e^{-j2\pi fT_s}\right|^2
+          =
+          4\sin^2(\pi fT_s).
+          \]</span></p>
+          <p>它的自变量正好就是教材公式里的 <span class="math inline">\(\pi
+          fT_s\)</span>，与分母中由</p>
+          <p><span class="math display">\[
+          1+e^{-j2\pi fT_s}
+          \]</span></p>
+          <p>化出的 <span class="math inline">\(\cos(\pi fT_s)\)</span>
+          完整配对，所以最后保留下来的副载波因子是简洁的 <span
+          class="math inline">\(\sin^2(\pi
+          fT_s)\)</span>。余弦相位的差分步长被边界切成 <span
+          class="math inline">\(T_s/2\)</span>，先产生 <span
+          class="math inline">\(\sin^2(\pi fT_s/2)\)</span>，再通过</p>
+          <p><span class="math display">\[
+          2\sin^2\left(\frac{\pi fT_s}{2}\right)
+          =
+          1-\cos(\pi fT_s)
+          \]</span></p>
+          <p>升回教材统一的自变量，于是形成 <span
+          class="math inline">\([1-\cos(\pi fT_s)]^2\)</span>。</p>
+          </section>
+          <section id="正弦相位与余弦相位的结构对比" class="level3">
+          <h3>5.8 正弦相位与余弦相位的结构对比</h3>
+          <p>以 <span class="math inline">\(M\)</span>
+          为偶数为例，两者可对比如下：</p>
+          <table>
+          <colgroup>
+          <col style="width: 33%" />
+          <col style="width: 33%" />
+          <col style="width: 33%" />
+          </colgroup>
+          <thead>
+          <tr>
+          <th>对比项</th>
+          <th>正弦相位 <span class="math inline">\(\mathrm{BOC}_s\)</span></th>
+          <th>余弦相位 <span class="math inline">\(\mathrm{BOC}_c\)</span></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+          <td>单码片边界</td>
+          <td>刚好按 <span class="math inline">\(T_s\)</span> 对齐</td>
+          <td>头尾各被切成 <span class="math inline">\(T_s/2\)</span></td>
+          </tr>
+          <tr>
+          <td>时域跳变点</td>
+          <td><span class="math inline">\(0,T_s,2T_s,\ldots\)</span></td>
+          <td><span class="math inline">\(T_s/2,3T_s/2,\ldots\)</span></td>
+          </tr>
+          <tr>
+          <td>频域副载波因子</td>
+          <td><span class="math inline">\(\sin^2(\pi fT_s)\)</span></td>
+          <td><span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span></td>
+          </tr>
+          <tr>
+          <td>共同码片因子</td>
+          <td><span class="math inline">\(\sin^2(\pi fT_c)\)</span></td>
+          <td><span class="math inline">\(\sin^2(\pi fT_c)\)</span></td>
+          </tr>
+          <tr>
+          <td>共同分母</td>
+          <td><span class="math inline">\(T_c[\pi f\cos(\pi fT_s)]^2\)</span></td>
+          <td><span class="math inline">\(T_c[\pi f\cos(\pi fT_s)]^2\)</span></td>
+          </tr>
+          </tbody>
+          </table>
+          <p>物理上，正弦相位 BOC 的主能量通常集中在 <span
+          class="math inline">\(\pm f_s\)</span> 附近；余弦相位因子 <span
+          class="math inline">\([1-\cos(\pi fT_s)]^2\)</span>
+          在低频附近压得更强，对较高频侧有更明显的推动作用，所以频谱分裂程度更深，主瓣位置和能量分布会更偏向两侧。对应到相关函数，余弦相位往往带来更窄的相关主峰和更复杂的多峰结构：测距分辨率潜力提高，但模糊峰与带宽占用也更需要认真处理。</p>
           <p>因此教材给出</p>
           <p><span class="math display">\[
           G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
@@ -761,6 +1370,7 @@
           class="math inline">\(\cos^2(\pi fT_c)\)</span> 还是 <span
           class="math inline">\(\sin^2(\pi fT_c)\)</span>。</li>
           </ul>
+          </section>
           </section>
           <section id="read-formulas" class="level2 boc-section">
           <h2>6. 如何读这四个功率谱公式</h2>
