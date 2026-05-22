@@ -85,6 +85,7 @@
           <a href="#cosine">余弦相位公式</a>
           <a href="#lobes">主瓣与旁瓣</a>
           <a href="#questions">补充问题</a>
+          <a href="#gemini-full">Gemini 全文</a>
         </aside>
 
         <article class="boc-article">
@@ -485,6 +486,525 @@
               <span class="boc-chip">核心记忆：主瓣吞掉一个零点</span>
               <span class="boc-chip">核心记忆：内侧旁瓣数 $M-2$</span>
             </div>
+          </section>
+
+          <section class="boc-section boc-gemini-appendix" id="gemini-full">
+            <h2>Gemini 补充材料全文（未删减）</h2>
+            <p>下面两份内容来自本节的两个 Gemini Markdown 源文件。前面的正文已经把关键概念揉进推导线索里；这里保留完整原文，方便逐句核对，不再用润色后的摘要替代原材料。</p>
+            <details class="boc-source-full" open>
+              <summary>Gemini - BOC 信号主瓣旁瓣分析（全文）</summary>
+              <div class="boc-gemini-body">
+<h3 id="boc-信号主瓣旁瓣分析-flash">✅ BOC
+信号主瓣旁瓣分析-&gt;[Flash]</h3>
+<hr />
+<h4 id="导出信息">📤 导出信息</h4>
+<ul>
+<li><strong>会话标题</strong>: ✅ BOC 信号主瓣旁瓣分析-&gt;[Flash]</li>
+<li><strong>导出时间</strong>: 2026/5/21 23:52:57</li>
+<li><strong>来源</strong>: Gemini</li>
+<li><strong>链接</strong>:
+https://gemini.google.com/app/f4a1db18ae414f11</li>
+</ul>
+<hr />
+<h4 id="用户">🙋 用户</h4>
+<figure>
+<img src="assets/figures/gemini-boc-upload-preview.png"
+alt="所上传图片的预览图" />
+<figcaption aria-hidden="true">所上传图片的预览图</figcaption>
+</figure>
+<p>帮我详细讲解一下“BOC主瓣
+宽度为2fc，主瓣内旁瓣宽度为fc”，为什么调制阶数为M的BOC信号，主瓣内侧旁瓣的数目为M-2</p>
+<hr />
+<h4 id="gemini">🤖 Gemini</h4>
+<p>这两句话是 BOC（Binary Offset
+Carrier）信号频谱特征中非常经典且重要的结论。要彻底理解它们，我们需要从<strong>谱零点（Spectral
+Nulls）</strong>的分布以及<strong>调制阶数 <span
+class="math inline"><em>M</em></span></strong> 的几何意义出发。</p>
+<p>其实，这一切的背后都是非常纯粹且漂亮的数学关系。以下为你带来详细的推导与讲解：</p>
+<h4 id="基础概念与参数对齐">基础概念与参数对齐</h4>
+<p>为了避免概念混淆，我们首先明确课本中的符号定义：</p>
+<ul>
+<li><span
+class="math inline"><em>f</em><sub><em>c</em></sub></span>：伪随机码（PRN）码速率（Chip
+rate），对应的码片周期为 <span
+class="math inline"><em>T</em><sub><em>c</em></sub> = 1/<em>f</em><sub><em>c</em></sub></span>。</li>
+<li><span
+class="math inline"><em>f</em><sub><em>s</em></sub></span>：副载波频率（Subcarrier
+frequency）。</li>
+<li><span
+class="math inline"><em>M</em></span>：<strong>调制阶数</strong>，定义为
+<span class="math inline">$M =
+\frac{2f_s}{f_c}$</span>。它代表<strong>一个正德码片（PRN
+chip）内部包含的副载波半周期（半个方波）的个数</strong>。</li>
+<li>课本公式中的 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>
+实际上指的是副载波的<strong>半周期</strong>（即 <span
+class="math inline">$T_s = \frac{1}{2f_s}$</span>），因此有恒等式：<span
+class="math inline"><em>T</em><sub><em>c</em></sub> = <em>M</em> ⋅ <em>T</em><sub><em>s</em></sub></span>。</li>
+</ul>
+<h4
+id="一为什么boc主瓣宽度为-2f_c旁瓣宽度为-f_c">一、为什么“BOC主瓣宽度为
+<span
+class="math inline">2<em>f</em><sub><em>c</em></sub></span>，旁瓣宽度为
+<span class="math inline"><em>f</em><sub><em>c</em></sub></span>”？</h4>
+<p>BOC 信号的功率谱密度（PSD）公式虽然看起来复杂，但无论是正弦相位（式
+4.15、4.16）还是余弦相位（式
+4.17、4.18），它们的分子中都包含一个共同的项：</p>
+<p><span
+class="math display">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>)</span>
+这一项决定了整个功率谱的谱零点（零陷点）位置。</p>
+<h5 id="谱零点的位置">1. 谱零点的位置</h5>
+<p>令 <span
+class="math inline">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>) = 0</span>，可以得到谱零点分布在：</p>
+<p><span class="math display">$$\pi f T_c = k\pi \implies f =
+\frac{k}{T_c} = k \cdot f_c \quad (k \in \mathbb{Z})$$</span>
+这意味着，<strong>BOC 信号的谱零点是以 <span
+class="math inline"><em>f</em><sub><em>c</em></sub></span>
+为间隔均匀分布的</strong>。</p>
+<h5 id="主瓣宽度的推导">2. 主瓣宽度的推导</h5>
+<p>传统的 BPSK 信号能量集中在 <span
+class="math inline"><em>f</em> = 0</span> 附近。而 BOC
+信号通过副载波调制，将主能量向两侧推移，使能量最大值（主峰）对称地搬移到了
+<span class="math inline">±<em>f</em><sub><em>s</em></sub></span>
+附近（即副载波频率处）。</p>
+<p>以正主瓣为例：</p>
+<ul>
+<li><p>主峰位于 <span
+class="math inline"><em>f</em><sub><em>s</em></sub></span> 附近。因为
+<span class="math inline">$f_s = \frac{M}{2}f_c$</span>，所以主峰位于
+<span class="math inline">$\frac{M}{2}f_c$</span> 附近。</p></li>
+<li><p>卡住这个主峰的左右两个最近的谱零点，分别是比 <span
+class="math inline">$\frac{M}{2}f_c$</span> 略大和略小的两个 <span
+class="math inline"><em>f</em><sub><em>c</em></sub></span>
+的整数倍位置：</p>
+<ul>
+<li><strong>左侧边界（内侧谱零点）</strong>：<span
+class="math inline"><em>f</em><sub>left</sub> = <em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub></span></li>
+<li><strong>右侧边界（外侧谱零点）</strong>：<span
+class="math inline"><em>f</em><sub>right</sub> = <em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub></span></li>
+</ul></li>
+<li><p>因此，主瓣的宽度为左右边界之差：</p>
+<p><span
+class="math display">Width<sub>main</sub> = <em>f</em><sub>right</sub> − <em>f</em><sub>left</sub> = (<em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub>) − (<em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub>) = 2<em>f</em><sub><em>c</em></sub></span></p></li>
+</ul>
+<h5 id="旁瓣宽度的推导">3. 旁瓣宽度的推导</h5>
+<p>除了主瓣之外，其余的普通旁瓣没有受到副载波搬移机制的“特殊照顾”，它们老老实实地夹在两个相邻的普通谱零点
+<span
+class="math inline"><em>k</em> ⋅ <em>f</em><sub><em>c</em></sub></span>
+和 <span
+class="math inline">(<em>k</em> + 1) ⋅ <em>f</em><sub><em>c</em></sub></span>
+之间。 因此，任意普通旁瓣的宽度均为：</p>
+<p><span
+class="math display">Width<sub>side</sub> = (<em>k</em> + 1)<em>f</em><sub><em>c</em></sub> − <em>k</em><em>f</em><sub><em>c</em></sub> = <em>f</em><sub><em>c</em></sub></span></p>
+<h4
+id="二为什么调制阶数为-m-的-boc-信号主瓣内侧旁瓣数目为-m-2">二、为什么“调制阶数为
+<span class="math inline"><em>M</em></span> 的 BOC
+信号，主瓣内侧旁瓣数目为 <span
+class="math inline"><em>M</em> − 2</span>”？</h4>
+<p>这个问题可以通过<strong>几何空间填空</strong>的方式来秒杀。</p>
+<h5 id="数学区间推导">1. 数学区间推导</h5>
+<p>“两个主瓣的内侧所包含的旁瓣”指的是夹在<strong>左主瓣的右边界</strong>与<strong>右主瓣的左边界</strong>之间的全部区域。</p>
+<ul>
+<li>右主瓣的左边界（内侧零点）位于：<span
+class="math inline"><em>f</em><sub>right_inner</sub> = <em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub></span></li>
+<li>左主瓣的右边界（内侧零点）位于：<span
+class="math inline"><em>f</em><sub>left_inner</sub> = −<em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub></span></li>
+</ul>
+<p>我们要计算这两者之间所夹的<strong>总频带宽度</strong>：</p>
+<p><span
+class="math display"><em>Δ</em><em>f</em> = (<em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub>) − (−<em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub>) = 2<em>f</em><sub><em>s</em></sub> − 2<em>f</em><sub><em>c</em></sub></span>
+将 <span
+class="math inline">2<em>f</em><sub><em>s</em></sub> = <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>
+代入上式：</p>
+<p><span
+class="math display"><em>Δ</em><em>f</em> = <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub> − 2<em>f</em><sub><em>c</em></sub> = (<em>M</em> − 2)<em>f</em><sub><em>c</em></sub></span></p>
+<h5 id="计算旁瓣个数">2. 计算旁瓣个数</h5>
+<p>既然整个内侧空间的频带总宽度是 <span
+class="math inline">(<em>M</em> − 2)<em>f</em><sub><em>c</em></sub></span>，而我们前面已经证明了，每一个普通旁瓣的宽度恰好是
+<span class="math inline"><em>f</em><sub><em>c</em></sub></span>。</p>
+<p>那么，这个空间里能塞下多少个旁瓣呢？</p>
+<p><span class="math display">$$\text{旁瓣数目} =
+\frac{\text{内侧总宽度}}{\text{单个旁瓣宽度}} = \frac{(M - 2)f_c}{f_c} =
+M - 2$$</span></p>
+<h4 id="三结合课本插图-4-8-实例验证">三、结合课本插图 4-8 实例验证</h4>
+<p>我们可以用图中给出的两个典型信号来完美验证这个规律：</p>
+<h5 id="实例-1textboc_s11-信号">实例 1：<span
+class="math inline">BOC<sub><em>s</em></sub>(1, 1)</span> 信号</h5>
+<ul>
+<li><strong>参数</strong>：<span
+class="math inline"><em>f</em><sub><em>s</em></sub> = 1.023
+MHz</span>，<span
+class="math inline"><em>f</em><sub><em>c</em></sub> = 1.023
+MHz</span>。</li>
+<li><strong>调制阶数</strong>：<span
+class="math inline"><em>M</em> = 2 × 1/1 = 2</span>。</li>
+<li><strong>理论内侧旁瓣数</strong>：<span
+class="math inline"><em>M</em> − 2 = 2 − 2 = 0</span> 个。</li>
+<li><strong>图像验证</strong>：看图 4-8 中的黑色实线（<span
+class="math inline">BOC<sub><em>s</em></sub>(1, 1)</span>），两个高高耸起的主峰（位于
+<span class="math inline">±0.1 × 10<sup>7</sup> Hz</span>
+附近）之间<strong>直接凹陷下去，中间没有任何小山峰（旁瓣）</strong>。理论与图像完美相符。</li>
+</ul>
+<h5 id="实例-2textboc_c61-信号">实例 2：<span
+class="math inline">BOC<sub><em>c</em></sub>(6, 1)</span> 信号</h5>
+<ul>
+<li><strong>参数</strong>：<span
+class="math inline"><em>f</em><sub><em>s</em></sub> = 6 × 1.023
+MHz</span>，<span
+class="math inline"><em>f</em><sub><em>c</em></sub> = 1.023
+MHz</span>。</li>
+<li><strong>调制阶数</strong>：<span
+class="math inline"><em>M</em> = 2 × 6/1 = 12</span>。</li>
+<li><strong>理论内侧旁瓣数</strong>：<span
+class="math inline"><em>M</em> − 2 = 12 − 2 = 10</span> 个。</li>
+<li><strong>图像验证</strong>：看图 4-8 中的灰色细线（<span
+class="math inline">BOC<sub><em>c</em></sub>(6, 1)</span>），两个最高的主峰位于
+<span class="math inline">±0.6 × 10<sup>7</sup> Hz</span> 附近。
+<ul>
+<li>因为余弦相位在中心频点 <span
+class="math inline"><em>f</em> = 0</span>
+处是个零陷点（过零点），所以图形以 <span
+class="math inline"><em>f</em> = 0</span> 对称。</li>
+<li>我们在 <span class="math inline"><em>f</em> &gt; 0</span> 的一侧（即
+<span class="math inline">0</span> 到 <span
+class="math inline">0.6</span>
+之间）仔细数一数灰色的小山头，会发现刚好有 <strong>5
+个旁瓣</strong>。</li>
+<li>同理，左侧（<span class="math inline">−0.6</span> 到 <span
+class="math inline">0</span> 之间）也有 <strong>5 个旁瓣</strong>。</li>
+<li>两侧相加：<span class="math inline">5 + 5 = 10</span>
+个内侧旁瓣！再次与理论完美契合。</li>
+</ul></li>
+</ul>
+<hr />
+<h4 id="用户-1">🙋 用户</h4>
+<p>第一个问题，为什么是^2(f T_c)决定零点位置，^2(f
+T_s)没有能力决定零点位置吗？第二个问题“其余的普通旁瓣没有受到副载波搬移机制的“特殊照顾”，它们老老实实地夹在两个相邻的普通谱零点”为什么没有收到特殊照顾？特殊在哪里？</p>
+<hr />
+<h4 id="gemini-1">🤖 Gemini</h4>
+<p>这两个问题问得非常深刻，直接触及了 BOC
+信号频谱结构的数学本质和物理意义。</p>
+<p>我们把公式拆开来看，你就能一眼看清这其中的“幕后推手”。</p>
+<h4
+id="问题一为什么是-sin2pi-f-t_c-决定零点sin2pi-f-t_s-不行吗">问题一：为什么是
+<span
+class="math inline">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>)</span>
+决定零点，<span
+class="math inline">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>
+不行吗？</h4>
+<p>我们以课本中的式（4.15）——正弦相位、 <span
+class="math inline"><em>M</em></span> 为偶数时的 BOC
+信号功率谱为例。为了看得更清楚，我们把这个公式重新因式分解、整理一下：</p>
+<p><span class="math display">$$G_{\text{BOC}_s}(f) = \frac{\sin^2(\pi f
+T_c) \cdot \sin^2(\pi f T_s)}{T_c \cdot [ \pi f \cos(\pi f T_s) ]^2} =
+\underbrace{\left[ \frac{\sin^2(\pi f T_c)}{T_c (\pi f)^2}
+\right]}_{\text{项 A：码片项}} \cdot \underbrace{\tan^2(\pi f
+T_s)}_{\text{项 B：副载波项}}$$</span>
+通过这个改写，你可以发现，频谱是由项 A（与码片周期 <span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>
+相关）<strong>和</strong>项 B（与副载波半周期 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>
+相关）共同相乘决定的。</p>
+<p>那么，为什么我们说是 <span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>
+决定了密集的谱零点分布呢？原因有两点：</p>
+<h5 id="密度的绝对碾压时频对偶原理">1.
+密度的绝对碾压（时频对偶原理）</h5>
+<p>在时域上，码片周期 <span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>
+是远大于副载波半周期 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span> 的（因为
+<span
+class="math inline"><em>T</em><sub><em>c</em></sub> = <em>M</em> ⋅ <em>T</em><sub><em>s</em></sub></span>，且调制阶数
+<span class="math inline"><em>M</em> ≥ 2</span>）。
+根据傅里叶变换的对偶性：<strong>时域越宽，频域越窄（变化越剧烈）</strong>。</p>
+<ul>
+<li><strong>项 A（含 <span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>）</strong>：由于
+<span class="math inline"><em>T</em><sub><em>c</em></sub></span>
+大，他在频域震荡得<strong>非常快、非常密</strong>。每隔 <span
+class="math inline"><em>f</em><sub><em>c</em></sub></span>
+就会产生一个零点。它就像一把<strong>细密的筛子</strong>。</li>
+<li><strong>项 B（含 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>）</strong>：由于
+<span class="math inline"><em>T</em><sub><em>s</em></sub></span>
+小，他在频域震荡得<strong>非常慢</strong>。要每隔 <span
+class="math inline">2<em>f</em><sub><em>s</em></sub></span>（即 <span
+class="math inline"><em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>）才产生一个零点。它是一把<strong>粗疏的耙子</strong>。</li>
+</ul>
+<h5 id="t_s-的零点完全被-t_c-包容了">2. <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span> 的零点完全被
+<span class="math inline"><em>T</em><sub><em>c</em></sub></span>
+“包容”了</h5>
+<p>我们来看看项 B（<span
+class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>）什么时候为
+0？ 当 <span
+class="math inline"><em>π</em><em>f</em><em>T</em><sub><em>s</em></sub> = <em>k</em><em>π</em></span>
+时，即 <span class="math inline">$f = \frac{k}{T_s} = 2k \cdot
+f_s$</span>。 因为 <span
+class="math inline">2<em>f</em><sub><em>s</em></sub> = <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>，所以这些零点位置实际上就是
+<span
+class="math inline"><em>f</em> = <em>k</em> ⋅ <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>。</p>
+<p>发现了吗？<strong>项 B 想让频谱为 0 的地方，项 A（每隔 <span
+class="math inline"><em>f</em><sub><em>c</em></sub></span> 就为
+0）早就已经是 0 了！</strong> <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>
+并没有能力创造出任何新的、更细密的零点，它定出的几个稀疏零点，只是刚好和
+<span class="math inline"><em>T</em><sub><em>c</em></sub></span>
+编织好的细密谱零点网中的某几根网格线<strong>重合</strong>了而已。</p>
+<blockquote>
+<p><strong>补充思考</strong>：如果 <span
+class="math inline"><em>M</em></span> 是奇数（式 4.16），项 A 会变成
+<span
+class="math inline">cos<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>)</span>，此时零点位置整体平移了
+<span
+class="math inline">0.5<em>f</em><sub><em>c</em></sub></span>，但<strong>相邻零点之间的间隔依然是固定的
+<span
+class="math inline"><em>f</em><sub><em>c</em></sub></span></strong>。所以，决定“旁瓣宽度为
+<span
+class="math inline"><em>f</em><sub><em>c</em></sub></span>”这个网格尺度的，永远是
+<span class="math inline"><em>T</em><sub><em>c</em></sub></span>。</p>
+</blockquote>
+<h4
+id="问题二特殊照顾到底特殊在哪里为什么其余旁瓣没有">问题二：“特殊照顾”到底特殊在哪里？为什么其余旁瓣没有？</h4>
+<p>你看到的“其余普通旁瓣老老实实夹在中间”，是因为它们确实没分到能量。而那两个高高耸立的<strong>主瓣</strong>，才受到了物理机制的“特殊照顾”。</p>
+<p>这个“特殊照顾”，在物理上叫做<strong>频谱搬移</strong>，在数学上叫做<strong>极点放大</strong>。</p>
+<h5 id="什么是特殊照顾物理视角">1. 什么是“特殊照顾”？（物理视角）</h5>
+<p>BOC
+信号在时域上，是用伪码（BPSK）去<strong>乘以</strong>一个方波副载波。</p>
+<ul>
+<li>传统的 BPSK 信号，能量全集中在中心频点 <span
+class="math inline"><em>f</em> = 0</span> 附近（像一座大山）。</li>
+<li>方波副载波的傅里叶变换，在频域 <span
+class="math inline">±<em>f</em><sub><em>s</em></sub></span>
+处有两个最强的谱线（基波成分）。</li>
+<li>两者在时域相乘，等于在频域把 BPSK
+那座中心大山<strong>拦腰切断，分别向左、向右各搬移了 <span
+class="math inline"><em>f</em><sub><em>s</em></sub></span>
+的距离</strong>。</li>
+</ul>
+<p>这就是特殊照顾！<strong>副载波用自己的频率 <span
+class="math inline"><em>f</em><sub><em>s</em></sub></span>，强行把原本属于中心处的巨大能量，注入到了
+<span class="math inline">±<em>f</em><sub><em>s</em></sub></span>
+这两个特定位置。</strong></p>
+<h5 id="数学上如何体现这种特殊照顾">2.
+数学上如何体现这种“特殊照顾”？</h5>
+<p>我们再回头看刚刚改写出的公式：</p>
+<p><span class="math display">$$G_{\text{BOC}_s}(f) = \left[
+\frac{\sin^2(\pi f T_c)}{T_c (\pi f)^2} \right] \cdot \tan^2(\pi f
+T_s)$$</span> 如果没有右边的 <span
+class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>，左边的项随着频率
+<span class="math inline"><em>f</em></span> 的增大，由于分母有 <span
+class="math inline"><em>f</em><sup>2</sup></span>，谱线高度会衰减得非常快（这就是普通
+BPSK 的衰减速度）。</p>
+<p>但是，当频率 <span class="math inline"><em>f</em></span>
+逐渐靠近副载波频率 <span
+class="math inline"><em>f</em><sub><em>s</em></sub></span> 时：</p>
+<p><span class="math display">$$\pi f T_s \to \pi f_s T_s = \pi f_s
+\left(\frac{1}{2f_s}\right) = \frac{\pi}{2}$$</span> 此时，<strong><span
+class="math inline">$\tan^2(\pi f T_s) \to \tan^2(\frac{\pi}{2}) \to
+\infty$</span></strong>！</p>
+<p>这个 <span class="math inline">tan<sup>2</sup></span> 项在 <span
+class="math inline"><em>f</em> = ±<em>f</em><sub><em>s</em></sub></span>
+附近变成了一个<strong>恐怖的“能量放大器”（数学上的极点）</strong>。它疯狂地对抗分母上
+<span class="math inline"><em>f</em><sup>2</sup></span>
+的衰减，甚至强行把本该在这里归零的谱线<strong>硬生生地拉了起来，反向冲高</strong>，从而形成了两个高耸的、宽度为
+<span class="math inline">2<em>f</em><sub><em>c</em></sub></span>
+的主瓣。</p>
+<h5 id="为什么其余普通旁瓣没有受到照顾">3.
+为什么其余普通旁瓣没有受到照顾？</h5>
+<p>因为这个“能量放大器” <span
+class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>
+是有选择性的。它只在 <span
+class="math inline"><em>f</em> = ±<em>f</em><sub><em>s</em></sub></span>（以及
+<span
+class="math inline">3<em>f</em><sub><em>s</em></sub>, 5<em>f</em><sub><em>s</em></sub></span>
+等高次谐波，但高次谐波处分母的 <span
+class="math inline"><em>f</em><sup>2</sup></span>
+已经太大了，很难拉起来）附近才会暴涨。</p>
+<p>而在远离 <span
+class="math inline">±<em>f</em><sub><em>s</em></sub></span>
+的中继区域（比如在 <span
+class="math inline">−<em>f</em><sub><em>s</em></sub></span> 和 <span
+class="math inline">+<em>f</em><sub><em>s</em></sub></span>
+之间的区域），<span
+class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>
+的值非常小，甚至在某些地方自己也变成了 0。</p>
+<p>在这些区域：</p>
+<ul>
+<li>没有副载波搬移过来的核心能量。</li>
+<li><span class="math inline">tan<sup>2</sup></span>
+放大器熄火，无法对抗 <span class="math inline">$\frac{1}{f^2}$</span>
+的自然衰减。</li>
+</ul>
+<p>所以，这些区域的信号只能听天由命，任由 <span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>
+编织出的细密零点网（间隔为 <span
+class="math inline"><em>f</em><sub><em>c</em></sub></span>）对其进行切割。切出来的小碎块，就是那些“老老实实”呆在底部的<strong>普通旁瓣</strong>。</p>
+<hr />
+<h4 id="用户-2">🙋 用户</h4>
+<p>为什么Ts=1/2fs</p>
+<hr />
+<h4 id="gemini-2">🤖 Gemini</h4>
+<p>这其实是卫星导航（GNSS）领域在推导 BOC
+调制时，约定俗成的一个<strong>符号定义习惯</strong>。</p>
+<p>在常规的信号处理中，频率为 <span
+class="math inline"><em>f</em><sub><em>s</em></sub></span>
+的信号，其<strong>完整周期</strong>确实是 <span class="math inline">$T =
+\frac{1}{f_s}$</span>。但在你贴出的课本教材中，将 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>
+定义为了<strong>副载波的半周期（Half-period）</strong>，即：</p>
+<p><span class="math display">$$T_s = \frac{1}{2f_s}$$</span>
+为什么要故意用“半周期”来当做基准时间单位呢？这背后有两个非常直观的原因：</p>
+<h5 id="物理意义方波副载波的电平持续时间">1.
+物理意义：方波副载波的“电平持续时间”</h5>
+<p>BOC 信号使用的副载波 <span
+class="math inline"><em>γ</em>(<em>t</em>)</span>
+不是正弦波，而是<strong>方波</strong>（即式 4.11 的 <span
+class="math inline">sgn[sin (2<em>π</em><em>f</em><sub><em>s</em></sub><em>t</em>)]</span>）。</p>
+<p>对于一个频率为 <span
+class="math inline"><em>f</em><sub><em>s</em></sub></span> 的方波：</p>
+<ul>
+<li>在前半个周期，它的电平是 <span class="math inline">+1</span>；</li>
+<li>在后半个周期，它的电平是 <span class="math inline">−1</span>。</li>
+</ul>
+<p>也就是说，这个方波<strong>每隔 <span
+class="math inline">$\frac{1}{2f_s}$</span>
+秒就会发生一次正负翻转</strong>。在物理上，每一次翻转中间维持常数（<span
+class="math inline">+1</span> 或 <span
+class="math inline">−1</span>）的这段时间，就是方波最基本的“脉冲片”。为了研究方便，作者直接把这个<strong>最基本的电平持续时间</strong>定义为了
+<span class="math inline"><em>T</em><sub><em>s</em></sub></span>。</p>
+<h5 id="为了让调制阶数-m-的公式极其整齐">2. 为了让调制阶数 <span
+class="math inline"><em>M</em></span> 的公式极其整齐</h5>
+<p>BOC 信号有一个核心参数叫<strong>调制阶数 <span
+class="math inline"><em>M</em></span></strong>，它的物理定义是：<strong>一个伪码码片（PRN
+Chip）内部，究竟包含了多少个副载波的“半周期”（即多少个方波脉冲）</strong>。</p>
+<p>我们来做个简单的数学连连看：</p>
+<ul>
+<li><p>一个伪码码片的持续时间是 <span class="math inline">$T_c =
+\frac{1}{f_c}$</span>。</p></li>
+<li><p>如果我们定义副载波半周期为 <span class="math inline">$T_s =
+\frac{1}{2f_s}$</span>。</p></li>
+<li><p>那么一个码片时间 <span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>
+内部包含的半周期个数 <span class="math inline"><em>M</em></span>
+自然就是：</p>
+<p><span class="math display">$$M = \frac{T_c}{T_s} =
+\frac{\frac{1}{f_c}}{\frac{1}{2f_s}} =
+\frac{2f_s}{f_c}$$</span></p></li>
+</ul>
+<p>发现了嘛？正是因为定义了 <span class="math inline">$T_s =
+\frac{1}{2f_s}$</span>，才有了课本里那个完美的恒等式：</p>
+<p><span
+class="math display"><em>T</em><sub><em>c</em></sub> = <em>M</em> ⋅ <em>T</em><sub><em>s</em></sub></span>
+这个公式的几何含义瞬间变得无比清晰：<strong>1 个大码片（<span
+class="math inline"><em>T</em><sub><em>c</em></sub></span>） = <span
+class="math inline"><em>M</em></span> 个小副载波半周期（<span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>）</strong>。</p>
+<blockquote>
+<p><strong>大白话总结</strong>： 如果不把 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>
+定义为半周期，那公式就会变成 <span class="math inline">$T_c =
+\frac{M}{2} T_{\text{full}}$</span>，每次推导都要带着个分母
+<code>2</code> 晃来晃去。为了公式的美观和推导的顺畅，先辈们索性把 <span
+class="math inline"><em>T</em><sub><em>s</em></sub></span>
+直接强行定义成了那“半个周期”。</p>
+</blockquote>
+<hr />
+              </div>
+            </details>
+            <details class="boc-source-full">
+              <summary>Gemini - 傅里叶变换时频宽度对偶性（全文）</summary>
+              <div class="boc-gemini-body">
+<h3 id="傅里叶变换时频宽度对偶性-flash">✅
+傅里叶变换时频宽度对偶性-&gt;[Flash]</h3>
+<hr />
+<h4 id="导出信息">📤 导出信息</h4>
+<ul>
+<li><strong>会话标题</strong>: ✅
+傅里叶变换时频宽度对偶性-&gt;[Flash]</li>
+<li><strong>导出时间</strong>: 2026/5/21 23:49:56</li>
+<li><strong>来源</strong>: Gemini</li>
+<li><strong>链接</strong>:
+https://gemini.google.com/app/d8fbf5804d1ccafc</li>
+</ul>
+<hr />
+<h4 id="用户">🙋 用户</h4>
+<p>傅里叶变换的对偶性：时域越宽，频域越窄（变化越剧烈）。怎么解释？</p>
+<hr />
+<h4 id="gemini">🤖 Gemini</h4>
+<p>你敏锐地抓住了傅里叶变换中最核心、最美妙的对称性质之一！不过在信号处理的严格定义里，你提到的“时域越宽，频域越窄”<strong>，通常被称为</strong>尺度变换特性（Scaling
+Property）<strong>或</strong>时频不确定性原理。而“对偶性（Duality）”一般指时域和频域公式结构的对称性（例如时域的冲激对应频域的常数，反过来频域的冲激也对应时域的常数）。</p>
+<p>不过它们背后的物理本质是完全相通的。要直观理解为什么“时域越宽，频域越窄（变化越剧烈）”，我们可以从<strong>物理直觉</strong>、<strong>数学公式</strong>和<strong>时频不确定性</strong>三个层面来拆解：</p>
+<h5 id="物理直觉频率是变化的快慢">1. 物理直觉：频率是“变化的快慢”</h5>
+<p>这是最容易建立直观感知的视角：</p>
+<ul>
+<li><strong>时域越宽 <span class="math inline">→</span> 变化越平缓 <span
+class="math inline">→</span> 高频成分越少 <span
+class="math inline">→</span> 频域越窄</strong>
+如果一个信号在时域上拉得很宽（比如一个持续很久、缓缓起伏的波包），这意味着它随时间<strong>改变得非常缓慢</strong>。既然变化缓慢，它里面就不需要包含什么“急剧”的细节，因此高频分量几乎为零，能量全部集中在零频（直流）附近的低频区域，谱线自然就缩得很窄。</li>
+<li><strong>时域越窄 <span class="math inline">→</span> 变化越剧烈 <span
+class="math inline">→</span> 高频成分越多 <span
+class="math inline">→</span> 频域越宽</strong>
+反过来，如果一个信号在时域上极窄（比如一瞬间拉起的方波脉冲，或者理想的
+<span class="math inline"><em>δ</em>(<em>t</em>)</span>
+冲激信号），它在极短的时间内经历了从 0 到峰值再到 0
+的巨大突变。为了在数学上“拼凑”出这种无限剧烈的边缘，你必须借用大量频率极高的正弦波去重叠。因此，时域越窄，需要的频率范围就越宽。</li>
+</ul>
+<blockquote>
+<p><strong>极端的两面：</strong></p>
+<ul>
+<li><strong>完美的单频正弦波</strong>：在时域上无限宽（从 <span
+class="math inline">−∞</span> 到 <span
+class="math inline">+∞</span>），它永远平滑，因此它在频域窄到了极致——只有一个孤零零的谱线。</li>
+<li><strong>理想冲激信号 <span
+class="math inline"><em>δ</em>(<em>t</em>)</span></strong>：在时域上窄到了极致（只在
+<span class="math inline"><em>t</em> = 0</span>
+有值），它的瞬间变化率无限大，因此它在频域宽到了极致——在所有频率上都有值（均匀白谱）。</li>
+</ul>
+</blockquote>
+<h5 id="数学支撑尺度变换特性scaling-property">2.
+数学支撑：尺度变换特性（Scaling Property）</h5>
+<p>傅里叶变换的数学公式直接推导出了这个结果。假设时域信号 <span
+class="math inline"><em>x</em>(<em>t</em>)</span> 的傅里叶变换是 <span
+class="math inline"><em>X</em>(<em>f</em>)</span>：</p>
+<p><span
+class="math display"><em>x</em>(<em>t</em>) ↔︎ <em>X</em>(<em>f</em>)</span>
+如果我们把时域信号在时间轴上“拉宽” <span
+class="math inline"><em>a</em></span> 倍（其中 <span
+class="math inline"><em>a</em> &gt; 1</span>，新信号为 <span
+class="math inline"><em>x</em>(<em>t</em>/<em>a</em>)</span>），根据尺度变换性质，它的频谱会变成：</p>
+<p><span class="math display">$$x\left(\frac{t}{a}\right)
+\longleftrightarrow a \cdot X(a f)$$</span> 注意看频域自变量变成了 <span
+class="math inline"><em>a</em><em>f</em></span>：</p>
+<ul>
+<li>原来在 <span class="math inline"><em>f</em> = 1 Hz</span>
+处的频谱值，现在被压缩到了 <span
+class="math inline"><em>f</em> = 1/<em>a</em> Hz</span> 处。</li>
+<li>这意味着整个频谱图在频率轴上被等比例压缩（变窄）了。</li>
+<li>而前面的系数 <span class="math inline"><em>a</em></span>
+变大，说明频谱的高度<strong>变高</strong>了，这是为了保证信号的总能量在时频转换前后保持守恒（帕塞瓦尔定理）。</li>
+</ul>
+<h5 id="本质时频不确定性原理">3. 本质：时频不确定性原理</h5>
+<p>这不仅仅是信号处理的巧合，它是一条基础的数学物理定律。信号无法同时在时域和频域上都无限集中。如果我们定义时域的“宽度”为
+<span class="math inline"><em>Δ</em><em>t</em></span>，频域的“宽度”为
+<span
+class="math inline"><em>Δ</em><em>f</em></span>，它们之间永远满足一个不等式：</p>
+<p><span
+class="math display"><em>Δ</em><em>t</em> ⋅ <em>Δ</em><em>f</em> ≥ <em>C</em>  (常数)</span>
+在所有信号中，高斯波包（Gaussian
+Packet）是唯一能达到这个下限完美平衡的信号。<img
+src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT970FiP0As0UNHp_uoOKX-_rQu0NpPMYjCiBMCzDRJvuu_dRxk7m8-6gk&amp;s=10"
+alt="高斯波包的时频不确定性：时域宽度与频域宽度互为倒数，AI 生成" />
+高斯波包的时频不确定性：时域宽度与频域宽度互为倒数. 来源： Cantor’s
+Paradise</p>
+<p>如上图所示，当你在左图的时域（<span
+class="math inline"><em>Δ</em><em>x</em></span>）把高斯曲线拉得越宽，右图对应的频域谱线（<span
+class="math inline"><em>Δ</em><em>k</em></span>）就必然会缩得越窄。</p>
+<p>这也正是量子力学中<strong>海森堡不确定性原理</strong>（位置与动量不能同时精确测量）在信号分析里的纯数学版本。因为粒子的波函数在位置空间和动量空间表征上，本质上就是一对傅里叶变换。</p>
+<hr />
+              </div>
+            </details>
           </section>
         </article>
       </div>
