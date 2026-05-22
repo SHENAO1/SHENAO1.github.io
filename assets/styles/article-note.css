@@ -388,11 +388,19 @@
 }
 
 .note-prose mjx-container svg {
-  display: block;
-  margin: 0 auto;
   width: auto !important;
   height: auto;
   max-width: none;
+}
+
+.note-prose mjx-container:not([display="true"]) svg {
+  display: inline-block;
+  margin: 0;
+}
+
+.note-prose mjx-container[display="true"] svg {
+  display: block;
+  margin: 0 auto;
 }
 
 .note-prose .level1 > :first-child,
@@ -575,6 +583,14 @@
 @media (max-width: 1120px) {
   .note-page {
     width: min(100%, calc(100% - 28px));
+  }
+
+  .note-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .note-article {
+    width: 100%;
   }
 
   .note-intro-copy h1 {
