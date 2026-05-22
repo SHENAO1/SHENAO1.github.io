@@ -121,27 +121,27 @@
           \]</span></p>
           <p>其中</p>
           <p><span class="math display">\[
-          \Gamma(f)=\mathcal{F}\{\gamma(t)\}.
+          \Gamma(f)=\mathcal{F}\{\gamma(t)\}
           \]</span></p>
           <p>方波副载波的关键性质是奇谐性：平移半个副载波周期后符号反转。若把完整副载波周期记为
           <span class="math inline">\(T_{\mathrm{per}}\)</span>，可写成</p>
           <p><span class="math display">\[
-          \gamma(t)=-\gamma\left(t+\frac{T_{\mathrm{per}}}{2}\right).
+          \gamma(t)=-\gamma\left(t+\frac{T_{\mathrm{per}}}{2}\right)
           \tag{4.13}
           \]</span></p>
           <p>下文为了和式 (4.15)–(4.18)
           的谱公式保持一致，把方波电平保持不变的半周期记为</p>
           <p><span class="math display">\[
-          T_s=\frac{1}{2f_s}.
+          T_s=\frac{1}{2f_s}
           \]</span></p>
           <p>于是奇谐性也可理解为</p>
           <p><span class="math display">\[
-          \gamma(t)=-\gamma(t+T_s).
+          \gamma(t)=-\gamma(t+T_s)
           \]</span></p>
           <p>因为方波只含奇次谐波，所以 <span
           class="math inline">\(\Gamma(f)\)</span> 是一串线谱，只在</p>
           <p><span class="math display">\[
-          f=\pm(2k+1)f_s,\qquad k=0,1,2,\ldots
+          f=\pm(2k+1)f_s\qquad k=0,1,2\ldots
           \]</span></p>
           <p>附近出现奇次谐波项，线谱间隔为 <span
           class="math inline">\(2f_s\)</span>，包络近似服从 <span
@@ -156,21 +156,21 @@
           混淆，这里暂时把一个周期信号的完整周期记为 <span
           class="math inline">\(T_{\mathrm{per}}\)</span>，基频为</p>
           <p><span class="math display">\[
-          f_s=\frac{1}{T_{\mathrm{per}}}.
+          f_s=\frac{1}{T_{\mathrm{per}}}
           \]</span></p>
           <p>周期信号 <span class="math inline">\(x(t)\)</span>
           的双边傅里叶级数可写成</p>
           <p><span class="math display">\[
           x(t)=
           \sum_{n=-\infty}^{+\infty}
-          X_n e^{j2\pi nf_s t}.
+          X_n e^{j2\pi nf_s t}
           \]</span></p>
           <p>其中 <span class="math inline">\(X_n\)</span> 是第 <span
           class="math inline">\(n\)</span> 次谐波的复振幅。因为指数项的频率就是
           <span class="math inline">\(nf_s\)</span>，所以“第 <span
           class="math inline">\(n\)</span> 次谐波”在频域中对应的谱线位置就是</p>
           <p><span class="math display">\[
-          f=nf_s.
+          f=nf_s
           \]</span></p>
           <p>因此，“只含奇次谐波”的严格含义是：当 <span
           class="math inline">\(n\)</span> 为偶数时 <span
@@ -179,18 +179,18 @@
           class="math inline">\(X_n\)</span> 可能不为
           0。于是谱线自然只会出现在</p>
           <p><span class="math display">\[
-          f=\pm f_s,\ \pm 3f_s,\ \pm 5f_s,\ldots
+          f=\pm f_s\ \pm 3f_s\ \pm 5f_s\ldots
           \]</span></p>
           <p>相邻奇次谱线之间相差</p>
           <p><span class="math display">\[
-          3f_s-f_s=2f_s.
+          3f_s-f_s=2f_s
           \]</span></p>
           <p>现在来看为什么半波反对称会造成这种筛选。傅里叶系数为</p>
           <p><span class="math display">\[
           X_n=
           \frac{1}{T_{\mathrm{per}}}
           \int_0^{T_{\mathrm{per}}}
-          x(t)e^{-j2\pi nf_s t}\,dt.
+          x(t)e^{-j2\pi nf_s t}\,dt
           \]</span></p>
           <p>把积分拆成前后两个半周期：</p>
           <p><span class="math display">\[
@@ -204,14 +204,14 @@
           +
           \int_{T_{\mathrm{per}}/2}^{T_{\mathrm{per}}}
           x(t)e^{-j2\pi nf_s t}\,dt
-          \right].
+          \right]
           \end{aligned}
           \]</span></p>
           <p>对后半段令 <span
           class="math inline">\(\tau=t-T_{\mathrm{per}}/2\)</span>，即 <span
           class="math inline">\(t=\tau+T_{\mathrm{per}}/2\)</span>。若信号满足半波反对称</p>
           <p><span class="math display">\[
-          x\left(\tau+\frac{T_{\mathrm{per}}}{2}\right)=-x(\tau),
+          x\left(\tau+\frac{T_{\mathrm{per}}}{2}\right)=-x(\tau)
           \]</span></p>
           <p>则后半段积分变为</p>
           <p><span class="math display">\[
@@ -229,7 +229,7 @@
           &amp;=
           -(-1)^n
           \int_0^{T_{\mathrm{per}}/2}
-          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau.
+          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau
           \end{aligned}
           \]</span></p>
           <p>所以两段合并后有</p>
@@ -237,7 +237,7 @@
           X_n=
           \frac{1-(-1)^n}{T_{\mathrm{per}}}
           \int_0^{T_{\mathrm{per}}/2}
-          x(t)e^{-j2\pi nf_s t}\,dt.
+          x(t)e^{-j2\pi nf_s t}\,dt
           \]</span></p>
           <p>关键就在因子 <span class="math inline">\(1-(-1)^n\)</span>：</p>
           <ul>
@@ -257,7 +257,7 @@
           <h3>1.2 如果是半波对称，会留下什么</h3>
           <p>如果把条件反过来，信号满足半波对称</p>
           <p><span class="math display">\[
-          x\left(t+\frac{T_{\mathrm{per}}}{2}\right)=x(t),
+          x\left(t+\frac{T_{\mathrm{per}}}{2}\right)=x(t)
           \]</span></p>
           <p>后半段积分就不再多出负号，而是</p>
           <p><span class="math display">\[
@@ -271,7 +271,7 @@
           &amp;=
           (-1)^n
           \int_0^{T_{\mathrm{per}}/2}
-          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau.
+          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau
           \end{aligned}
           \]</span></p>
           <p>于是</p>
@@ -279,7 +279,7 @@
           X_n=
           \frac{1+(-1)^n}{T_{\mathrm{per}}}
           \int_0^{T_{\mathrm{per}}/2}
-          x(t)e^{-j2\pi nf_s t}\,dt.
+          x(t)e^{-j2\pi nf_s t}\,dt
           \]</span></p>
           <p>这一次筛选因子变成 <span
           class="math inline">\(1+(-1)^n\)</span>：</p>
@@ -291,11 +291,11 @@
           </ul>
           <p>所以半波对称信号的谱线会落在</p>
           <p><span class="math display">\[
-          f=0,\ \pm2f_s,\ \pm4f_s,\ldots
+          f=0\ \pm2f_s\ \pm4f_s\ldots
           \]</span></p>
           <p>也就是</p>
           <p><span class="math display">\[
-          f=\pm2kf_s,\qquad k=0,1,2,\ldots
+          f=\pm2kf_s\qquad k=0,1,2\ldots
           \]</span></p>
           <p>从直观上说，半波对称意味着信号过了半个周期就已经重复一次，它真正的周期其实是
           <span class="math inline">\(T_{\mathrm{per}}/2\)</span>，真正基频是
@@ -304,7 +304,7 @@
           作尺度来数，它表现出来的就全是偶次谐波。</p>
           <p>功率谱密度由频谱与其共轭相乘得到：</p>
           <p><span class="math display">\[
-          G_{\mathrm{BOC}}(f)=P_{\mathrm{BOC}}(f)P_{\mathrm{BOC}}^*(f).
+          G_{\mathrm{BOC}}(f)=P_{\mathrm{BOC}}(f)P_{\mathrm{BOC}}^*(f)
           \tag{4.14}
           \]</span></p>
           <p>下面的问题就变成：怎样从一个码片内的方波片段，严格算出 <span
@@ -317,21 +317,21 @@
           class="math inline">\(T_s\)</span> 管副载波片段</h2>
           <p>码片速率为 <span class="math inline">\(f_c\)</span>，码片周期为</p>
           <p><span class="math display">\[
-          T_c=\frac{1}{f_c}.
+          T_c=\frac{1}{f_c}
           \]</span></p>
           <p>副载波频率为 <span class="math inline">\(f_s\)</span>。因为 BOC
           副载波是方波，它每半个周期翻转一次，所以单个方波电平片段的长度为</p>
           <p><span class="math display">\[
-          T_s=\frac{1}{2f_s}.
+          T_s=\frac{1}{2f_s}
           \]</span></p>
           <p>调制阶数 <span class="math inline">\(M\)</span>
           就是一个码片里包含多少个这样的半周期片段：</p>
           <p><span class="math display">\[
-          M=\frac{T_c}{T_s}=\frac{2f_s}{f_c}.
+          M=\frac{T_c}{T_s}=\frac{2f_s}{f_c}
           \]</span></p>
           <p>后面会反复用到两个等价关系：</p>
           <p><span class="math display">\[
-          T_c=MT_s,\qquad 2f_s=Mf_c.
+          T_c=MT_s\qquad 2f_s=Mf_c
           \]</span></p>
           <p>这两个式子也可以从“一个码片里装了多少个半周期”来理解。<span
           class="math inline">\(T_c=MT_s\)</span> 说明：一个扩频码片的时长 <span
@@ -343,7 +343,7 @@
           <span class="math inline">\(2f_s\)</span>；码速率为 <span
           class="math inline">\(f_c\)</span>，两者之比就是</p>
           <p><span class="math display">\[
-          \frac{2f_s}{f_c}=M.
+          \frac{2f_s}{f_c}=M
           \]</span></p>
           <p>因此 <span class="math inline">\(2f_s=Mf_c\)</span>
           的含义也很直接：方波副载波半周期片段的速率是码速率的 <span
@@ -359,7 +359,7 @@
           <p><span class="math display">\[
           x\left(\frac{t}{a}\right)
           \longleftrightarrow
-          aX(af),\qquad a&gt;1.
+          aX(af)\qquad a&gt;1
           \]</span></p>
           <p>也可以用两个极端例子来理解这件事：</p>
           <ul>
@@ -398,7 +398,7 @@
           <p><span class="math display">\[
           p_s(t)=
           \sum_{k=0}^{M-1}(-1)^k
-          \mathbf{1}_{[kT_s,(k+1)T_s)}(t).
+          \mathbf{1}_{[kT_s,(k+1)T_s)}(t)
           \]</span></p>
           <p>其中 <span
           class="math inline">\(\mathbf{1}_{[kT_s,(k+1)T_s)}(t)\)</span>
@@ -421,7 +421,7 @@
           <h3>3.1 为什么推导里会出现复指数</h3>
           <p>连续时间傅里叶变换的定义为</p>
           <p><span class="math display">\[
-          X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}\,dt.
+          X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}\,dt
           \]</span></p>
           <p>这里的 <span class="math inline">\(e^{-j2\pi ft}\)</span>
           是傅里叶变换的基函数。由欧拉公式</p>
@@ -439,7 +439,7 @@
           =
           \sum_{k=0}^{M-1}(-1)^k
           \int_{kT_s}^{(k+1)T_s}
-          e^{-j2\pi ft}\,dt.
+          e^{-j2\pi ft}\,dt
           \]</span></p>
           </section>
           <section id="先算一个半周期小片段" class="level3">
@@ -450,19 +450,19 @@
           =
           \left[
           \frac{e^{-j2\pi ft}}{-j2\pi f}
-          \right]_{kT_s}^{(k+1)T_s}.
+          \right]_{kT_s}^{(k+1)T_s}
           \]</span></p>
           <p>代入上下限：</p>
           <p><span class="math display">\[
           =
           \frac{e^{-j2\pi f(k+1)T_s}-e^{-j2\pi fkT_s}}
-          {-j2\pi f}.
+          {-j2\pi f}
           \]</span></p>
           <p>把分子顺序对调，消掉分母负号：</p>
           <p><span class="math display">\[
           =
           \frac{e^{-j2\pi fkT_s}-e^{-j2\pi f(k+1)T_s}}
-          {j2\pi f}.
+          {j2\pi f}
           \]</span></p>
           <p>再提出公因式 <span class="math inline">\(e^{-j2\pi
           fkT_s}\)</span>：</p>
@@ -471,14 +471,14 @@
           \frac{
           e^{-j2\pi fkT_s}\left(1-e^{-j2\pi fT_s}\right)
           }
-          {j2\pi f}.
+          {j2\pi f}
           \]</span></p>
           <p>于是</p>
           <p><span class="math display">\[
           \int_{kT_s}^{(k+1)T_s}e^{-j2\pi ft}\,dt
           =
           \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
-          \left(e^{-j2\pi fT_s}\right)^k.
+          \left(e^{-j2\pi fT_s}\right)^k
           \]</span></p>
           </section>
           <section id="代回求和得到等比数列" class="level3">
@@ -501,18 +501,18 @@
           &amp;=
           \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
           \sum_{k=0}^{M-1}
-          \left(-e^{-j2\pi fT_s}\right)^k.
+          \left(-e^{-j2\pi fT_s}\right)^k
           \end{aligned}
           \]</span></p>
           <p>最后一项是有限等比数列。令</p>
           <p><span class="math display">\[
-          q=-e^{-j2\pi fT_s},
+          q=-e^{-j2\pi fT_s}
           \]</span></p>
           <p>则</p>
           <p><span class="math display">\[
           \sum_{k=0}^{M-1}q^k
           =
-          \frac{1-q^M}{1-q}.
+          \frac{1-q^M}{1-q}
           \]</span></p>
           <p>因此</p>
           <p><span class="math display">\[
@@ -520,7 +520,7 @@
           \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
           \cdot
           \frac{1-\left(-e^{-j2\pi fT_s}\right)^M}
-          {1+e^{-j2\pi fT_s}}.
+          {1+e^{-j2\pi fT_s}}
           \]</span></p>
           <p>这一步完成了从分段方波脉冲到频谱闭式表达式的过渡。</p>
           </section>
@@ -530,10 +530,10 @@
           <p>现在要把复指数形式化成更容易读出幅度的三角函数形式。核心工具仍是欧拉公式：</p>
           <p><span class="math display">\[
           \sin\theta=
-          \frac{e^{j\theta}-e^{-j\theta}}{2j},
+          \frac{e^{j\theta}-e^{-j\theta}}{2j}
           \qquad
           \cos\theta=
-          \frac{e^{j\theta}+e^{-j\theta}}{2}.
+          \frac{e^{j\theta}+e^{-j\theta}}{2}
           \]</span></p>
           <p>当遇到 <span class="math inline">\(1-e^{-j2\theta}\)</span> 或 <span
           class="math inline">\(1+e^{-j2\theta}\)</span>
@@ -544,7 +544,7 @@
           e^{-j\theta}
           \left(e^{j\theta}-e^{-j\theta}\right)
           =
-          2je^{-j\theta}\sin\theta,
+          2je^{-j\theta}\sin\theta
           \]</span></p>
           <p><span class="math display">\[
           1+e^{-j2\theta}
@@ -552,23 +552,23 @@
           e^{-j\theta}
           \left(e^{j\theta}+e^{-j\theta}\right)
           =
-          2e^{-j\theta}\cos\theta.
+          2e^{-j\theta}\cos\theta
           \]</span></p>
           <p>先处理不含 <span class="math inline">\(M\)</span> 的公共框架：</p>
           <p><span class="math display">\[
           \frac{1-e^{-j2\pi fT_s}}
-          {j2\pi f\left(1+e^{-j2\pi fT_s}\right)}.
+          {j2\pi f\left(1+e^{-j2\pi fT_s}\right)}
           \]</span></p>
           <p>令 <span class="math inline">\(\theta=\pi fT_s\)</span>，有</p>
           <p><span class="math display">\[
           1-e^{-j2\pi fT_s}
           =
-          2je^{-j\pi fT_s}\sin(\pi fT_s),
+          2je^{-j\pi fT_s}\sin(\pi fT_s)
           \]</span></p>
           <p><span class="math display">\[
           1+e^{-j2\pi fT_s}
           =
-          2e^{-j\pi fT_s}\cos(\pi fT_s).
+          2e^{-j\pi fT_s}\cos(\pi fT_s)
           \]</span></p>
           <p>代回后，公共相位因子 <span class="math inline">\(e^{-j\pi
           fT_s}\)</span> 与常数 2 约掉：</p>
@@ -580,11 +580,11 @@
           }
           =
           \frac{\sin(\pi fT_s)}
-          {2\pi f\cos(\pi fT_s)}.
+          {2\pi f\cos(\pi fT_s)}
           \]</span></p>
           <p>剩下的就是带 <span class="math inline">\(M\)</span> 的分子项：</p>
           <p><span class="math display">\[
-          1-\left(-e^{-j2\pi fT_s}\right)^M.
+          1-\left(-e^{-j2\pi fT_s}\right)^M
           \]</span></p>
           <section id="m-为偶数" class="level3">
           <h3>4.1 <span class="math inline">\(M\)</span> 为偶数</h3>
@@ -593,7 +593,7 @@
           <p><span class="math display">\[
           \left(-e^{-j2\pi fT_s}\right)^M
           =
-          e^{-j2\pi fMT_s}.
+          e^{-j2\pi fMT_s}
           \]</span></p>
           <p>于是</p>
           <p><span class="math display">\[
@@ -601,7 +601,7 @@
           =
           1-e^{-j2\pi fMT_s}
           =
-          2je^{-j\pi fMT_s}\sin(\pi fMT_s).
+          2je^{-j\pi fMT_s}\sin(\pi fMT_s)
           \]</span></p>
           <p>因此</p>
           <p><span class="math display">\[
@@ -615,7 +615,7 @@
           &amp;=
           j\frac{\sin(\pi fT_s)\sin(\pi fMT_s)}
           {\pi f\cos(\pi fT_s)}
-          e^{-j\pi fMT_s}.
+          e^{-j\pi fMT_s}
           \end{aligned}
           \]</span></p>
           <p>利用 <span class="math inline">\(MT_s=T_c\)</span>，得到</p>
@@ -623,8 +623,8 @@
           P_s(f)=
           j\frac{\sin(\pi fT_s)\sin(\pi fT_c)}
           {\pi f\cos(\pi fT_s)}
-          e^{-j\pi fT_c},
-          \qquad M\ \text{为偶数}.
+          e^{-j\pi fT_c}
+          \qquad M\ \text{为偶数}
           \]</span></p>
           <p>最后的 <span class="math inline">\(e^{-j\pi fT_c}\)</span>
           只贡献线性相位。求功率谱密度时取模平方，它的模为 1，不改变谱幅度。</p>
@@ -636,21 +636,21 @@
           <p><span class="math display">\[
           1-\left(-e^{-j2\pi fT_s}\right)^M
           =
-          1+e^{-j2\pi fMT_s}.
+          1+e^{-j2\pi fMT_s}
           \]</span></p>
           <p>继续提半角：</p>
           <p><span class="math display">\[
           1+e^{-j2\pi fMT_s}
           =
-          2e^{-j\pi fMT_s}\cos(\pi fMT_s).
+          2e^{-j\pi fMT_s}\cos(\pi fMT_s)
           \]</span></p>
           <p>因此</p>
           <p><span class="math display">\[
           P_s(f)=
           \frac{\sin(\pi fT_s)\cos(\pi fT_c)}
           {\pi f\cos(\pi fT_s)}
-          e^{-j\pi fT_c},
-          \qquad M\ \text{为奇数}.
+          e^{-j\pi fT_c}
+          \qquad M\ \text{为奇数}
           \]</span></p>
           <p>这就是奇偶性进入功率谱公式的根源：偶数阶给出 <span
           class="math inline">\(\sin(\pi fT_c)\)</span>，奇数阶给出 <span
@@ -672,7 +672,7 @@
           <p><span class="math display">\[
           s(t)=
           \sum_{\ell=-\infty}^{+\infty}
-          c_\ell\,p(t-\ell T_c),
+          c_\ell\,p(t-\ell T_c)
           \]</span></p>
           <p>其中 <span class="math inline">\(c_\ell\in\{+1,-1\}\)</span>
           是随机码片，<span class="math inline">\(p(t)\)</span> 是持续时间为 <span
@@ -680,12 +680,12 @@
           的单码片复合脉冲。对这种“独立随机系数乘以固定脉冲”的信号，平均功率谱可理解为</p>
           <p><span class="math display">\[
           G(f)=
-          \frac{1}{T_{\text{symbol}}}|P(f)|^2.
+          \frac{1}{T_{\text{symbol}}}|P(f)|^2
           \]</span></p>
           <p>这里的 <span class="math inline">\(T_{\text{symbol}}\)</span>
           是随机符号保持不变的时间间隔。BOC 中独立随机符号是码片，所以</p>
           <p><span class="math display">\[
-          T_{\text{symbol}}=T_c.
+          T_{\text{symbol}}=T_c
           \]</span></p>
           <p>从量纲上看，<span class="math inline">\(P(f)\)</span> 是长度为 <span
           class="math inline">\(T_c\)</span> 的单码片复合脉冲的傅里叶变换，<span
@@ -702,7 +702,7 @@
           }
           {
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          },
+          }
           \qquad M\ \text{为偶数}
           \tag{4.15}
           \]</span></p>
@@ -713,7 +713,7 @@
           }
           {
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          },
+          }
           \qquad M\ \text{为奇数}
           \tag{4.16}
           \]</span></p>
@@ -725,7 +725,7 @@
           \]</span></p>
           <p>会换成</p>
           <p><span class="math display">\[
-          \left[1-\cos(\pi fT_s)\right]^2.
+          \left[1-\cos(\pi fT_s)\right]^2
           \]</span></p>
           <section id="先澄清这里的四分之一周期到底是多少" class="level3">
           <h3>5.1 先澄清：这里的“四分之一周期”到底是多少</h3>
@@ -734,12 +734,12 @@
           \operatorname{sgn}\!\left[\cos(2\pi f_s t)\right]
           =
           \operatorname{sgn}\!\left[\sin\left(2\pi f_s
-          t+\frac{\pi}{2}\right)\right].
+          t+\frac{\pi}{2}\right)\right]
           \]</span></p>
           <p>也就是说，它相对正弦相位移动了 <span
           class="math inline">\(\pi/2\)</span> 的相位。若把完整副载波周期记为</p>
           <p><span class="math display">\[
-          T_{\mathrm{per}}=\frac{1}{f_s},
+          T_{\mathrm{per}}=\frac{1}{f_s}
           \]</span></p>
           <p>这个相位移动对应的时间量为</p>
           <p><span class="math display">\[
@@ -748,7 +748,7 @@
           =
           \frac{1}{4f_s}
           =
-          \frac{T_{\mathrm{per}}}{4}.
+          \frac{T_{\mathrm{per}}}{4}
           \]</span></p>
           <p>但本节为了推导式 (4.15)–(4.18)，一直把</p>
           <p><span class="math display">\[
@@ -756,16 +756,16 @@
           \]</span></p>
           <p>定义为方波副载波的半周期片段。因此在本节符号下，四分之一完整周期就是</p>
           <p><span class="math display">\[
-          \Delta t=\frac{T_s}{2}.
+          \Delta t=\frac{T_s}{2}
           \]</span></p>
           <p>这个小小的换算很重要。正弦相位的跳变点正好落在</p>
           <p><span class="math display">\[
-          0,\ T_s,\ 2T_s,\ldots
+          0\ T_s\ 2T_s\ldots
           \]</span></p>
           <p>这些半周期边界上；余弦相位则整体平移了 <span
           class="math inline">\(T_s/2\)</span>，所以它的跳变点落在</p>
           <p><span class="math display">\[
-          \frac{T_s}{2},\ \frac{3T_s}{2},\ \frac{5T_s}{2},\ldots
+          \frac{T_s}{2}\ \frac{3T_s}{2}\ \frac{5T_s}{2}\ldots
           \]</span></p>
           <p>这就是后面所有差别的来源。</p>
           </section>
@@ -776,14 +776,14 @@
           <p><span class="math display">\[
           x(t-\Delta t)
           \longleftrightarrow
-          e^{-j2\pi f\Delta t}X(f).
+          e^{-j2\pi f\Delta t}X(f)
           \]</span></p>
           <p>代入余弦相位相对正弦相位的时间移动量 <span
           class="math inline">\(\Delta t=T_s/2\)</span>，得到的频域相位因子是</p>
           <p><span class="math display">\[
           e^{-j2\pi f(T_s/2)}
           =
-          e^{-j\pi fT_s}.
+          e^{-j\pi fT_s}
           \]</span></p>
           <p>如果只看无限长方波，取模平方以后这个相位因子会消失。</p>
           <p>BOC 的关键区别在于：教材推导的不是无限长副载波，而是被单码片窗口
@@ -812,7 +812,7 @@
           \mathbf{1}_{[(k-\frac12)T_s,(k+\frac12)T_s)}(t)\\
           &amp;\quad
           +
-          (-1)^M\mathbf{1}_{[(M-\frac12)T_s,MT_s)}(t).
+          (-1)^M\mathbf{1}_{[(M-\frac12)T_s,MT_s)}(t)
           \end{aligned}
           \]</span></p>
           <p>对偶数 <span class="math inline">\(M\)</span>，最后一项幅值为 <span
@@ -823,7 +823,7 @@
           <h3>5.3 先用三角恒等式看出两者差在哪里</h3>
           <p>令</p>
           <p><span class="math display">\[
-          \theta=\frac{\pi fT_s}{2}.
+          \theta=\frac{\pi fT_s}{2}
           \]</span></p>
           <p>正弦相位公式中的副载波因子可写为</p>
           <p><span class="math display">\[
@@ -834,7 +834,7 @@
           &amp;=
           \left[2\sin\theta\cos\theta\right]^2\\
           &amp;=
-          4\sin^2\theta\cos^2\theta.
+          4\sin^2\theta\cos^2\theta
           \end{aligned}
           \]</span></p>
           <p>余弦相位公式中的副载波因子为</p>
@@ -846,7 +846,7 @@
           &amp;=
           \left[2\sin^2\theta\right]^2\\
           &amp;=
-          4\sin^4\theta.
+          4\sin^4\theta
           \end{aligned}
           \]</span></p>
           <p>放在一起看：</p>
@@ -865,32 +865,32 @@
           <h3>5.4 为什么是“差的平方”，不是“平方的差”</h3>
           <p>余弦相位最后出现的是</p>
           <p><span class="math display">\[
-          \left[1-\cos(\pi fT_s)\right]^2,
+          \left[1-\cos(\pi fT_s)\right]^2
           \]</span></p>
           <p>而不是</p>
           <p><span class="math display">\[
-          1-\cos^2(\pi fT_s).
+          1-\cos^2(\pi fT_s)
           \]</span></p>
           <p>原因在于功率谱要对复数频谱取模平方。设</p>
           <p><span class="math display">\[
-          z=1-e^{-j\theta}.
+          z=1-e^{-j\theta}
           \]</span></p>
           <p>复数模长满足</p>
           <p><span class="math display">\[
-          |z^n|=|z|^n.
+          |z^n|=|z|^n
           \]</span></p>
           <p>可以用极坐标形式证明：若 <span
           class="math inline">\(z=re^{j\phi}\)</span>，则</p>
           <p><span class="math display">\[
-          z^n=r^n e^{jn\phi},
+          z^n=r^n e^{jn\phi}
           \qquad
-          |z^n|=r^n=|z|^n.
+          |z^n|=r^n=|z|^n
           \]</span></p>
           <p>因此</p>
           <p><span class="math display">\[
           \left|(1-e^{-j\theta})^2\right|^2
           =
-          \left(\left|1-e^{-j\theta}\right|^2\right)^2.
+          \left(\left|1-e^{-j\theta}\right|^2\right)^2
           \]</span></p>
           <p>先算内层模平方：</p>
           <p><span class="math display">\[
@@ -903,7 +903,7 @@
           &amp;=
           1-2\cos\theta+\cos^2\theta+\sin^2\theta\\
           &amp;=
-          2(1-\cos\theta).
+          2(1-\cos\theta)
           \end{aligned}
           \]</span></p>
           <p>所以</p>
@@ -912,11 +912,11 @@
           =
           \left[2(1-\cos\theta)\right]^2
           =
-          4(1-\cos\theta)^2.
+          4(1-\cos\theta)^2
           \]</span></p>
           <p>最外层的平方来自“复指数差项本身已经平方，然后功率谱又取模平方”。因此结果必然是差的平方。若写成平方的差，</p>
           <p><span class="math display">\[
-          1-\cos^2\theta=\sin^2\theta,
+          1-\cos^2\theta=\sin^2\theta
           \]</span></p>
           <p>那就退化成正弦相位的副载波因子，等价于说余弦相位的边界切割没有改变能量分布，这与余弦相位频谱更向两侧展开的事实不符。展开</p>
           <p><span class="math display">\[
@@ -932,7 +932,7 @@
           <p>先取最小偶数阶例子 <span
           class="math inline">\(M=2\)</span>，也就是</p>
           <p><span class="math display">\[
-          T_c=2T_s.
+          T_c=2T_s
           \]</span></p>
           <p>在本节的 <span class="math inline">\(T_s\)</span>
           半周期定义下，余弦相位单码片波形为</p>
@@ -963,12 +963,12 @@
           \left(e^{-j3\omega T_s/2}-e^{-j\omega T_s/2}\right)
           +
           \left(e^{-j2\omega T_s}-e^{-j3\omega T_s/2}\right)
-          \right].
+          \right]
           \end{aligned}
           \]</span></p>
           <p>令基础复指数算子</p>
           <p><span class="math display">\[
-          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}.
+          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}
           \]</span></p>
           <p>则括号内变为</p>
           <p><span class="math display">\[
@@ -977,7 +977,7 @@
           &amp;=
           (A-1)-(A^3-A)+(A^4-A^3)\\
           &amp;=
-          A^4-2A^3+2A-1.
+          A^4-2A^3+2A-1
           \end{aligned}
           \]</span></p>
           <p>对这个多项式因式分解：</p>
@@ -991,13 +991,13 @@
           &amp;=
           (A^2-1)(A^2-2A+1)\\
           &amp;=
-          (A^2-1)(A-1)^2.
+          (A^2-1)(A-1)^2
           \end{aligned}
           \]</span></p>
           <p>完全平方式 <span class="math inline">\((A-1)^2\)</span>
           就是在这里出现的。直观上，余弦相位在固定码片边界被切开，跳变沿呈现</p>
           <p><span class="math display">\[
-          +1,\ -2,\ +2,\ -1
+          +1\ -2\ +2\ -1
           \]</span></p>
           <p>这种二阶差分式的对称结构；这种结构在复指数多项式中表现为 <span
           class="math inline">\(A=1\)</span> 附近的重根，因此会出现平方因子。</p>
@@ -1006,7 +1006,7 @@
           \left|B_2\right|^2
           =
           \left|A^2-1\right|^2
-          \left|A-1\right|^4.
+          \left|A-1\right|^4
           \]</span></p>
           <p>其中</p>
           <p><span class="math display">\[
@@ -1017,7 +1017,7 @@
           &amp;=
           2-2\cos\left(\frac{\omega T_s}{2}\right)\\
           &amp;=
-          4\sin^2\left(\frac{\pi fT_s}{2}\right).
+          4\sin^2\left(\frac{\pi fT_s}{2}\right)
           \end{aligned}
           \]</span></p>
           <p>于是</p>
@@ -1026,7 +1026,7 @@
           =
           16\sin^4\left(\frac{\pi fT_s}{2}\right)
           =
-          4\left[1-\cos(\pi fT_s)\right]^2.
+          4\left[1-\cos(\pi fT_s)\right]^2
           \]</span></p>
           <p>这就把“完全平方式”与最终的 <span class="math inline">\([1-\cos(\pi
           fT_s)]^2\)</span> 联系起来了。</p>
@@ -1036,9 +1036,9 @@
           <p>下面把上面的例子推广到一般偶数 <span
           class="math inline">\(M\)</span>。仍令</p>
           <p><span class="math display">\[
-          \omega=2\pi f,
+          \omega=2\pi f
           \qquad
-          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}.
+          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}
           \]</span></p>
           <p>由余弦相位单码片表达式可得</p>
           <p><span class="math display">\[
@@ -1062,7 +1062,7 @@
           \left(A^{2k+1}-A^{2k-1}\right)
           +
           \left(A^{2M}-A^{2M-1}\right)
-          \right].
+          \right]
           \end{aligned}
           \]</span></p>
           <p>把方括号记为 <span
@@ -1070,8 +1070,8 @@
           <p><span class="math display">\[
           B_M
           =
-          -1+2A-2A^3+2A^5-\cdots-2A^{2M-1}+A^{2M},
-          \qquad M\ \text{为偶数}.
+          -1+2A-2A^3+2A^5-\cdots-2A^{2M-1}+A^{2M}
+          \qquad M\ \text{为偶数}
           \]</span></p>
           <p>这个式子容易在首尾符号上看乱，所以用 <span
           class="math inline">\(M=4\)</span> 展开一次：</p>
@@ -1081,7 +1081,7 @@
           &amp;=
           (A-1)-(A^3-A)+(A^5-A^3)-(A^7-A^5)+(A^8-A^7)\\
           &amp;=
-          -1+2A-2A^3+2A^5-2A^7+A^8.
+          -1+2A-2A^3+2A^5-2A^7+A^8
           \end{aligned}
           \]</span></p>
           <p>下面不用跳步，直接把一般式化成等比数列。先把首尾项和中间项分开：</p>
@@ -1090,13 +1090,13 @@
           =
           -(1-A^{2M})
           +
-          2(A-A^3+A^5-\cdots-A^{2M-1}).
+          2(A-A^3+A^5-\cdots-A^{2M-1})
           \]</span></p>
           <p>中间括号提取 <span class="math inline">\(A\)</span>：</p>
           <p><span class="math display">\[
           A-A^3+A^5-\cdots-A^{2M-1}
           =
-          A(1-A^2+A^4-\cdots-A^{2M-2}).
+          A(1-A^2+A^4-\cdots-A^{2M-2})
           \]</span></p>
           <p>括号内是公比为 <span class="math inline">\(-A^2\)</span>、项数为
           <span class="math inline">\(M\)</span> 的等比数列。由于 <span
@@ -1107,7 +1107,7 @@
           &amp;=
           \frac{1-(-A^2)^M}{1-(-A^2)}\\
           &amp;=
-          \frac{1-A^{2M}}{1+A^2}.
+          \frac{1-A^{2M}}{1+A^2}
           \end{aligned}
           \]</span></p>
           <p>代回：</p>
@@ -1128,14 +1128,14 @@
           \frac{-(1+A^2)+2A}{1+A^2}\\
           &amp;=
           -(1-A^{2M})
-          \frac{(1-A)^2}{1+A^2}.
+          \frac{(1-A)^2}{1+A^2}
           \end{aligned}
           \]</span></p>
           <p>也就是</p>
           <p><span class="math display">\[
           B_M
           =
-          -(1-A^{2M})\frac{(1-A)^2}{1+A^2}.
+          -(1-A^{2M})\frac{(1-A)^2}{1+A^2}
           \]</span></p>
           <p>这一步就是余弦相位推导中的核心：<span
           class="math inline">\((1-A)^2\)</span> 是边界切割造成的完全平方式，<span
@@ -1149,13 +1149,13 @@
           =
           1-e^{-j\theta}
           =
-          2je^{-j\theta/2}\sin\frac{\theta}{2},
+          2je^{-j\theta/2}\sin\frac{\theta}{2}
           \]</span></p>
           <p>所以</p>
           <p><span class="math display">\[
           (1-A)^2
           =
-          -4e^{-j\theta}\sin^2\frac{\theta}{2}.
+          -4e^{-j\theta}\sin^2\frac{\theta}{2}
           \]</span></p>
           <p>同时</p>
           <p><span class="math display">\[
@@ -1163,7 +1163,7 @@
           =
           1+e^{-j2\theta}
           =
-          2e^{-j\theta}\cos\theta.
+          2e^{-j\theta}\cos\theta
           \]</span></p>
           <p>因此</p>
           <p><span class="math display">\[
@@ -1174,7 +1174,7 @@
           =
           \frac{2\sin^2(\theta/2)}{\cos\theta}
           =
-          \frac{1-\cos\theta}{\cos\theta}.
+          \frac{1-\cos\theta}{\cos\theta}
           \]</span></p>
           <p>这里也顺手澄清一个容易混淆的式子：</p>
           <p><span class="math display">\[
@@ -1182,17 +1182,17 @@
           =
           \frac{e^{-j\theta}-1}{e^{-j\theta}+1}
           =
-          -j\tan\frac{\theta}{2}.
+          -j\tan\frac{\theta}{2}
           \]</span></p>
           <p>这个恒等式本身成立，但余弦相位一般偶数阶推导中更精确出现的是</p>
           <p><span class="math display">\[
           -\frac{(1-A)^2}{1+A^2}
           =
-          \frac{1-\cos\theta}{\cos\theta},
+          \frac{1-\cos\theta}{\cos\theta}
           \]</span></p>
           <p>它的模平方才会给出教材中的</p>
           <p><span class="math display">\[
-          \frac{[1-\cos(\pi fT_s)]^2}{\cos^2(\pi fT_s)}.
+          \frac{[1-\cos(\pi fT_s)]^2}{\cos^2(\pi fT_s)}
           \]</span></p>
           <p>现在回到 <span class="math inline">\(P_c(f)\)</span>：</p>
           <p><span class="math display">\[
@@ -1204,14 +1204,14 @@
           &amp;=
           \frac{1}{-j2\pi f}
           \left(1-e^{-j2\pi fMT_s}\right)
-          \frac{1-\cos(\pi fT_s)}{\cos(\pi fT_s)}.
+          \frac{1-\cos(\pi fT_s)}{\cos(\pi fT_s)}
           \end{aligned}
           \]</span></p>
           <p>又因为</p>
           <p><span class="math display">\[
           1-e^{-j2\pi fMT_s}
           =
-          2je^{-j\pi fMT_s}\sin(\pi fMT_s),
+          2je^{-j\pi fMT_s}\sin(\pi fMT_s)
           \]</span></p>
           <p>所以</p>
           <p><span class="math display">\[
@@ -1219,7 +1219,7 @@
           =
           -e^{-j\pi fMT_s}
           \frac{\sin(\pi fMT_s)\left[1-\cos(\pi fT_s)\right]}
-          {\pi f\cos(\pi fT_s)}.
+          {\pi f\cos(\pi fT_s)}
           \]</span></p>
           <p>整体负号和指数只影响相位，不影响功率谱。由 <span
           class="math inline">\(MT_s=T_c\)</span>，取模平方并除以 <span
@@ -1233,8 +1233,8 @@
           }
           {
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          },
-          \qquad M\ \text{为偶数}.
+          }
+          \qquad M\ \text{为偶数}
           \]</span></p>
           <p>这就是教材式 (4.17)。</p>
           </section>
@@ -1248,7 +1248,7 @@
           P_s(f)=
           j\frac{\sin(\pi fT_s)\sin(\pi fT_c)}
           {\pi f\cos(\pi fT_s)}
-          e^{-j\pi fT_c}.
+          e^{-j\pi fT_c}
           \]</span></p>
           <p>因此</p>
           <p><span class="math display">\[
@@ -1259,14 +1259,14 @@
           }
           {
           \left[\pi f\cos(\pi fT_s)\right]^2
-          }.
+          }
           \]</span></p>
           <p>若从复数块看，正弦相位中的基本差分是 <span
           class="math inline">\(1-e^{-j2\pi fT_s}\)</span>，它的模平方为</p>
           <p><span class="math display">\[
           \left|1-e^{-j2\pi fT_s}\right|^2
           =
-          4\sin^2(\pi fT_s).
+          4\sin^2(\pi fT_s)
           \]</span></p>
           <p>它的自变量正好就是教材公式里的 <span class="math inline">\(\pi
           fT_s\)</span>，与分母中由</p>
@@ -1344,7 +1344,7 @@
           }
           {
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          },
+          }
           \qquad M\ \text{为偶数}
           \tag{4.17}
           \]</span></p>
@@ -1355,7 +1355,7 @@
           }
           {
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          },
+          }
           \qquad M\ \text{为奇数}
           \tag{4.18}
           \]</span></p>
@@ -1379,13 +1379,13 @@
           <p><span class="math display">\[
           \sin^2(\pi fT_c)
           \quad\text{或}\quad
-          \cos^2(\pi fT_c).
+          \cos^2(\pi fT_c)
           \]</span></p>
           <p>它决定细密的谱零点网格。以偶数阶为例，</p>
           <p><span class="math display">\[
           \sin^2(\pi fT_c)=0
           \quad\Rightarrow\quad
-          f=\frac{k}{T_c}=kf_c.
+          f=\frac{k}{T_c}=kf_c
           \]</span></p>
           <p>所以相邻普通零点的间隔是 <span class="math inline">\(f_c\)</span>。若
           <span class="math inline">\(M\)</span> 为奇数，码片项换成 <span
@@ -1411,7 +1411,7 @@
           \cdot
           \underbrace{
           \tan^2(\pi fT_s)
-          }_{\text{副载波项}}.
+          }_{\text{副载波项}}
           \end{aligned}
           \]</span></p>
           <p>这样一拆，两个因子的分工就更清楚：</p>
@@ -1434,7 +1434,7 @@
           <p><span class="math display">\[
           \pi fT_s=k\pi
           \quad\Rightarrow\quad
-          f=\frac{k}{T_s}=kMf_c.
+          f=\frac{k}{T_s}=kMf_c
           \]</span></p></li>
           <li><p>这些零点只是 <span class="math inline">\(f_c\)</span>
           网格上的某些点，并没有创造出比 <span class="math inline">\(f_c\)</span>
@@ -1448,11 +1448,11 @@
           <span class="math inline">\(f_c\)</span>。</p>
           <p>第二类是副载波项：</p>
           <p><span class="math display">\[
-          \sin^2(\pi fT_s),
+          \sin^2(\pi fT_s)
           \qquad
-          \left[1-\cos(\pi fT_s)\right]^2,
+          \left[1-\cos(\pi fT_s)\right]^2
           \qquad
-          \cos(\pi fT_s).
+          \cos(\pi fT_s)
           \]</span></p>
           <p>这些项决定正弦相位、余弦相位和副载波搬移位置。尤其是分母中的</p>
           <p><span class="math display">\[
@@ -1462,7 +1462,7 @@
           <p><span class="math display">\[
           \pi fT_s=\frac{(2r+1)\pi}{2}
           \quad\Rightarrow\quad
-          f=(2r+1)f_s.
+          f=(2r+1)f_s
           \]</span></p>
           <p>这些位置正是方波副载波的奇次谐波位置。分母趋零并不意味着功率谱真的发散，因为分子在这些位置也会同时趋零；极限运算后得到有限峰值。物理上看，这些点就是副载波把
           BPSK-R 频谱搬移过来的位置，其中最显著的是 <span
@@ -1482,7 +1482,7 @@
           <ul>
           <li><p>在式 (4.15) 的改写式中，副载波项是</p>
           <p><span class="math display">\[
-          \tan^2(\pi fT_s).
+          \tan^2(\pi fT_s)
           \]</span></p></li>
           <li><p>当 <span class="math inline">\(f\)</span> 靠近 <span
           class="math inline">\(f_s\)</span> 时，</p>
@@ -1491,7 +1491,7 @@
           \to
           \pi f_s\frac{1}{2f_s}
           =
-          \frac{\pi}{2},
+          \frac{\pi}{2}
           \]</span></p>
           <p>因而 <span class="math inline">\(\tan^2(\pi fT_s)\)</span>
           会迅速增大。</p></li>
@@ -1531,18 +1531,18 @@
           class="math inline">\(f_c\)</span></h3>
           <p>普通旁瓣夹在相邻两个普通零点之间。由码片项可知普通零点间隔为</p>
           <p><span class="math display">\[
-          f_c.
+          f_c
           \]</span></p>
           <p>所以普通旁瓣宽度就是</p>
           <p><span class="math display">\[
           \Delta f_{\text{side}}
           =(k+1)f_c-kf_c
-          =f_c.
+          =f_c
           \]</span></p>
           <p>这也是为什么不能只盯着 <span class="math inline">\(\sin^2(\pi
           fT_s)\)</span>。它当然也会给零点，但由于</p>
           <p><span class="math display">\[
-          \frac{1}{T_s}=Mf_c,
+          \frac{1}{T_s}=Mf_c
           \]</span></p>
           <p>它给出的零点间隔是 <span class="math inline">\(Mf_c\)</span>，比
           <span class="math inline">\(T_c\)</span> 给出的 <span
@@ -1559,13 +1559,13 @@
           <p><span class="math display">\[
           f_s-f_c
           \quad\text{和}\quad
-          f_s+f_c.
+          f_s+f_c
           \]</span></p>
           <p>所以右侧主瓣宽度为</p>
           <p><span class="math display">\[
           \Delta f_{\text{main}}
           =(f_s+f_c)-(f_s-f_c)
-          =2f_c.
+          =2f_c
           \]</span></p>
           <p>左侧主瓣同理，围绕 <span
           class="math inline">\(-f_s\)</span>，宽度也为 <span
@@ -1578,26 +1578,26 @@
           class="math inline">\(M-2\)</span></h3>
           <p>两个主瓣内侧区域，从左主瓣的右边界到右主瓣的左边界：</p>
           <p><span class="math display">\[
-          f_{\text{left inner}}=-f_s+f_c,
+          f_{\text{left inner}}=-f_s+f_c
           \qquad
-          f_{\text{right inner}}=f_s-f_c.
+          f_{\text{right inner}}=f_s-f_c
           \]</span></p>
           <p>所以内侧总宽度为</p>
           <p><span class="math display">\[
           \begin{aligned}
           \Delta f_{\text{inner}}
           &amp;=(f_s-f_c)-(-f_s+f_c)\\
-          &amp;=2f_s-2f_c.
+          &amp;=2f_s-2f_c
           \end{aligned}
           \]</span></p>
           <p>利用</p>
           <p><span class="math display">\[
-          2f_s=Mf_c,
+          2f_s=Mf_c
           \]</span></p>
           <p>得到</p>
           <p><span class="math display">\[
           \Delta f_{\text{inner}}
-          =(M-2)f_c.
+          =(M-2)f_c
           \]</span></p>
           <p>每个普通旁瓣宽度为 <span
           class="math inline">\(f_c\)</span>，因此两个主瓣内侧的普通旁瓣数为</p>
@@ -1605,7 +1605,7 @@
           N_{\text{inner side lobes}}
           =
           \frac{(M-2)f_c}{f_c}
-          =M-2.
+          =M-2
           \]</span></p>
           <p>这不是额外规定，而是由主瓣位置 <span class="math inline">\(\pm
           f_s\)</span> 和零点网格间隔 <span class="math inline">\(f_c\)</span>
@@ -1626,20 +1626,20 @@
           </figure>
           <p>对 <span class="math inline">\(\mathrm{BOC}_s(1,1)\)</span>，有</p>
           <p><span class="math display">\[
-          M=\frac{2f_s}{f_c}=2.
+          M=\frac{2f_s}{f_c}=2
           \]</span></p>
           <p>因此两个主瓣内侧旁瓣数为</p>
           <p><span class="math display">\[
-          M-2=0.
+          M-2=0
           \]</span></p>
           <p>图中可以看到，两个主瓣之间没有额外的小旁瓣。</p>
           <p>对 <span class="math inline">\(\mathrm{BOC}_c(6,1)\)</span>，有</p>
           <p><span class="math display">\[
-          M=\frac{2f_s}{f_c}=12.
+          M=\frac{2f_s}{f_c}=12
           \]</span></p>
           <p>因此两个主瓣内侧旁瓣数为</p>
           <p><span class="math display">\[
-          M-2=10.
+          M-2=10
           \]</span></p>
           <p>从图上看，就是两个主瓣之间有一串更细的旁瓣；左右对称时可理解为内侧各
           5 个。</p>
@@ -1648,9 +1648,9 @@
           <h2>9. 一句话复习</h2>
           <p>BOC 功率谱的形状可以这样记：</p>
           <p><span class="math display">\[
-          T_c\ \text{决定零点网格，}
+          T_c\ \text{决定零点网格}
           \qquad
-          T_s\ \text{决定副载波搬移。}
+          T_s\ \text{决定副载波搬移}
           \]</span></p>
           <p>码片周期 <span class="math inline">\(T_c\)</span> 给出 <span
           class="math inline">\(f_c\)</span> 间隔的细密零点；副载波半周期 <span
