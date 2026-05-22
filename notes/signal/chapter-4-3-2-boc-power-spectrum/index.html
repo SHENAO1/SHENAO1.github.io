@@ -585,6 +585,60 @@
           class="math inline">\(\cos^2(\pi fT_c)\)</span>，零点整体平移半个 <span
           class="math inline">\(f_c\)</span>，但相邻零点之间的间隔仍然是 <span
           class="math inline">\(f_c\)</span>。</p>
+          <p>这里正好回答一个常见疑问：既然式 (4.15) 的分子里也有 <span
+          class="math inline">\(\sin^2(\pi
+          fT_s)\)</span>，为什么不说它也决定零点呢？</p>
+          <p>以正弦相位、<span class="math inline">\(M\)</span> 为偶数的式 (4.15)
+          为例，可以把它重新整理成</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          G_{\mathrm{BOC}_s}(f)
+          &amp;=
+          \frac{\sin^2(\pi fT_c)\sin^2(\pi fT_s)}
+          {T_c\left[\pi f\cos(\pi fT_s)\right]^2}\\
+          &amp;=
+          \underbrace{
+          \frac{\sin^2(\pi fT_c)}
+          {T_c(\pi f)^2}
+          }_{\text{码片项}}
+          \cdot
+          \underbrace{
+          \tan^2(\pi fT_s)
+          }_{\text{副载波项}}.
+          \end{aligned}
+          \]</span></p>
+          <p>这样一拆，两个因子的分工就更清楚：</p>
+          <ul>
+          <li>码片项含 <span class="math inline">\(T_c\)</span>：
+          <ul>
+          <li>因为 <span
+          class="math inline">\(T_c=MT_s\)</span>，码片周期比副载波半周期长。</li>
+          <li>时域越宽，频域结构越窄、振荡越密。</li>
+          <li>所以它每隔 <span class="math inline">\(1/T_c=f_c\)</span>
+          就给出一个零点，像一张细密的筛网。</li>
+          </ul></li>
+          <li>副载波项含 <span class="math inline">\(T_s\)</span>：
+          <ul>
+          <li><p><span class="math inline">\(T_s\)</span> 比 <span
+          class="math inline">\(T_c\)</span>
+          短，因此它在频域中的零点更稀疏。</p></li>
+          <li><p>由 <span class="math inline">\(\tan^2(\pi fT_s)=0\)</span>
+          得到</p>
+          <p><span class="math display">\[
+          \pi fT_s=k\pi
+          \quad\Rightarrow\quad
+          f=\frac{k}{T_s}=kMf_c.
+          \]</span></p></li>
+          <li><p>这些零点只是 <span class="math inline">\(f_c\)</span>
+          网格上的某些点，并没有创造出比 <span class="math inline">\(f_c\)</span>
+          更细的新零点。</p></li>
+          </ul></li>
+          </ul>
+          <p>所以，<span class="math inline">\(T_s\)</span>
+          当然会影响谱形，但它给出的零点已经被 <span
+          class="math inline">\(T_c\)</span>
+          的细密零点网格“包容”了。决定普通旁瓣宽度的，是最细的零点间隔，也就是
+          <span class="math inline">\(f_c\)</span>。</p>
           <p>第二类是副载波项：</p>
           <p><span class="math display">\[
           \sin^2(\pi fT_s),
@@ -606,6 +660,47 @@
           <p>这些位置正是方波副载波的奇次谐波位置。分母趋零并不意味着功率谱真的发散，因为分子在这些位置也会同时趋零；极限运算后得到有限峰值。物理上看，这些点就是副载波把
           BPSK-R 频谱搬移过来的位置，其中最显著的是 <span
           class="math inline">\(\pm f_s\)</span> 两个主瓣。</p>
+          <p>这也解释了所谓“特殊照顾”到底特殊在哪里。</p>
+          <ul>
+          <li>从物理上看：
+          <ul>
+          <li>传统 BPSK-R 码片波形的能量主要集中在中心频点附近。</li>
+          <li>BOC 在时域上把 BPSK-R 波形乘以方波副载波。</li>
+          <li>时域相乘对应频域卷积，方波副载波在 <span class="math inline">\(\pm
+          f_s\)</span> 处有最强的基波谱线。</li>
+          <li>因而原本靠近中心的能量被搬移并注入到 <span class="math inline">\(\pm
+          f_s\)</span> 附近，形成两个最显著的主瓣。</li>
+          </ul></li>
+          <li>从数学上看：
+          <ul>
+          <li><p>在式 (4.15) 的改写式中，副载波项是</p>
+          <p><span class="math display">\[
+          \tan^2(\pi fT_s).
+          \]</span></p></li>
+          <li><p>当 <span class="math inline">\(f\)</span> 靠近 <span
+          class="math inline">\(f_s\)</span> 时，</p>
+          <p><span class="math display">\[
+          \pi fT_s
+          \to
+          \pi f_s\frac{1}{2f_s}
+          =
+          \frac{\pi}{2},
+          \]</span></p>
+          <p>因而 <span class="math inline">\(\tan^2(\pi fT_s)\)</span>
+          会迅速增大。</p></li>
+          <li><p>它在 <span class="math inline">\(\pm f_s\)</span> 附近对原本随
+          <span class="math inline">\(1/f^2\)</span>
+          衰减的谱包络起到选择性抬升作用；同时分子也趋零，所以最终不是无穷大，而是形成有限但很高的主瓣。</p></li>
+          </ul></li>
+          <li>其余普通旁瓣为什么没有这种待遇：
+          <ul>
+          <li>它们不在 <span class="math inline">\(\pm f_s\)</span>
+          这些方波副载波强谱线附近。</li>
+          <li>副载波项没有在这些位置提供强抬升。</li>
+          <li>因此它们只能按 <span class="math inline">\(T_c\)</span>
+          给出的细密零点网格被切分，老老实实夹在相邻普通零点之间。</li>
+          </ul></li>
+          </ul>
           </section>
           <section id="lobes" class="level2 boc-section">
           <h2>7. 主瓣宽度、旁瓣宽度与 <span
