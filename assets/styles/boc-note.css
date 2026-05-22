@@ -223,6 +223,34 @@
   padding-left: 24px;
 }
 
+.boc-section table {
+  width: 100%;
+  margin: 18px 0 0;
+  border: 1px solid rgba(19, 32, 42, 0.28);
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.boc-section th,
+.boc-section td {
+  padding: 10px 12px;
+  border: 1px solid rgba(19, 32, 42, 0.28);
+  color: var(--boc-soft);
+  font-size: 16px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.boc-section th {
+  background: rgba(21, 97, 109, 0.08);
+  color: var(--boc-ink);
+  font-weight: 800;
+}
+
+.boc-section tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.36);
+}
+
 .boc-formula {
   margin: 18px 0;
   padding: 18px 20px;
@@ -348,5 +376,15 @@
 
   .boc-section {
     padding: 26px 0;
+  }
+
+  .boc-section table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .boc-section th,
+  .boc-section td {
+    white-space: nowrap;
   }
 }
