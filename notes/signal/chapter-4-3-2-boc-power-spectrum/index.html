@@ -149,6 +149,159 @@
           fT_s)\)</span>。这就解释了为什么 BOC
           的频谱会从中心频点向两侧搬移：它是在用方波副载波的奇次谱线去搬移原本的
           BPSK-R 频谱。</p>
+          <section id="为什么半波反对称只留下奇次谐波" class="level3">
+          <h3>1.1 为什么半波反对称只留下奇次谐波</h3>
+          <p>上面这句话还可以更严格地从傅里叶级数看出来。为了避免和后面“半周期片段”
+          <span class="math inline">\(T_s\)</span>
+          混淆，这里暂时把一个周期信号的完整周期记为 <span
+          class="math inline">\(T_{\mathrm{per}}\)</span>，基频为</p>
+          <p><span class="math display">\[
+          f_s=\frac{1}{T_{\mathrm{per}}}.
+          \]</span></p>
+          <p>周期信号 <span class="math inline">\(x(t)\)</span>
+          的双边傅里叶级数可写成</p>
+          <p><span class="math display">\[
+          x(t)=
+          \sum_{n=-\infty}^{+\infty}
+          X_n e^{j2\pi nf_s t}.
+          \]</span></p>
+          <p>其中 <span class="math inline">\(X_n\)</span> 是第 <span
+          class="math inline">\(n\)</span> 次谐波的复振幅。因为指数项的频率就是
+          <span class="math inline">\(nf_s\)</span>，所以“第 <span
+          class="math inline">\(n\)</span> 次谐波”在频域中对应的谱线位置就是</p>
+          <p><span class="math display">\[
+          f=nf_s.
+          \]</span></p>
+          <p>因此，“只含奇次谐波”的严格含义是：当 <span
+          class="math inline">\(n\)</span> 为偶数时 <span
+          class="math inline">\(X_n=0\)</span>，只有当 <span
+          class="math inline">\(n\)</span> 为奇数时 <span
+          class="math inline">\(X_n\)</span> 可能不为
+          0。于是谱线自然只会出现在</p>
+          <p><span class="math display">\[
+          f=\pm f_s,\ \pm 3f_s,\ \pm 5f_s,\ldots
+          \]</span></p>
+          <p>相邻奇次谱线之间相差</p>
+          <p><span class="math display">\[
+          3f_s-f_s=2f_s.
+          \]</span></p>
+          <p>现在来看为什么半波反对称会造成这种筛选。傅里叶系数为</p>
+          <p><span class="math display">\[
+          X_n=
+          \frac{1}{T_{\mathrm{per}}}
+          \int_0^{T_{\mathrm{per}}}
+          x(t)e^{-j2\pi nf_s t}\,dt.
+          \]</span></p>
+          <p>把积分拆成前后两个半周期：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          X_n
+          &amp;=
+          \frac{1}{T_{\mathrm{per}}}
+          \left[
+          \int_0^{T_{\mathrm{per}}/2}
+          x(t)e^{-j2\pi nf_s t}\,dt
+          +
+          \int_{T_{\mathrm{per}}/2}^{T_{\mathrm{per}}}
+          x(t)e^{-j2\pi nf_s t}\,dt
+          \right].
+          \end{aligned}
+          \]</span></p>
+          <p>对后半段令 <span
+          class="math inline">\(\tau=t-T_{\mathrm{per}}/2\)</span>，即 <span
+          class="math inline">\(t=\tau+T_{\mathrm{per}}/2\)</span>。若信号满足半波反对称</p>
+          <p><span class="math display">\[
+          x\left(\tau+\frac{T_{\mathrm{per}}}{2}\right)=-x(\tau),
+          \]</span></p>
+          <p>则后半段积分变为</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          &amp;\int_{T_{\mathrm{per}}/2}^{T_{\mathrm{per}}}
+          x(t)e^{-j2\pi nf_s t}\,dt\\
+          &amp;=
+          \int_0^{T_{\mathrm{per}}/2}
+          x\left(\tau+\frac{T_{\mathrm{per}}}{2}\right)
+          e^{-j2\pi nf_s(\tau+T_{\mathrm{per}}/2)}\,d\tau\\
+          &amp;=
+          -e^{-j\pi n}
+          \int_0^{T_{\mathrm{per}}/2}
+          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau\\
+          &amp;=
+          -(-1)^n
+          \int_0^{T_{\mathrm{per}}/2}
+          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau.
+          \end{aligned}
+          \]</span></p>
+          <p>所以两段合并后有</p>
+          <p><span class="math display">\[
+          X_n=
+          \frac{1-(-1)^n}{T_{\mathrm{per}}}
+          \int_0^{T_{\mathrm{per}}/2}
+          x(t)e^{-j2\pi nf_s t}\,dt.
+          \]</span></p>
+          <p>关键就在因子 <span class="math inline">\(1-(-1)^n\)</span>：</p>
+          <ul>
+          <li>当 <span class="math inline">\(n\)</span> 为偶数时，<span
+          class="math inline">\((-1)^n=1\)</span>，因此 <span
+          class="math inline">\(1-(-1)^n=0\)</span>，偶次谐波全部消失。</li>
+          <li>当 <span class="math inline">\(n\)</span> 为奇数时，<span
+          class="math inline">\((-1)^n=-1\)</span>，因此 <span
+          class="math inline">\(1-(-1)^n=2\)</span>，奇次谐波被保留下来。</li>
+          </ul>
+          <p>BOC
+          的方波副载波正是这种半波反对称信号，所以它会跳过直流和偶数倍频点，把主要谱线放在
+          <span class="math inline">\(\pm f_s,\pm3f_s,\ldots\)</span>
+          这些奇数倍基频附近。</p>
+          </section>
+          <section id="如果是半波对称会留下什么" class="level3">
+          <h3>1.2 如果是半波对称，会留下什么</h3>
+          <p>如果把条件反过来，信号满足半波对称</p>
+          <p><span class="math display">\[
+          x\left(t+\frac{T_{\mathrm{per}}}{2}\right)=x(t),
+          \]</span></p>
+          <p>后半段积分就不再多出负号，而是</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          &amp;\int_{T_{\mathrm{per}}/2}^{T_{\mathrm{per}}}
+          x(t)e^{-j2\pi nf_s t}\,dt\\
+          &amp;=
+          e^{-j\pi n}
+          \int_0^{T_{\mathrm{per}}/2}
+          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau\\
+          &amp;=
+          (-1)^n
+          \int_0^{T_{\mathrm{per}}/2}
+          x(\tau)e^{-j2\pi nf_s\tau}\,d\tau.
+          \end{aligned}
+          \]</span></p>
+          <p>于是</p>
+          <p><span class="math display">\[
+          X_n=
+          \frac{1+(-1)^n}{T_{\mathrm{per}}}
+          \int_0^{T_{\mathrm{per}}/2}
+          x(t)e^{-j2\pi nf_s t}\,dt.
+          \]</span></p>
+          <p>这一次筛选因子变成 <span
+          class="math inline">\(1+(-1)^n\)</span>：</p>
+          <ul>
+          <li>当 <span class="math inline">\(n\)</span> 为奇数时，<span
+          class="math inline">\(1+(-1)^n=0\)</span>，奇次谐波消失。</li>
+          <li>当 <span class="math inline">\(n\)</span> 为偶数时，<span
+          class="math inline">\(1+(-1)^n=2\)</span>，偶次谐波和直流分量保留下来。</li>
+          </ul>
+          <p>所以半波对称信号的谱线会落在</p>
+          <p><span class="math display">\[
+          f=0,\ \pm2f_s,\ \pm4f_s,\ldots
+          \]</span></p>
+          <p>也就是</p>
+          <p><span class="math display">\[
+          f=\pm2kf_s,\qquad k=0,1,2,\ldots
+          \]</span></p>
+          <p>从直观上说，半波对称意味着信号过了半个周期就已经重复一次，它真正的周期其实是
+          <span class="math inline">\(T_{\mathrm{per}}/2\)</span>，真正基频是
+          <span class="math inline">\(2f_s\)</span>。如果仍然用原来的 <span
+          class="math inline">\(f_s\)</span>
+          作尺度来数，它表现出来的就全是偶次谐波。</p>
           <p>功率谱密度由频谱与其共轭相乘得到：</p>
           <p><span class="math display">\[
           G_{\mathrm{BOC}}(f)=P_{\mathrm{BOC}}(f)P_{\mathrm{BOC}}^*(f).
@@ -157,6 +310,7 @@
           <p>下面的问题就变成：怎样从一个码片内的方波片段，严格算出 <span
           class="math inline">\(P_{\mathrm{BOC}}(f)\)</span>，再得到式
           (4.15)–(4.18)？</p>
+          </section>
           </section>
           <section id="notation" class="level2 boc-section">
           <h2>2. 符号约定：<span class="math inline">\(T_c\)</span> 管码片，<span
@@ -251,6 +405,18 @@
           是区间指示函数：只有当 <span class="math inline">\(t\)</span> 落在第
           <span class="math inline">\(k\)</span> 个副载波半周期内时，它才等于
           1。</p>
+          <p>这里的 <span class="math inline">\(p_s(t)\)</span>
+          要理解成“一个完整码片内的复合脉冲”，而不是普通矩形脉冲。它的外层长度是
+          <span class="math inline">\(T_c\)</span>，内部却填入了 <span
+          class="math inline">\(M\)</span>
+          个方波副载波半周期片段。换句话说，副载波的翻转并没有另外形成一个独立的随机符号序列，而是被包进了单个码片脉冲
+          <span class="math inline">\(p_s(t)\)</span> 的内部。后面计算 <span
+          class="math inline">\(P_s(f)\)</span> 时，<span
+          class="math inline">\(T_s\)</span>
+          不会消失；它会藏在每个小积分的上下限、交替符号 <span
+          class="math inline">\((-1)^k\)</span>，以及最终的 <span
+          class="math inline">\(\sin(\pi fT_s)\)</span>、<span
+          class="math inline">\(\cos(\pi fT_s)\)</span> 结构里。</p>
           <section id="为什么推导里会出现复指数" class="level3">
           <h3>3.1 为什么推导里会出现复指数</h3>
           <p>连续时间傅里叶变换的定义为</p>
@@ -498,6 +664,37 @@
           G(f)=\frac{1}{T_c}\left|P(f)\right|^2
           \]</span></p>
           <p>理解。由于相位因子取模后消失，正弦相位 BOC 的结果为：</p>
+          <p>这里分母是 <span class="math inline">\(T_c\)</span>，不是 <span
+          class="math inline">\(T_s\)</span>。原因要从随机信号的构成看：导航信号中的随机独立量是伪码码片，码片序列每隔
+          <span class="math inline">\(T_c\)</span>
+          才更新一次；而方波副载波在一个码片内按固定规律翻转，它只是确定性的内部纹理。若把
+          BOC 基带写成</p>
+          <p><span class="math display">\[
+          s(t)=
+          \sum_{\ell=-\infty}^{+\infty}
+          c_\ell\,p(t-\ell T_c),
+          \]</span></p>
+          <p>其中 <span class="math inline">\(c_\ell\in\{+1,-1\}\)</span>
+          是随机码片，<span class="math inline">\(p(t)\)</span> 是持续时间为 <span
+          class="math inline">\(T_c\)</span>
+          的单码片复合脉冲。对这种“独立随机系数乘以固定脉冲”的信号，平均功率谱可理解为</p>
+          <p><span class="math display">\[
+          G(f)=
+          \frac{1}{T_{\text{symbol}}}|P(f)|^2.
+          \]</span></p>
+          <p>这里的 <span class="math inline">\(T_{\text{symbol}}\)</span>
+          是随机符号保持不变的时间间隔。BOC 中独立随机符号是码片，所以</p>
+          <p><span class="math display">\[
+          T_{\text{symbol}}=T_c.
+          \]</span></p>
+          <p>从量纲上看，<span class="math inline">\(P(f)\)</span> 是长度为 <span
+          class="math inline">\(T_c\)</span> 的单码片复合脉冲的傅里叶变换，<span
+          class="math inline">\(|P(f)|^2\)</span>
+          对应单码片能量谱；把能量谱转成功率谱，就要除以这段能量实际占据的时间
+          <span class="math inline">\(T_c\)</span>。<span
+          class="math inline">\(T_s\)</span> 的作用不是作为平均时间基准，而是通过
+          <span class="math inline">\(P(f)\)</span>
+          内部的副载波结构决定谱形分裂、奇次谐波和主瓣位置。</p>
           <p><span class="math display">\[
           G_{\mathrm{BOC}_s(f_s,f_c)}(f)=
           \frac{
