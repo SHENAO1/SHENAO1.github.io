@@ -91,7 +91,6 @@ const revealNodes = [
       ".video-card",
       ".template-card",
       ".project-card",
-      ".favorite-card",
       ".roadmap-card",
       ".about-card",
       ".module-bridge-card"

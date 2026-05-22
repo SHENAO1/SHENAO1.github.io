@@ -1,0 +1,437 @@
+.note-page {
+  width: min(1280px, 66.666vw);
+}
+
+.pll-lecture {
+  display: grid;
+  gap: 28px;
+  margin-top: 40px;
+  padding-top: 36px;
+  border-top: 1px solid rgba(12, 36, 57, 0.1);
+}
+
+.pll-lecture-banner {
+  display: grid;
+  gap: 12px;
+}
+
+.pll-lecture-banner h2,
+.pll-lecture-banner p {
+  margin: 0;
+}
+
+.pll-lecture-banner h2 {
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+}
+
+.pll-lecture-banner p {
+  max-width: 70ch;
+  color: var(--ink-soft);
+}
+
+.pll-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(320px, 0.98fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.pll-hero > div,
+.pll-section-card,
+.formula-card,
+.plot-card,
+.mini-plot {
+  min-width: 0;
+}
+
+.hero-copy,
+.hero-demo,
+.pll-section-card,
+.formula-card,
+.demo-block,
+.pll-diagram,
+.table-wrap,
+.note-band {
+  border: 1px solid rgba(12, 36, 57, 0.09);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.hero-copy,
+.hero-demo,
+.pll-section-card,
+.demo-block {
+  padding: 22px;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 18px;
+}
+
+.hero-copy h3 {
+  margin: 0;
+  font-size: clamp(28px, 3.5vw, 38px);
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.hero-copy p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.formula-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.formula-map span {
+  padding: 6px 10px;
+  border: 1px solid rgba(12, 36, 57, 0.08);
+  border-radius: 999px;
+  background: rgba(247, 251, 252, 0.92);
+  color: var(--muted);
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+}
+
+.summary-grid,
+.metric-grid,
+.control-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.summary-item,
+.metric {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid rgba(12, 36, 57, 0.08);
+  border-radius: 14px;
+  background: rgba(247, 251, 252, 0.92);
+}
+
+.summary-item strong,
+.metric strong {
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.summary-item span,
+.metric span {
+  color: var(--muted);
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.hero-demo {
+  display: grid;
+  gap: 16px;
+}
+
+.hero-demo .control-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.demo-title,
+.demo-head,
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.demo-title h4,
+.demo-head h4,
+.section-head h3 {
+  margin: 0;
+  color: var(--ink);
+}
+
+.demo-title h4,
+.demo-head h4 {
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.section-head h3 {
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+}
+
+.demo-title small,
+.demo-head small,
+.section-head p {
+  margin: 0;
+  color: var(--muted);
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.section-head p {
+  max-width: 68ch;
+  font-size: 14px;
+}
+
+.tag {
+  padding: 8px 12px;
+  border: 1px solid rgba(12, 36, 57, 0.08);
+  border-radius: 999px;
+  background: rgba(247, 251, 252, 0.92);
+  color: var(--muted);
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.hero-canvas,
+.plot-card,
+.mini-plot {
+  overflow: hidden;
+}
+
+.hero-canvas {
+  border-radius: 14px;
+  background: #0b1924;
+}
+
+.plot-card,
+.mini-plot {
+  padding: 12px;
+  border: 1px solid rgba(12, 36, 57, 0.08);
+  border-radius: 16px;
+  background: rgba(251, 253, 253, 0.98);
+}
+
+.hero-canvas canvas,
+.plot-card > canvas,
+.mini-plot canvas {
+  display: block;
+  width: 100%;
+}
+
+.hero-canvas canvas {
+  height: min(380px, 42vw);
+  min-height: 240px;
+  max-height: 380px;
+}
+
+.plot-card > canvas,
+.mini-plot canvas {
+  height: min(430px, 46vw);
+  min-height: 260px;
+  max-height: 430px;
+}
+
+.control {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(12, 36, 57, 0.08);
+  border-radius: 14px;
+  background: rgba(247, 251, 252, 0.92);
+}
+
+.control label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ink-soft);
+  font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.control output {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.control input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: #168f92;
+}
+
+.control select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(12, 36, 57, 0.12);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.demo-body {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.demo-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.derive {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.formula-card {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  contain: layout paint;
+  align-self: start;
+}
+
+.formula-card strong {
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.formula-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.formula-card > div {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0 8px;
+  contain: layout paint;
+}
+
+.formula-card mjx-container {
+  max-width: none;
+  font-size: 0.96em;
+}
+
+.formula-card mjx-container[display="true"] {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.formula-card mjx-container svg {
+  width: auto;
+  height: auto;
+  max-width: none;
+}
+
+.pll-diagram {
+  padding: 18px;
+}
+
+.pll-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+.table-wrap table {
+  min-width: 720px;
+  margin: 0;
+}
+
+.split-plot {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.note-band {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  color: var(--ink-soft);
+}
+
+.status-ok {
+  color: #1f7a4d;
+}
+
+.status-warn {
+  color: #b84a42;
+}
+
+@media (max-width: 1120px) {
+  .note-page {
+    width: min(100%, calc(100% - 56px));
+  }
+
+  .pll-hero,
+  .demo-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .derive {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-demo .control-grid {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .note-page {
+    width: min(100%, calc(100% - 20px));
+  }
+
+  .pll-lecture {
+    margin-top: 32px;
+    padding-top: 28px;
+  }
+
+  .hero-copy,
+  .hero-demo,
+  .pll-section-card,
+  .demo-block {
+    padding: 18px;
+  }
+
+  .split-plot {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plot-card > canvas,
+  .mini-plot canvas,
+  .hero-canvas canvas {
+    height: min(320px, 60vw);
+    min-height: 220px;
+  }
+}

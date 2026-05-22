@@ -86,16 +86,18 @@
           <a href="#sine-derivation">3. 单码片频谱闭式推导</a>
           <a href="#half-angle">4. 复指数提半角三角化</a>
           <a href="#psd">5. 四个功率谱公式推导</a>
-          <a href="#随机信号功率谱量纲基础为什么分母均值基准是tc而非ts" class="toc-h3">5.1 功率谱分母均值基准</a>
-          <a href="#先澄清这里的四分之一周期到底是多少" class="toc-h3">5.2 四分之一周期澄清</a>
-          <a href="#为什么不是把正弦相位公式直接平移一下" class="toc-h3">5.3 为什么不能直接平移</a>
-          <a href="#先用三角恒等式看出两者差在哪里" class="toc-h3">5.4 三角恒等式对比</a>
-          <a href="#为什么是差的平方不是平方的差" class="toc-h3">5.5 为什么是差的平方</a>
-          <a href="#用最小例子看完全平方式从哪里来" class="toc-h3">5.6 最小例子因式分解</a>
-          <a href="#一般偶数阶余弦相位的严格推导" class="toc-h3">5.7 偶数阶余弦严格推导</a>
-          <a href="#一般奇数阶余弦相位的严格推导" class="toc-h3">5.8 奇数阶余弦严格推导</a>
-          <a href="#正弦相位为什么最后仍是-sin2pi-ft_s" class="toc-h3">5.9 正弦相位为什么仍是sin</a>
-          <a href="#正弦相位与余弦相位的结构对比" class="toc-h3">5.10 正余弦结构总结对比</a>
+          <a href="#归一化功率谱均值与分母时间基准" class="toc-h3">5.1 功率谱分母时间基准</a>
+          <a href="#余弦相位边界切割与差的平方物理本质" class="toc-h3">5.2 余弦边界与差的平方</a>
+          <a href="#先澄清这里的四分之一周期到底是多少" class="toc-h4">5.2.1 四分之一周期澄清</a>
+          <a href="#为什么不是把正弦相位公式直接平移一下" class="toc-h4">5.2.2 为什么不能直接平移</a>
+          <a href="#先用三角恒等式看出两者差在哪里" class="toc-h4">5.2.3 三角恒等式对比</a>
+          <a href="#为什么是差的平方不是平方的差" class="toc-h4">5.2.4 为什么是差 of the 平方</a>
+          <a href="#余弦相位频谱推导与最小例子代数剖析" class="toc-h3">5.3 频谱推导与最小例子</a>
+          <a href="#用最小例子看完全平方式从哪里来" class="toc-h4">5.3.1 最小例子因式分解</a>
+          <a href="#一般偶数阶余弦相位的严格推导" class="toc-h4">5.3.2 偶数阶余弦严格推导</a>
+          <a href="#正弦相位谱解析与正余弦结构对比" class="toc-h3">5.4 正弦相位与结构对比</a>
+          <a href="#正弦相位为什么最后仍是-sin2pi-ft_s" class="toc-h4">5.4.1 正弦相位仍是sin</a>
+          <a href="#正弦相位与余弦相位的结构对比" class="toc-h4">5.4.2 正余弦结构总结对比</a>
           <a href="#read-formulas">6. 读懂码片与副载波分工</a>
           <a href="#码片窗口项的作用细密谱零点网格的筛网效应" class="toc-h3">6.1 码片筛网效应</a>
           <a href="#副载波搬移项的作用能量分裂搬移与特殊照顾机制" class="toc-h3">6.2 副载波特殊照顾机制</a>
@@ -715,46 +717,13 @@
           </section>
           </section>
           <section id="psd" class="level2 boc-section">
-          <h2>5. 从单码片频谱到四个归一化功率谱密度公式</h2>
-          <section id="随机信号功率谱量纲基础为什么分母均值基准是tc而非ts" class="level3">
-          <h3>5.1 随机信号功率谱量纲基础：为什么分母均值基准是 <span class="math inline">\(T_c\)</span> 而非 <span class="math inline">\(T_s\)</span></h3>
+          <h2>5. 从频谱到四个归一化功率谱密度公式</h2>
+          
+          <section id="归一化功率谱均值与分母时间基准" class="level3">
+          <h3>5.1 归一化功率谱均值与分母时间基准</h3>
           <p>归一化功率谱密度可按</p>
-          <p><span class="math display">\[
-          G(f)=\frac{1}{T_c}\left|P(f)\right|^2
-          \]</span></p>
-          <p>理解。由于相位因子取模后消失，正弦相位 BOC 的结果为：</p>
-          <p>这里分母是 <span class="math inline">\(T_c\)</span>，不是 <span
-          class="math inline">\(T_s\)</span>原因要从随机信号的构成看：导航信号中的随机独立量是伪码码片，码片序列每隔
-          <span class="math inline">\(T_c\)</span>
-          才更新一次；而方波副载波在一个码片内按固定规律翻转，它只是确定性的内部纹理。若把
-          BOC 基带写成</p>
-          <p><span class="math display">\[
-          s(t)=
-          \sum_{\ell=-\infty}^{+\infty}
-          c_\ell\,p(t-\ell T_c)
-          \]</span></p>
-          <p>其中 <span class="math inline">\(c_\ell\in\{+1,-1\}\)</span>
-          是随机码片，<span class="math inline">\(p(t)\)</span> 是持续时间为 <span
-          class="math inline">\(T_c\)</span>
-          的单码片复合脉冲。对这种“独立随机系数乘以固定脉冲”的信号，平均功率谱可理解为</p>
-          <p><span class="math display">\[
-          G(f)=
-          \frac{1}{T_{\text{symbol}}}|P(f)|^2
-          \]</span></p>
-          <p>这里的 <span class="math inline">\(T_{\text{symbol}}\)</span>
-          是随机符号保持不变的时间间隔。BOC 中独立随机符号是码片，所以</p>
-          <p><span class="math display">\[
-          T_{\text{symbol}}=T_c
-          \]</span></p>
-          <p>从量纲上看，<span class="math inline">\(P(f)\)</span> 是长度为 <span
-          class="math inline">\(T_c\)</span> 的单码片复合脉冲的傅里叶变换，<span
-          class="math inline">\(|P(f)|^2\)</span>
-          对应单码片能量谱；把能量谱转成功率谱，就要除以这段能量实际占据的时间
-          <span class="math inline">\(T_c\)</span><span
-          class="math inline">\(T_s\)</span> 的作用不是作为平均时间基准，而是通过
-          <span class="math inline">\(P(f)\)</span>
-          内部的副载波结构决定谱形分裂、奇次谐波和主瓣位置。</p>
-          <p><span class="math display">\[
+          <div id="eq-415" class="boc-formula-container">
+<p><span class="math display">\[
           G_{\mathrm{BOC}_s(f_s,f_c)}(f)=
           \frac{
           \sin^2(\pi fT_c)\sin^2(\pi fT_s)
@@ -765,7 +734,10 @@
           \qquad M\ \text{为偶数}
           \tag{4.15}
           \]</span></p>
-          <p><span class="math display">\[
+{RETURN_BUTTON_HTML}
+</div>
+          <div id="eq-416" class="boc-formula-container">
+<p><span class="math display">\[
           G_{\mathrm{BOC}_s(f_s,f_c)}(f)=
           \frac{
           \cos^2(\pi fT_c)\sin^2(\pi fT_s)
@@ -776,293 +748,123 @@
           \qquad M\ \text{为奇数}
           \tag{4.16}
           \]</span></p>
-          <p>对于余弦相位 BOC，副载波相位相当于移动了四分之一周期。它改变的是与
-          <span class="math inline">\(T_s\)</span>
-          相关的副载波因子：正弦相位中的</p>
-          <p><span class="math display">\[
-          \sin^2(\pi fT_s)
-          \]</span></p>
-          <p>会换成</p>
-          <p><span class="math display">\[
-          \left[1-\cos(\pi fT_s)\right]^2
-          \]</span></p>
+{RETURN_BUTTON_HTML}
+</div>
+          <p>理解。由于相位因子取模后消失，正弦相位 BOC 的结果与时域单码片波形的绝对定位无关，它在奇偶阶下的结构切换完全由码片窗函数在时域的拼接项数决定。本节核心要旨在于分析更具挑战性的余弦相位 BOC 频谱结构。</p>
           </section>
-          <section id="先澄清这里的四分之一周期到底是多少" class="level3">
-          <h3>5.2 先澄清：这里的“四分之一周期”到底是多少</h3>
+
+          <section id="余弦相位边界切割与差的平方物理本质" class="level3">
+          <h3>5.2 余弦相位边界切割与“差的平方”物理本质</h3>
+          
+          <section id="先澄清这里的四分之一周期到底是多少" class="level4">
+          <h4>5.2.1 这里的“四分之一周期”到底是多少</h4>
           <p>余弦相位副载波可以写成</p>
           <p><span class="math display">\[
           \operatorname{sgn}\!\left[\cos(2\pi f_s t)\right]
-          =
-          \operatorname{sgn}\!\left[\sin\left(2\pi f_s
-          t+\frac{\pi}{2}\right)\right]
           \]</span></p>
-          <p>也就是说，它相对正弦相位移动了 <span
-          class="math inline">\(\pi/2\)</span> 的相位。若把完整副载波周期记为</p>
-          <p><span class="math display">\[
-          T_{\mathrm{per}}=\frac{1}{f_s}
-          \]</span></p>
-          <p>这个相位移动对应的时间量为</p>
-          <p><span class="math display">\[
-          \Delta t=
-          \frac{\pi/2}{2\pi f_s}
-          =
-          \frac{1}{4f_s}
-          =
-          \frac{T_{\mathrm{per}}}{4}
-          \]</span></p>
-          <p>但本节为了推导式 (4.15)–(4.18)，一直把</p>
-          <p><span class="math display">\[
-          T_s=\frac{1}{2f_s}
-          \]</span></p>
-          <p>定义为方波副载波的半周期片段。因此在本节符号下，四分之一完整周期就是</p>
-          <p><span class="math display">\[
-          \Delta t=\frac{T_s}{2}
-          \]</span></p>
-          <p>这个小小的换算很重要。正弦相位的跳变点正好落在</p>
-          <p><span class="math display">\[
-          0\ T_s\ 2T_s\ldots
-          \]</span></p>
-          <p>这些半周期边界上；余弦相位则整体平移了 <span
-          class="math inline">\(T_s/2\)</span>，所以它的跳变点落在</p>
-          <p><span class="math display">\[
-          \frac{T_s}{2}\ \frac{3T_s}{2}\ \frac{5T_s}{2}\ldots
-          \]</span></p>
-          <p>这就是后面所有差别的来源。</p>
+          <p>因为余弦信号在原点 <span class="math inline">\(t=0\)</span> 处为最大值 1，在极小邻域内无跳变，为了使其时域波形在单码片周期 <span class="math inline">\([0, T_c]\)</span> 内保持对称（或者说保持其余弦相位的物理本质），其时域码片在边界处的切割方式与正弦相位有很大不同：它的边界不是零交叉点，而是处于平稳段的正中间，这导致在 <span class="math inline">\(t=0\)</span> 和 <span class="math inline">\(t=T_c\)</span> 边界上被“切出”了宽度刚好为 <span class="math inline">\(T_s/2\)</span> 的小半宽片段（对于正弦相位，由于在原点就是零交叉，切出的都是完整宽度为 <span class="math inline">\(T_s\)</span> 的整周期片段）。</p>
+          <p>这个 <span class="math inline">\(T_s/2\)</span> 刚好是副载波方波半周期的“一半”，所以被称为<strong>四分之一周期</strong>。在时域上，这就形成了头尾各为 <span class="math inline">\(T_s/2\)</span> 宽度，中间为 <span class="math inline">\(M-1\)</span> 个交替的 <span class="math inline">\(T_s\)</span> 宽度的特殊对称结构。</p>
           </section>
-          <section id="为什么不是把正弦相位公式直接平移一下" class="level3">
-          <h3>5.3 为什么不是把正弦相位公式直接平移一下</h3>
-          <p>如果面对的是无限长周期方波，时移只会在傅里叶级数系数中乘上一个模长为
-          1 的复相位，功率谱形状本身不会改变。傅里叶变换的时移性质给出</p>
-          <p><span class="math display">\[
-          x(t-\Delta t)
-          \longleftrightarrow
-          e^{-j2\pi f\Delta t}X(f)
-          \]</span></p>
-          <p>代入余弦相位相对正弦相位的时间移动量 <span
-          class="math inline">\(\Delta t=T_s/2\)</span>，得到的频域相位因子是</p>
-          <p><span class="math display">\[
-          e^{-j2\pi f(T_s/2)}
-          =
-          e^{-j\pi fT_s}
-          \]</span></p>
-          <p>如果只看无限长方波，取模平方以后这个相位因子会消失。</p>
-          <p>BOC 的关键区别在于：教材推导的不是无限长副载波，而是被单码片窗口
-          <span class="math inline">\([0,T_c]\)</span>
-          截出来的复合脉冲。正弦相位的单码片片段正好对齐半周期边界；余弦相位平移
-          <span class="math inline">\(T_s/2\)</span>
-          后，在固定窗口的头尾会被切开：</p>
-          <ul>
-          <li>正弦相位：每个内部小区间长度都是 <span
-          class="math inline">\(T_s\)</span>，所以可以直接写成 <span
-          class="math inline">\(\sum_{k=0}^{M-1}(-1)^k\mathbf{1}_{[kT_s,(k+1)T_s)}(t)\)</span></li>
-          <li>余弦相位：第一个和最后一个小区间只有 <span
-          class="math inline">\(T_s/2\)</span>，内部小区间才是 <span
-          class="math inline">\(T_s\)</span></li>
-          </ul>
-          <p>因此，式 (3) 里的正弦相位单码片表达式不能直接套给余弦相位。以偶数阶
-          <span class="math inline">\(M\)</span>
-          为例，余弦相位单码片脉冲应写成</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          p_c(t)
-          &amp;=
-          \mathbf{1}_{[0,T_s/2)}(t)
-          +
-          \sum_{k=1}^{M-1}(-1)^k
-          \mathbf{1}_{[(k-\frac12)T_s,(k+\frac12)T_s)}(t)\\
-          &amp;\quad
-          +
-          (-1)^M\mathbf{1}_{[(M-\frac12)T_s,MT_s)}(t)
-          \end{aligned}
-          \]</span></p>
-          <p>对偶数 <span class="math inline">\(M\)</span>，最后一项幅值为 <span
-          class="math inline">\(+1\)</span>这个表达式把“头尾被切开”的边界效应显式写了出来。正是这些半长边界片段，使余弦相位的副载波因子不再是
-          <span class="math inline">\(\sin^2(\pi fT_s)\)</span></p>
-          </section>
-          <section id="先用三角恒等式看出两者差在哪里" class="level3">
-          <h3>5.4 先用三角恒等式看出两者差在哪里</h3>
-          <p>令</p>
-          <p><span class="math display">\[
-          \theta=\frac{\pi fT_s}{2}
-          \]</span></p>
-          <p>正弦相位公式中的副载波因子可写为</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          \sin^2(\pi fT_s)
-          &amp;=
-          \sin^2(2\theta)\\
-          &amp;=
-          \left[2\sin\theta\cos\theta\right]^2\\
-          &amp;=
-          4\sin^2\theta\cos^2\theta
-          \end{aligned}
-          \]</span></p>
-          <p>余弦相位公式中的副载波因子为</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          \left[1-\cos(\pi fT_s)\right]^2
-          &amp;=
-          \left[1-\cos(2\theta)\right]^2\\
-          &amp;=
-          \left[2\sin^2\theta\right]^2\\
-          &amp;=
-          4\sin^4\theta
-          \end{aligned}
-          \]</span></p>
-          <p>放在一起看：</p>
-          <ul>
-          <li>正弦相位：<span
-          class="math inline">\(4\sin^2\theta\cos^2\theta\)</span></li>
-          <li>余弦相位：<span
-          class="math inline">\(4\sin^2\theta\sin^2\theta\)</span></li>
-          </ul>
-          <p>二者共享 <span
-          class="math inline">\(4\sin^2\theta\)</span>，差别在于后一个因子由 <span
-          class="math inline">\(\cos^2\theta\)</span> 变成了 <span
-          class="math inline">\(\sin^2\theta\)</span>这就是“四分之一周期移动”在有限码片窗口中留下的频域痕迹：边界被切开以后，原来对齐整半周期的那部分余弦权重，被半周期错位后的正弦权重取代。</p>
-          </section>
-          <section id="为什么是差的平方不是平方的差" class="level3">
-          <h3>5.5 为什么是“差的平方”，不是“平方的差”</h3>
-          <p>余弦相位最后出现的是</p>
-          <p><span class="math display">\[
-          \left[1-\cos(\pi fT_s)\right]^2
-          \]</span></p>
-          <p>而不是</p>
-          <p><span class="math display">\[
-          1-\cos^2(\pi fT_s)
-          \]</span></p>
-          <p>原因在于功率谱要对复数频谱取模平方。设</p>
-          <p><span class="math display">\[
-          z=1-e^{-j\theta}
-          \]</span></p>
-          <p>复数模长满足</p>
-          <p><span class="math display">\[
-          |z^n|=|z|^n
-          \]</span></p>
-          <p>可以用极坐标形式证明：若 <span
-          class="math inline">\(z=re^{j\phi}\)</span>，则</p>
-          <p><span class="math display">\[
-          z^n=r^n e^{jn\phi}
-          \qquad
-          |z^n|=r^n=|z|^n
-          \]</span></p>
-          <p>因此</p>
-          <p><span class="math display">\[
-          \left|(1-e^{-j\theta})^2\right|^2
-          =
-          \left(\left|1-e^{-j\theta}\right|^2\right)^2
-          \]</span></p>
-          <p>先算内层模平方：</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          \left|1-e^{-j\theta}\right|^2
-          &amp;=
-          \left|1-(\cos\theta-j\sin\theta)\right|^2\\
-          &amp;=
-          (1-\cos\theta)^2+\sin^2\theta\\
-          &amp;=
-          1-2\cos\theta+\cos^2\theta+\sin^2\theta\\
-          &amp;=
-          2(1-\cos\theta)
-          \end{aligned}
-          \]</span></p>
-          <p>所以</p>
-          <p><span class="math display">\[
-          \left|(1-e^{-j\theta})^2\right|^2
-          =
-          \left[2(1-\cos\theta)\right]^2
-          =
-          4(1-\cos\theta)^2
-          \]</span></p>
-          <p>最外层的平方来自“复指数差项本身已经平方，然后功率谱又取模平方”。因此结果必然是差的平方。若写成平方的差，</p>
-          <p><span class="math display">\[
-          1-\cos^2\theta=\sin^2\theta
-          \]</span></p>
-          <p>那就退化成正弦相位的副载波因子，等价于说余弦相位的边界切割没有改变能量分布，这与余弦相位频谱更向两侧展开的事实不符。展开</p>
-          <p><span class="math display">\[
-          \left[1-\cos\theta\right]^2
-          =
-          1-2\cos\theta+\cos^2\theta
-          \]</span></p>
-          <p>可以看到中间多出来的交叉项 <span
-          class="math inline">\(-2\cos\theta\)</span>这个交叉项正是头尾半长边界片段与内部整长片段共同叠加后留下的数学痕迹。</p>
-          </section>
-          <section id="用最小例子看完全平方式从哪里来" class="level3">
-          <h3>5.6 用最小例子看完全平方式从哪里来</h3>
-          <p>先取最小偶数阶例子 <span
-          class="math inline">\(M=2\)</span>，也就是</p>
-          <p><span class="math display">\[
-          T_c=2T_s
-          \]</span></p>
-          <p>在本节的 <span class="math inline">\(T_s\)</span>
-          半周期定义下，余弦相位单码片波形为</p>
-          <ul>
-          <li><span class="math inline">\([0,T_s/2)\)</span> 上取 <span
-          class="math inline">\(+1\)</span>；</li>
-          <li><span class="math inline">\([T_s/2,3T_s/2)\)</span> 上取 <span
-          class="math inline">\(-1\)</span>；</li>
-          <li><span class="math inline">\([3T_s/2,2T_s)\)</span> 上取 <span
-          class="math inline">\(+1\)</span></li>
-          </ul>
-          <p>令 <span class="math inline">\(\omega=2\pi
-          f\)</span>它的傅里叶变换为</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          P_c(f)
-          &amp;=
-          \int_0^{T_s/2}e^{-j\omega t}\,dt
-          -
-          \int_{T_s/2}^{3T_s/2}e^{-j\omega t}\,dt
-          +
-          \int_{3T_s/2}^{2T_s}e^{-j\omega t}\,dt\\
-          &amp;=
-          \frac{1}{-j\omega}
-          \left[
-          \left(e^{-j\omega T_s/2}-1\right)
-          -
-          \left(e^{-j3\omega T_s/2}-e^{-j\omega T_s/2}\right)
-          +
-          \left(e^{-j2\omega T_s}-e^{-j3\omega T_s/2}\right)
-          \right]
-          \end{aligned}
-          \]</span></p>
-          <p>令基础复指数算子</p>
-          <p><span class="math display">\[
-          A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}
-          \]</span></p>
-          <p>则括号内变为</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          B_2
-          &amp;=
-          (A-1)-(A^3-A)+(A^4-A^3)\\
-          &amp;=
-          A^4-2A^3+2A-1
-          \end{aligned}
-          \]</span></p>
-          <p>对这个多项式因式分解：</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          A^4-2A^3+2A-1
-          &amp;=
-          (A^4-1)-2A(A^2-1)\\
-          &amp;=
-          (A^2-1)(A^2+1)-2A(A^2-1)\\
-          &amp;=
-          (A^2-1)(A^2-2A+1)\\
-          &amp;=
-          (A^2-1)(A-1)^2
-          \end{aligned}
-          \]</span></p>
-          <p>完全平方式 <span class="math inline">\((A-1)^2\)</span> 就是在这里出现的。上面我们是通过传统的<strong>分段定积分法</strong>推导出了多项式 <span class="math inline">\(B_2(A)\)</span>。现在，我们介绍一种在信号处理中更加通用、物理概念极其清晰的捷径——<strong>求导冲激法</strong>，并用它来推导功率谱。</p>
 
-          <section id="derivative-method" class="level4">
-          <h4>💡 更优雅的捷径：时域求导与冲激法</h4>
-          <p>对于分段常数的方波信号，我们完全可以避开繁琐的分段积分。在信号分析中，分段常数信号的导数就是一系列在跳变点处的<strong>狄拉克冲激函数（Dirac Delta）</strong>：</p>
+          <section id="为什么不是把正弦相位公式直接平移一下" class="level4">
+          <h4>5.2.2 为什么不能把正弦相位直接平移</h4>
+          <p>很多初学者会有一个直觉：余弦副载波不就是正弦副载波在时域平移了四分之一周期吗？那么根据傅里叶变换的位移性质，其余弦相位 BOC 的功率谱密度是不是也只需要把正弦相位公式的自变量做个相位平移就可以了？</p>
+          <p><strong>绝对不行！</strong> 信号在无限时域上做整体平移，其功率谱密度确实完全不变（因为相位因子的模为 1）。但这里的平移<strong>发生在单码片窗函数内部</strong>！余弦相位在边界处的切割点变了，如果把单码片向左或向右整体平移，它的边界就会侵入相邻码片的区间，这就破坏了不重叠码片时域拼接的物理前提。因此，边界的“半宽切割”是不可能通过简单的整体平移消除的，必须在受限码片窗口内进行严格的独立推导。</p>
+          </section>
+
+          <section id="先用三角恒等式看出两者差在哪里" class="level4">
+          <h4>5.2.3 三角恒等式对比其结构差异</h4>
+          <p>我们先来看一眼教材给出的最终公式。正弦相位的功率谱分子为：</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_c)\sin^2(\pi fT_s)
+          \]</span></p>
+          <p>而余弦相位的功率谱分子为：</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
+          \qquad (M\text{ 为偶数})
+          \]</span></p>
+          <p>两者的唯一区别，就是右侧项由 <span class="math inline">\(\sin^2(\pi fT_s)\)</span> 变成了 <span class="math inline">\([1 - \cos(\pi fT_s)]^2\)</span>。我们利用经典的半角恒等式：</p>
+          <p><span class="math display">\[
+          \sin^2\left(\frac{\theta}{2}\right) = \frac{1-\cos\theta}{2}
+          \implies
+          1-\cos\theta = 2\sin^2\left(\frac{\theta}{2}\right)
+          \]</span></p>
+          <p>令 <span class="math inline">\(	heta = \pi fT_s\)</span>，则可得：</p>
+          <p><span class="math display">\[
+          1-\cos(\pi fT_s) = 2\sin^2\left(\frac{\pi fT_s}{2}ight)
+          \]</span></p>
+          <p>带回平方中，余弦相位的右侧项展开为：</p>
+          <p><span class="math display">\[
+          \left[1-\cos(\pi fT_s)\right]^2
+          =
+          4\sin^4\left(\frac{\pi fT_s}{2}ight)
+          \]</span></p>
+          <p>而正弦相位的右侧项则为：</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_s)
+          =
+          \left[2\sin\left(\frac{\pi fT_s}{2}ight)\cos\left(\frac{\pi fT_s}{2}ight)\right]^2
+          =
+          4\sin^2\left(\frac{\pi fT_s}{2}ight)\cos^2\left(\frac{\pi fT_s}{2}ight)
+          \]</span></p>
+          <p>这二者一对比，结构上的物理含义立即显现：正弦相位保留了由 <span class="math inline">\(\cos^2\)</span> 贡献的高频分量，而余弦相位则将其替换为了 <span class="math inline">\(\sin^2\)</span> 因子。这个极微小的代数差异，最终将彻底重塑整个谱密度的包络分布。</p>
+          </section>
+
+          <section id="为什么是差的平方不是平方的差" class="level4">
+          <h4>5.2.4 为什么是“差的平方”而不是“平方的差”</h4>
+          <p>这涉及到一个物理本质：既然时域上余弦相位在边界上有 <span class="math inline">\(T_s/2\)</span> 的切割，它对频域积分的贡献就属于<strong>边界两端振幅的线性相消或相加</strong>。傅里叶变换的核是线性积分：</p>
+          <p><span class="math display">\[
+          P(f) = \int_{t} s(t) e^{-j2\pi ft}\,dt
+          \]</span></p>
+          <p>不同时域段的信号对频域频谱贡献是<strong>先在频谱级上进行复数叠加，最后才取模平方</strong>得到功率谱。因为时域的头尾切割对称分布在单码片的左右两端，它们的频谱分量在频域叠加时，代表的是<strong>频谱差的复数平方</strong>（即相消干涉），而非功率的简单平铺。这就是为什么公式中必定呈现为完全平方项 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span>（代表干涉后的零点），而非单独平方的相加减。</p>
+          </section>
+          </section>
+
+          <section id="余弦相位频谱推导与最小例子代数剖析" class="level3">
+          <h3>5.3 余弦相位频谱推导与最小例子代数剖析</h3>
+          
+          <section id="用最小例子看完全平方式从哪里来" class="level4">
+          <h4>5.3.1 最小例子 M=2 的因式分解与物理本质</h4>
+          <p>先取最小偶数阶例子 <span class="math inline">\(M=2\)</span>，也就是副载波频率与码片速率之比为 1（对应 <span class="math inline">\(\mathrm{BOC}_c(1,1)\)</span> 时的副载波部分）。此时其单码片波形 <span class="math inline">\(p_c(t)\)</span> 在 <span class="math inline">\([0, 2T_s]\)</span>（注意此时 <span class="math inline">\(T_c = 2T_s\)</span>）内的跳变结构为：</p>
+          <ul>
+          <li>在 <span class="math inline">\([0, T_s/2)\)</span> 上电平取 <span class="math inline">\(+1\)</span>；</li>
+          <li>在 <span class="math inline">\([T_s/2, 3T_s/2)\)</span> 上电平取 <span class="math inline">\(-1\)</span>；</li>
+          <li>在 <span class="math inline">\([3T_s/2, 2T_s)\)</span> 上电平取 <span class="math inline">\(+1\)</span>。</li>
+          </ul>
+          
+          <section id="时域分段定积分法传统代数起点" class="level5">
+          <h5>5.3.1.1 时域分段定积分法（传统代数起点）</h5>
+          <p>首先采用最直接的时域分段定积分法。令 <span class="math inline">\(\omega = 2\pi f\)</span>，则单码片脉冲的傅里叶变换为：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          P_c(f) 
+          &= \int_{0}^{T_s/2} e^{-j\omega t}\,dt - \int_{T_s/2}^{3T_s/2} e^{-j\omega t}\,dt + \int_{3T_s/2}^{2T_s} e^{-j\omega t}\,dt \\
+          &= \frac{1}{-j\omega} \left[ \left( e^{-j\omega T_s/2} - 1 \right) - \left( e^{-j\omega 3T_s/2} - e^{-j\omega T_s/2} \right) + \left( e^{-j\omega 2T_s} - e^{-j\omega 3T_s/2} \right) \right] \\
+          &= \frac{1}{-j\omega} \left[ e^{-j\omega 2T_s} - 2e^{-j\omega 3T_s/2} + 2e^{-j\omega T_s/2} - 1 \right]
+          \end{aligned}
+          \]</span></p>
+          <p>为了使数学结构更加简练，我们定义基础复指数算子（代表半周期的时延因子）：</p>
+          <p><span class="math display">\[
+          A = e^{-j\omega T_s/2} = e^{-j\pi fT_s}
+          \]</span></p>
+          <p>将其代回，括号内的多项式便可写为：</p>
+          <p><span class="math display">\[
+          B_2(A) = A^4 - 2A^3 + 2A - 1
+          \]</span></p>
+          <p>这便是传统定积分推导的代数起点。</p>
+          </section>
+
+          <section id="更优雅的时域求导冲激法与系数符号决定的本质" class="level5">
+          <h5>5.3.1.2 更优雅的时域“求导冲激法”与系数符号决定的本质</h5>
+          <p>那么，有没有一种方法能够避开上面繁琐的积分过程，并且能一眼看出多项式各项正负号的物理物理机制？<strong>时域求导冲激法</strong>正是为此而生。它不仅可以直接用于推导功率谱，还能揭示复指数多项式系数与时域跳变高度的完美对应。</p>
+          
+          <section id="时域求导冲激法的数学原理与功率谱推导" class="level6">
+          <h6>1. 时域求导冲激法的数学原理与功率谱推导</h6>
+          <p>对于任何分段常数（Piecewise Constant）波形（如矩形脉冲序列），其在突变点 <span class="math inline">\(t_k\)</span> 处的导数就是一系列<strong>狄拉克冲激函数（Dirac Delta）</strong>的叠加：</p>
           <p><span class="math display">\[
           p_c'(t) = \sum_{k} d_k \delta(t - t_k)
           \]</span></p>
-          <p>其中 <span class="math inline">\(d_k\)</span> 为信号在跳变点 <span class="math inline">\(t_k\)</span> 处的<strong>物理跳变高度（即右侧值减左侧值）</strong>。根据傅里叶变换的微分性质，时域求导对应频域乘以 <span class="math inline">\(j 2\pi f\)</span>（记 <span class="math inline">\omega = 2\pi f\)</span>）：</p>
+          <p>其中 <span class="math inline">\(d_k\)</span> 为信号在跳变点 <span class="math inline">\(t_k\)</span> 处的<strong>物理跳变高度（即右侧值减左侧值）</strong>。根据傅里叶变换的微分性质，时域求导对应频域乘以 <span class="math inline">\(j 2\pi f\)</span>（记 <span class="math inline">\(\omega = 2\pi f\)</span>）：</p>
           <p><span class="math display">\[
           \mathcal{F}\{p_c'(t)\} = j\omega P_c(f) \implies P_c(f) = \frac{1}{j\omega} \mathcal{F}\{p_c'(t)\}
           \]</span></p>
@@ -1070,153 +872,92 @@
           <p><span class="math display">\[
           \mathcal{F}\{p_c'(t)\} = \sum_{k} d_k e^{-j\omega t_k}
           \]</span></p>
-          <p>对于上述 <span class="math inline">\(M=2\)</span> 的余弦相位单码片波形（在 <span class="math inline">\([0, 2T_s]\)</span> 之外为 0），我们扫描其跳变点 and 跳变方向：</p>
+          <p>通过除以 <span class="math inline">\(j\omega\)</span> 即可直接得到完整的单码片频谱与功率谱，而<strong>完全不需要进行任何积分运算</strong>！</p>
+          </section>
+
+          <section id="最小例子m2的时域跳变与符号决定的本质" class="level6">
+          <h6>2. 最小例子 $M=2$ 的时域跳变与符号决定的本质</h6>
+          <p>我们来直接“阅读” <span class="math inline">\(M=2\)</span> 时的余弦相位波形 <span class="math inline">\(p_c(t)\)</span>：</p>
           <ul>
-          <li>在 <span class="math inline">\(t_0 = 0\)</span> 处，信号从 <span class="math inline">\(0 \rightarrow +1\)</span>，跳变高度 <span class="math inline">\(d_0 = +1\)</span>；</li>
-          <li>在 <span class="math inline">\(t_1 = T_s/2\)</span> 处，信号从 <span class="math inline">\(+1 \rightarrow -1\)</span>，跳变高度 <span class="math inline">\(d_1 = -2\)</span>；</li>
-          <li>在 <span class="math inline">\(t_2 = 3T_s/2\)</span> 处，信号从 <span class="math inline">\(-1 \rightarrow +1\)</span>，跳变高度 <span class="math inline">\(d_2 = +2\)</span>；</li>
-          <li>在 <span class="math inline">\(t_3 = 2T_s\)</span> 处，信号从 <span class="math inline">\(+1 \rightarrow 0\)</span>，跳变高度 <span class="math inline">\(d_3 = -1\)</span>。</li>
+          <li>在 <span class="math inline">\(t_0 = 0\)</span> 处：波形从 <span class="math inline">\(0\)</span> 跳变到 <span class="math inline">\(+1\)</span>，物理跳变高度为 <span class="math inline">\(d_0 = +1\)</span>；</li>
+          <li>在 <span class="math inline">\(t_1 = T_s/2\)</span> 处：波形从 <span class="math inline">\(+1\)</span> 跳变到 <span class="math inline">\(-1\)</span>，物理跳变高度为 <span class="math inline">\(d_1 = -2\)</span>；</li>
+          <li>在 <span class="math inline">\(t_2 = 3T_s/2\)</span> 处：波形从 <span class="math inline">\(-1\)</span> 跳变到 <span class="math inline">\(+1\)</span>，物理跳变高度为 <span class="math inline">\(d_2 = +2\)</span>；</li>
+          <li>在 <span class="math inline">\(t_3 = 2T_s\)</span> 处：波形从 <span class="math inline">\(+1\)</span> 跳变到 <span class="math inline">\(0\)</span>，物理跳变高度为 <span class="math inline">\(d_3 = -1\)</span>。</li>
           </ul>
-          <p>因此，导数的时域表示为：</p>
+          <p>因此，导数时域波形可直接写为：</p>
           <p><span class="math display">\[
           p_c'(t) = \delta(t) - 2\delta(t - T_s/2) + 2\delta(t - 3T_s/2) - \delta(t - 2T_s)
           \]</span></p>
-          <p>对其求傅里叶变换，并代入基础复指数算子 <span class="math inline">\(A = e^{-j\omega T_s/2}\)</span>（即时延项）：</p>
+          <p>直接对其做傅里叶变换：</p>
           <p><span class="math display">\[
-          \mathcal{F}\{p_c'(t)\} = 1 - 2A + 2A^3 - A^4
+          \mathcal{F}\{p_c'(t)\} = 1 - 2e^{-j\omega T_s/2} + 2e^{-j\omega 3T_s/2} - e^{-j\omega 2T_s} = 1 - 2A + 2A^3 - A^4
           \]</span></p>
-          <p>现在，我们将它代回原信号频谱公式中，并提取分母的负号：</p>
+          <p>代回频谱公式，并为了提取分母的负号 <span class="math inline">\(-j\omega\)</span>，我们将多项式乘以了负号：</p>
           <p><span class="math display">\[
           P_c(f) = \frac{1}{j\omega} (1 - 2A + 2A^3 - A^4) = \frac{1}{-j\omega} (A^4 - 2A^3 + 2A - 1) = \frac{1}{-j\omega} B_2(A)
           \]</span></p>
-          <p><strong>大功告成！</strong> 我们没有做任何积分，仅通过观察跳变高度，就在一步之内推导出了分子的多项式：</p>
-          <p><span class="math display">\[
-          B_2(A) = A^4 - 2A^3 + 2A - 1
-          \]</span></p>
-          <p>这也完美诠释了为什么 <span class="math inline">\(B_2(A)\)</span> 的常数项是 <span class="math inline">\(-1\)</span> 而非 <span class="math inline">\(+1\)</span>：因为在公式中我们为了配合分母的 <span class="math inline">\(-j\omega\)</span>，将导数的系数乘以了 <span class="math inline">\(-1\)</span>。因此，多项式中的各项系数正好是<strong>物理跳变高度的相反数（即 <span class="math inline">\(-d_k\)</span>）</strong>！</p>
+          <p><strong>大功告成！</strong> 我们没有做任何积分，仅通过观察跳变高度，就在一步之内推导出了分子的多项式。这也完美诠释了为什么 <span class="math inline">\(B_2(A)\)</span> 的常数项是 <span class="math inline">\(-1\)</span> 而非 <span class="math inline">\(+1\)</span>：因为在公式中我们为了配合分母的 <span class="math inline">\(-j\omega\)</span>，将导数的系数乘以了 <span class="math inline">\(-1\)</span>。因此，多项式中的各项系数正好是<strong>物理跳变高度的相反数（即 <span class="math inline">\(-d_k\)</span>）</strong>！</p>
+          </section>
           </section>
 
-          <section id="代数深挖重根定理与手把手因式分解" class="level4">
-          <h4>5.6.1 代数深挖：重根定理与手把手因式分解</h4>
+          <section id="代数多重重根定理与手把手因式分解" class="level5">
+          <h5>5.3.1.3 代数多重重根定理与手把手因式分解</h5>
           <p>为什么我们会说多项式 <span class="math inline">\(B_2(A) = A^4 - 2A^3 + 2A - 1\)</span> 在 <span class="math inline">\(A = 1\)</span> 处包含二重以上的重根呢？</p>
-          <p>在高等代数中，有一个经典的<strong>重根判定定理</strong>：</p>
-          <blockquote>
-          <p><strong>重根判定定理</strong>：若多项式 <span class="math inline">\(B(A)\)</span> 满足 <span class="math inline">\(B(A_0) = 0\)</span> 且其一阶导数 <span class="math inline">\(B'(A_0) = 0\)</span>，则 <span class="math inline">\(A_0\)</span> 至少是该多项式的<strong>二重根</strong>。如果更高阶导数也为 0，则重数相应增加。</p>
-          </blockquote>
-          <p><strong>定理证明</strong>：<br>
-          由于 <span class="math inline">\(B(A_0) = 0\)</span>，根据因式定理，我们必能提取出一个因式 <span class="math inline">\((A-A_0)\)</span>，即：</p>
+          <p>在高等代数中，有一个经典的<strong>重根定理</strong>：若 <span class="math inline">\(A = A_0\)</span> 是多项式 <span class="math inline">\(P(A)\)</span> 的 <span class="math inline">\(r\)</span> 重根，当且仅当该多项式本身及其直到 <span class="math inline">\(r-1\)</span> 阶的导数在该点处皆为 0，而其 <span class="math inline">\(r\)</span> 阶导数不为 0：</p>
           <p><span class="math display">\[
-          B(A) = (A - A_0) \cdot g(A)
+          P(A_0) = P'(A_0) = \cdots = P^{(r-1)}(A_0) = 0, \quad P^{(r)}(A_0) \neq 0
           \]</span></p>
-          <p>对两边利用乘法法则求导：</p>
-          <p><span class="math display">\[
-          B'(A) = g(A) + (A - A_0) \cdot g'(A)
-          \]</span></p>
-          <p>将 <span class="math inline">\(A = A_0\)</span> 代入上式：</p>
-          <p><span class="math display">\[
-          B'(A_0) = g(A_0) + 0 = g(A_0)
-          \]</span></p>
-          <p>因为已知 <span class="math inline">\(B'(A_0) = 0\)</span>，故有 <span class="math inline">\(g(A_0) = 0\)</span>。这说明多项式 <span class="math inline">\(g(A)\)</span> 也必定含有因式 <span class="math inline">\((A-A_0)\)</span>，即 <span class="math inline">\(g(A) = (A-A_0)h(A)\)</span>。代回原式可得：</p>
-          <p><span class="math display">\[
-          B(A) = (A - A_0)^2 \cdot h(A)
-          \]</span></p>
-          <p>因此 <span class="math inline">\(A_0\)</span> 至少是二重根。现在我们将 <span class="math inline">\(A_0 = 1\)</span> 代入我们的多项式 <span class="math inline">\(B_2(A)\)</span>：</p>
+          <p>我们来对 <span class="math inline">\(B_2(A)\)</span> 及其各阶导数在 <span class="math inline">\(A = 1\)</span> 处进行手把手代数求值：</p>
           <ul>
-          <li><strong>零阶值</strong>：<span class="math inline">\(B_2(1) = 1^4 - 2(1)^3 + 2(1) - 1 = 0\)</span>；</li>
-          <li><strong>一阶导数</strong>：<span class="math inline">\(B_2'(A) = 4A^3 - 6A^2 + 2 \implies B_2'(1) = 4 - 6 + 2 = 0\)</span>；</li>
-          <li><strong>二阶导数</strong>：<span class="math inline">\(B_2''(A) = 12A^2 - 12A \implies B_2''(1) = 12 - 12 = 0\)</span>；</li>
-          <li><strong>三阶导数</strong>：<span class="math inline">\(B_2'''(A) = 24A - 12 \implies B_2'''(1) = 12 \neq 0\)</span>。</li>
+          <li>原函数：<span class="math inline">\(B_2(1) = 1^4 - 2 \cdot 1^3 + 2 \cdot 1 - 1 = 1 - 2 + 2 - 1 = 0\)</span>；</li>
+          <li>一阶导数：<span class="math inline">\(B_2'(A) = 4A^3 - 6A^2 + 2 \implies B_2'(1) = 4 - 6 + 2 = 0\)</span>；</li>
+          <li>二阶导数：<span class="math inline">\(B_2''(A) = 12A^2 - 12A \implies B_2''(1) = 12 - 12 = 0\)</span>；</li>
+          <li>三阶导数：<span class="math inline">\(B_2'''(A) = 24A - 12 \implies B_2'''(1) = 24 - 12 = 12 \neq 0\)</span>。</li>
           </ul>
-          <p>由于零阶、一阶、二阶导数在 <span class="math inline">\(A=1\)</span> 处全部为 0，这说明 <strong><span class="math inline">\(A=1\)</span> 实际上是该多项式的“三重根”！</strong></p>
-          <p>下面我们手把手地对它进行因式分解，看看它是如何暴露出来的。我们使用<strong>两两分组法</strong>：</p>
+          <p>一阶导和二阶导在 <span class="math inline">\(A = 1\)</span> 处都刚好趋近于零！这以无可辩驳的代数严密性证明了：<span class="math inline">\(A = 1\)</span> 是该多项式的<strong>三重根</strong>！</p>
+          <p>既然 <span class="math inline">\(A = 1\)</span> 是三重根，那么多项式中必然包含因式 <span class="math inline">\((A-1)^3\)</span>。我们可以极其顺理成章地对多项式进行因式分解：</p>
           <p><span class="math display">\[
           \begin{aligned}
-          B_2(A) &amp;= A^4 - 2A^3 + 2A - 1 \\
-          &amp;= (A^4 - 1) - 2A(A^2 - 1) \\
-          &amp;= (A^2 - 1)(A^2 + 1) - 2A(A^2 - 1) \\
-          &amp;= (A^2 - 1)(A^2 - 2A + 1) \\
-          &amp;= (A^2 - 1)(A - 1)^2
+          B_2(A) &= A^4 - 2A^3 + 2A - 1 \\
+          &= (A^4 - 1) - 2A(A^2 - 1) \\
+          &= (A^2 - 1)(A^2 + 1) - 2A(A^2 - 1) \\
+          &= (A^2 - 1)(A^2 - 2A + 1) \\
+          &= (A-1)(A+1)(A-1)^2 \\
+          &= (A+1)(A-1)^3
           \end{aligned}
           \]</span></p>
-          <p>如果将左边的平方差进一步拆开，我们就会看到它完整的三重根面貌：</p>
-          <p><span class="math display">\[
-          B_2(A) = (A + 1)(A - 1)^3
-          \]</span></p>
-          <p>这就完全印证了重根判定定理的结论。</p>
+          <p>看！完全平方式 <span class="math inline">\((A-1)^2\)</span>（即三角化后的 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span>）就这样通过因式分解，极其自然地“浮出了水面”！</p>
           </section>
 
-          <section id="物理本源多重零陷与频谱分裂的物理本质" class="level4">
-          <h4>5.6.2 物理本源：多重零陷与“频谱分裂”的物理本质</h4>
-          <p>这个多重根在通信工程和频谱设计中，蕴含着极具美感的物理本源：</p>
-          <ol>
-          <li><strong>零频（直流）的对应关系</strong>：<br>
-          复指数算子 <span class="math inline">\(A = e^{-j\pi f T_s}\)</span>，当 <span class="math inline">\(A = 1\)</span> 时，正好对应频率 <span class="math inline">\(f = 0\)</span>（即中心载频/直流分量）。</li>
-          <li><strong>单根 <span class="math inline">\((A-1)\)</span> 的物理本质——直流积分为 0</strong>：<br>
-          因为 BOC 信号在一个码片内的正负电平时间完全相等（无直流偏置），时域总积分为 0。所以在零频处必然存在一个单零点 <span class="math inline">\((A-1)\)</span>。</li>
-          <li><strong>三重根 <span class="math inline">\((A-1)^3\)</span> 的物理本质——多重零陷与频谱搬移</strong>：<br>
-          在 <span class="math inline">\(f \to 0\)</span> 附近，因子 <span class="math inline">\((A-1)^3\)</span> 可以等效为 <span class="math inline">\((-j\pi f T_s)^3\)</span>，它代表了一个高达三阶的高通差分滤波器，以极快的速度（<span class="math inline">\(f^3\)</span>）衰减趋近于 0。这使得原始信号的频谱在 <span class="math inline">\(f \to 0\)</span> 附近的行为为：</li>
-          </ol>
-          <p><span class="math display">\[
-          P_c(f) = \frac{1}{-j 2\pi f} B_2(A) \propto \frac{f^3}{f} = f^2
-          \]</span></p>
-          <p>对功率谱密度求模平方后，其在中心频点附近的衰减速度高达：</p>
-          <p><span class="math display">\[
-          G_c(f) \propto |P_c(f)|^2 \propto f^4
-          \]</span></p>
-          <p><strong>这就是频谱分裂的根源！</strong> 三重根在零频处挖出了一个极其宽阔、平坦且深邃的“大低谷”（零陷），强行把所有能量从中心频点“推开”，使其彻底向两侧移动，从而完美实现了能量分布的双主瓣分裂效果。</p>
-          <p>求模平方时，我们继续使用模平方性质化简：</p>
-          <p><span class="math display">\[
-          \left|B_2\right|^2
-          =
-          \left|A^2-1\right|^2
-          \left|A-1\right|^4
-          \]</span></p>
-          <p>其中</p>
-          <p><span class="math display">\[
-          \begin{aligned}
-          \left|A-1\right|^2
-          &amp;=
-          \left|e^{-j\omega T_s/2}-1\right|^2\\
-          &amp;=
-          2-2\cos\left(\frac{\omega T_s}{2}\right)\\
-          &amp;=
-          4\sin^2\left(\frac{\pi fT_s}{2}\right)
-          \end{aligned}
-          \]</span></p>
-          <p>于是</p>
-          <p><span class="math display">\[
-          \left|A-1\right|^4
-          =
-          16\sin^4\left(\frac{\pi fT_s}{2}\right)
-          =
-          4\left[1-\cos(\pi fT_s)\right]^2
-          \]</span></p>
-          <p>这就把“完全平方式”与最终的 <span class="math inline">\([1-\cos(\pi
-          fT_s)]^2\)</span> 联系起来了。</p>
+          <section id="零频多重零陷与频谱分裂的物理本质" class="level5">
+          <h5>5.3.1.4 零频多重零陷与频谱分裂的物理本质</h5>
+          <p>这个三重根在物理上代表了什么？</p>
+          <p>当频率 <span class="math inline">\(f \rightarrow 0\)</span> 时，时延算子 <span class="math inline">\(A = e^{-j\pi fT_s} \rightarrow 1\)</span>。频谱公式中，分母里有一个 <span class="math inline">\(-j2\pi f\)</span>（对应频域的一阶零点），而分子中包含一个三重零点 <span class="math inline">\((A-1)^3\)</span>（对应频域的三阶零陷）。两者相除，最终在零频 <span class="math inline">\(f=0\)</span> 附近留下了<strong>二阶零陷</strong>（模平方后，在功率谱上就对应着<strong>极深的主瓣中心四次零陷</strong>，即 <span class="math inline">\(f^4\)</span> 量级的强力衰减）。</p>
+          <p>因为零频附近的能量被如此彻底地消除了，根据能量守恒，信号的总功率必然会被剧烈地向两侧高频部分“推开”，从而在时域边界半宽切割的调制下，形成了余弦相位 BOC 极为显著的、向两侧更远频段“分裂”的经典频谱形态。这就是多重零陷与频谱分裂的代数与物理大一统本源！</p>
           </section>
-          <section id="一般偶数阶余弦相位的严格推导" class="level3">
-          <h3>5.7 一般偶数阶余弦相位的严格推导</h3>
-          <p>下面把上面的例子推广到一般偶数 <span
-          class="math inline">\(M\)</span>仍令</p>
+          </section>
+
+          <section id="一般偶数阶余弦相位的严格推导" class="level4">
+          <h4>5.3.2 一般偶数阶余弦相位的严格推导</h4>
+          <p>下面把上面的例子推广到一般偶数 <span class="math inline">\(M\)</span>。仍令：</p>
           <p><span class="math display">\[
           \omega=2\pi f
           \qquad
           A=e^{-j\omega T_s/2}=e^{-j\pi fT_s}
           \]</span></p>
-          <p>由余弦相位单码片表达式可得</p>
+          <p>由余弦相位单码片表达式可得：</p>
           <p><span class="math display">\[
           \begin{aligned}
           P_c(f)
-          &amp;=
+          &=
           \int_0^{T_s/2}e^{-j\omega t}\,dt
           +
           \sum_{k=1}^{M-1}(-1)^k
-          \int_{(k-\frac12)T_s}^{(k+\frac12)T_s}
-          e^{-j\omega t}\,dt\\
-          &amp;\quad
+          \int_{(k-\frac12)T_s}^{(k+\frac12)T_s}e^{-j\omega t}\,dt\\
+          &\quad
           +
           \int_{(M-\frac12)T_s}^{MT_s}e^{-j\omega t}\,dt\\
-          &amp;=
+          &=
           \frac{1}{-j\omega}
           \left[
           (A-1)
@@ -1228,22 +969,20 @@
           \right]
           \end{aligned}
           \]</span></p>
-          <p>把方括号记为 <span
-          class="math inline">\(B_M\)</span>展开后，它的符号结构为</p>
+          <p>把方括号记为 <span class="math inline">\(B_M\)</span>，展开后，它的符号结构为：</p>
           <p><span class="math display">\[
           B_M
           =
           -1+2A-2A^3+2A^5-\cdots-2A^{2M-1}+A^{2M}
           \qquad M\ \text{为偶数}
           \]</span></p>
-          <p>这个式子容易在首尾符号上看乱，所以用 <span
-          class="math inline">\(M=4\)</span> 展开一次：</p>
+          <p>这个式子容易在首尾符号上看乱，所以用 <span class="math inline">\(M=4\)</span> 展开一次：</p>
           <p><span class="math display">\[
           \begin{aligned}
           B_4
-          &amp;=
+          &=
           (A-1)-(A^3-A)+(A^5-A^3)-(A^7-A^5)+(A^8-A^7)\\
-          &amp;=
+          &=
           -1+2A-2A^3+2A^5-2A^7+A^8
           \end{aligned}
           \]</span></p>
@@ -1261,15 +1000,13 @@
           =
           A(1-A^2+A^4-\cdots-A^{2M-2})
           \]</span></p>
-          <p>括号内是公比为 <span class="math inline">\(-A^2\)</span>、项数为
-          <span class="math inline">\(M\)</span> 的等比数列。由于 <span
-          class="math inline">\(M\)</span> 为偶数，</p>
+          <p>括号内是公比为 <span class="math inline">\(-A^2\)</span>、项数为 <span class="math inline">\(M\)</span> 的等比数列。由于 <span class="math inline">\(M\)</span> 为偶数：</p>
           <p><span class="math display">\[
           \begin{aligned}
           1-A^2+A^4-\cdots-A^{2M-2}
-          &amp;=
+          &=
           \frac{1-(-A^2)^M}{1-(-A^2)}\\
-          &amp;=
+          &=
           \frac{1-A^{2M}}{1+A^2}
           \end{aligned}
           \]</span></p>
@@ -1277,50 +1014,43 @@
           <p><span class="math display">\[
           \begin{aligned}
           B_M
-          &amp;=
+          &=
           -(1-A^{2M})
           +
           2A\frac{1-A^{2M}}{1+A^2}\\
-          &amp;=
+          &=
           (1-A^{2M})
           \left[
           -1+\frac{2A}{1+A^2}
           \right]\\
-          &amp;=
+          &=
           (1-A^{2M})
           \frac{-(1+A^2)+2A}{1+A^2}\\
-          &amp;=
+          &=
           -(1-A^{2M})
           \frac{(1-A)^2}{1+A^2}
           \end{aligned}
           \]</span></p>
-          <p>也就是</p>
+          <p>也就是：</p>
           <p><span class="math display">\[
           B_M
           =
           -(1-A^{2M})\frac{(1-A)^2}{1+A^2}
           \]</span></p>
-          <p>这一步就是余弦相位推导中的核心：<span
-          class="math inline">\((1-A)^2\)</span> 是边界切割造成的完全平方式，<span
-          class="math inline">\(1+A^2\)</span>
-          则会在三角化简中给出教材公式分母里的 <span
-          class="math inline">\(\cos(\pi fT_s)\)</span></p>
-          <p>将 <span class="math inline">\(A=e^{-j\theta}\)</span>、<span
-          class="math inline">\(\theta=\pi fT_s\)</span> 代入，化简残余因子：</p>
+          <p>这一步就是余弦相位推导中的核心：<span class="math inline">\((1-A)^2\)</span> 是边界切割造成的完全平方式，<span class="math inline">\(1+A^2\)</span> 则会在三角化简中给出教材公式分母里的 <span class="math inline">\(\cos(\pi fT_s)\)</span>。</p>
+          <p>将 <span class="math inline">\(A=e^{-j\theta}\)</span>、<span class="math inline">\(\theta=\pi fT_s\)</span> 代入，化简残余因子：</p>
           <p><span class="math display">\[
           1-A
           =
           1-e^{-j\theta}
           =
-          2je^{-j\theta/2}\sin\frac{\theta}{2}
-          \]</span></p>
-          <p>所以</p>
-          <p><span class="math display">\[
+          2je^{-j\theta/2}\sin\left(\frac{\theta}{2}\right)
+          \implies
           (1-A)^2
           =
-          -4e^{-j\theta}\sin^2\frac{\theta}{2}
+          -4e^{-j\theta}\sin^2\left(\frac{\theta}{2network}\right)
           \]</span></p>
-          <p>同时</p>
+          <p>而对于分母：</p>
           <p><span class="math display">\[
           1+A^2
           =
@@ -1328,55 +1058,38 @@
           =
           2e^{-j\theta}\cos\theta
           \]</span></p>
-          <p>因此</p>
+          <p>两部分相除，指数的相角因子在取模后就会自动对消：</p>
           <p><span class="math display">\[
-          -\frac{(1-A)^2}{1+A^2}
+          \frac{(1-A)^2}{1+A^2}
           =
-          \frac{4e^{-j\theta}\sin^2(\theta/2)}
-          {2e^{-j\theta}\cos\theta}
+          \frac{-4e^{-j\theta}\sin^2(\theta/2)}{2e^{-j\theta}\cos\theta}
           =
-          \frac{2\sin^2(\theta/2)}{\cos\theta}
+          -\frac{2\sin^2(\theta/2)}{\cos\theta}
           =
-          \frac{1-\cos\theta}{\cos\theta}
+          -\frac{1-\cos\theta}{\cos\theta}
           \]</span></p>
-          <p>这里也顺手澄清一个容易混淆的式子：</p>
-          <p><span class="math display">\[
-          \frac{A-1}{A+1}
-          =
-          \frac{e^{-j\theta}-1}{e^{-j\theta}+1}
-          =
-          -j\tan\frac{\theta}{2}
-          \]</span></p>
-          <p>这个恒等式本身成立，但余弦相位一般偶数阶推导中更精确出现的是</p>
+          <p>我们得到了一个极其纯净干净的实数式：</p>
           <p><span class="math display">\[
           -\frac{(1-A)^2}{1+A^2}
           =
           \frac{1-\cos\theta}{\cos\theta}
           \]</span></p>
-          <p>它的模平方才会给出教材中的</p>
+          <p>它的自变量就是教材里的 <span class="math inline">\(\pi fT_s\)</span>！</p>
+          <p>现在回到单码片波形傅里叶变换的完整算式中：</p>
           <p><span class="math display">\[
-          \frac{[1-\cos(\pi fT_s)]^2}{\cos^2(\pi fT_s)}
-          \]</span></p>
-          <p>现在回到 <span class="math inline">\(P_c(f)\)</span>：</p>
-          <p><span class="math display">\[
-          \begin{aligned}
           P_c(f)
-          &amp;=
-          \frac{1}{-j2\pi f}
-          B_M\\
-          &amp;=
-          \frac{1}{-j2\pi f}
-          \left(1-e^{-j2\pi fMT_s}\right)
-          \frac{1-\cos(\pi fT_s)}{\cos(\pi fT_s)}
-          \end{aligned}
+          =
+          \frac{1}{-j2\pi f} B_M
+          =
+          \frac{1}{-j2\pi f} \left(1-e^{-j2\pi fMT_s}\right) \frac{1-\cos(\pi fT_s)}{\cos(\pi fT_s)}
           \]</span></p>
-          <p>又因为</p>
+          <p>又因为：</p>
           <p><span class="math display">\[
           1-e^{-j2\pi fMT_s}
           =
           2je^{-j\pi fMT_s}\sin(\pi fMT_s)
           \]</span></p>
-          <p>所以</p>
+          <p>所以我们有：</p>
           <p><span class="math display">\[
           P_c(f)
           =
@@ -1384,25 +1097,27 @@
           \frac{\sin(\pi fMT_s)\left[1-\cos(\pi fT_s)\right]}
           {\pi f\cos(\pi fT_s)}
           \]</span></p>
-          <p>整体负号和指数只影响相位，不影响功率谱。由 <span
-          class="math inline">\(MT_s=T_c\)</span>，取模平方并除以 <span
-          class="math inline">\(T_c\)</span> 得</p>
-          <p><span class="math display">\[
+          <p>整体的负号和时延相位因子在取模平方时都会完全消失，所以它绝对不影响信号的能量分布。因为 <span class="math inline">\(MT_s = T_c\)</span>，取模平方并除以周期 <span class="math inline">\(T_c\)</span> 即可完美推导出：</p>
+          <div id="eq-417" class="boc-formula-container">
+<p><span class="math display">\[
           G_{\mathrm{BOC}_c(f_s,f_c)}(f)
           =
           \frac{
-          \sin^2(\pi fT_c)
-          \left[1-\cos(\pi fT_s)\right]^2
+          \sin^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
           }
           {
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
           }
           \qquad M\ \text{为偶数}
+          \tag{4.17}
           \]</span></p>
+{RETURN_BUTTON_HTML}
+</div>
           <p>这就是教材式 (4.17)。</p>
           </section>
-          <section id="一般奇数阶余弦相位的严格推导" class="level3">
-          <h3>5.8 一般奇数阶余弦相位的严格推导</h3>
+
+          <section id="一般奇数阶余弦相位的严格推导" class="level4">
+          <h4>5.3.3 一般奇数阶余弦相位的严格推导</h4>
           <p>接下来我们推导一般<strong>奇数阶</strong> <span class="math inline">\(M\)</span> 时的余弦相位 BOC 信号频谱。仍然定义：</p>
           <p><span class="math display">\[
           \omega=2\pi f
@@ -1513,33 +1228,38 @@
           \end{aligned}
           \]</span></p>
           <p>取模平方并除以码片周期 <span class="math inline">\(T_c\)</span>，即可完美推导出奇数阶余弦相位 BOC 的功率谱密度公式：</p>
-          <p><span class="math display">\[
+          <div id="eq-418" class="boc-formula-container">
+<p><span class="math display">\[
           G_{\mathrm{BOC}_c(f_s,f_c)}(f)
           =
           \frac{
           \cos^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
           }
           {
-          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          T_c\left[\pi f\cos(\pi fT_s)ight]^2
           }
           \qquad M\ \text{为奇数}
+          \tag{4.18}
           \]</span></p>
+{RETURN_BUTTON_HTML}
+</div>
           <p>这就是教材式 (4.18)！</p>
-          <p>通过这套极其严密的代数推导，奇偶阶谱密度的切换逻辑水落石出：奇数阶下，由于单码片首尾符号相同（都为负），在多项式展开中形成了对偶的等比级数符号，导致原先的 <span class="math inline">\(1-A^{2M}\)</span> 变换为了 <span class="math inline">\(1+A^{2M}\)</span>，这在提半角后就完美地将码片窗项由正弦平方 <span class="math inline">\(\sin^2(\pi fT_c)\)</span> 转变为了余弦平方 <span class="math inline">\(\cos^2(\pi fT_c)\)</span>，而与边界切割相关的副载波因子 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span> 保持完好。数学规律如此简洁优美，真是令人叹为观止！</p>
+          <p>通过这套极其严密的代数推导，奇偶阶谱密度的切换逻辑水落石出：奇数阶下，由于单码片首尾符号相同（都为负），在多项式展开中形成了对偶 of 等比级数符号，导致原先的 <span class="math inline">\(1-A^{2M}\)</span> 变换为了 <span class="math inline">\(1+A^{2M}\)</span>，这在提半角后就完美地将码片窗项由正弦平方 <span class="math inline">\(\sin^2(\pi fT_c)\)</span> 转变为了余弦平方 <span class="math inline">\({\cos^2(\pi fT_c)}\)</span>，而与边界切割相关的副载波因子 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span> 保持完好。数学规律如此简洁优美，真是令人叹为观止！</p>
           </section>
-          <section id="正弦相位为什么最后仍是-sin2pi-ft_s" class="level3">
-          <h3>5.9 正弦相位为什么最后仍是 <span class="math inline">\(\sin^2(\pi
-          fT_s)\)</span></h3>
-          <p>正弦相位也可以从复指数差分角度看到平方结构，但它的差分步长和整半周期
-          <span class="math inline">\(T_s\)</span>
-          对齐。以偶数阶为例，前面已经推到</p>
+          </section>
+
+          <section id="正弦相位谱解析与正余弦结构对比" class="level3">
+          <h3>5.4 正弦相位谱解析与正余弦结构对比</h3>
+          
+          <section id="正弦相位为什么最后仍是-sin2pi-ft_s" class="level4">
+          <h4>5.4.1 正弦相位为什么最后仍是 <span class="math inline">\(\sin^2(\pi fT_s)\)</span></h4>
+          <p>正弦相位也可以从复指数差分角度看到平方结构，但它的差分步长和整半周期 <span class="math inline">\(T_s\)</span> 对齐。以偶数阶为例，前面已经推到：</p>
           <p><span class="math display">\[
           P_s(f)=
           j\frac{\sin(\pi fT_s)\sin(\pi fT_c)}
-          {\pi f\cos(\pi fT_s)}
-          e^{-j\pi fT_c}
+          {\pi f\cos(\pi fT_s)}e^{-j\pi fT_c}
           \]</span></p>
-          <p>因此</p>
+          <p>因此：</p>
           <p><span class="math display">\[
           |P_s(f)|^2
           =
@@ -1550,36 +1270,16 @@
           \left[\pi f\cos(\pi fT_s)\right]^2
           }
           \]</span></p>
-          <p>若从复数块看，正弦相位中的基本差分是 <span
-          class="math inline">\(1-e^{-j2\pi fT_s}\)</span>，它的模平方为</p>
-          <p><span class="math display">\[
-          \left|1-e^{-j2\pi fT_s}\right|^2
-          =
-          4\sin^2(\pi fT_s)
-          \]</span></p>
-          <p>它的自变量正好就是教材公式里的 <span class="math inline">\(\pi
-          fT_s\)</span>，与分母中由</p>
+          <p>它的自变量正好就是教材公式里的 <span class="math inline">\(\pi fT_s\)</span>，与分母中由</p>
           <p><span class="math display">\[
           1+e^{-j2\pi fT_s}
           \]</span></p>
-          <p>化出的 <span class="math inline">\(\cos(\pi fT_s)\)</span>
-          完整配对，所以最后保留下来的副载波因子是简洁的 <span
-          class="math inline">\(\sin^2(\pi
-          fT_s)\)</span>余弦相位的差分步长被边界切成 <span
-          class="math inline">\(T_s/2\)</span>，先产生 <span
-          class="math inline">\(\sin^2(\pi fT_s/2)\)</span>，再通过</p>
-          <p><span class="math display">\[
-          2\sin^2\left(\frac{\pi fT_s}{2}\right)
-          =
-          1-\cos(\pi fT_s)
-          \]</span></p>
-          <p>升回教材统一的自变量，于是形成 <span
-          class="math inline">\([1-\cos(\pi fT_s)]^2\)</span></p>
+          <p>化出的 <span class="math inline">\(\cos(\pi fT_s)\)</span> 完整配对，所以最后保留下来的副载波因子是简洁的 <span class="math inline">\(\sin^2(\pi fT_s)\)</span>。正弦相位的差分步长刚好是 <span class="math inline">\(T_s\)</span>，在时域上没有边界的切片干扰，因此直接呈现为最简洁的二次式。</p>
           </section>
-          <section id="正弦相位与余弦相位的结构对比" class="level3">
-          <h3>5.10 正弦相位与余弦相位的结构对比</h3>
-          <p>以 <span class="math inline">\(M\)</span>
-          为偶数为例，两者可对比如下：</p>
+
+          <section id="正弦相位与余弦相位的结构对比" class="level4">
+          <h4>5.4.2 正弦相位与余弦相位的结构对比</h4>
+          <p>以 <span class="math inline">\(M\)</span> 为偶数为例，两者可对比如下：</p>
           <table>
           <colgroup>
           <col style="width: 33%" />
@@ -1621,71 +1321,22 @@
           </tr>
           </tbody>
           </table>
-          <p>物理上，正弦相位 BOC 与余弦相位 BOC
-          的差异可以从频域和时域两个层面来理解。</p>
-          <p>先看频域。正弦相位的副载波因子是 <span
-          class="math inline">\(\sin^2(\pi fT_s)\)</span> 这一项。当 <span
-          class="math inline">\(f\)</span> 接近 0 时，利用小角度近似 <span
-          class="math inline">\(\sin x\approx x\)</span>，它在低频附近呈 <span
-          class="math inline">\(f^2\)</span>
-          量级的二次衰减。这已经会压制中心频点，让功率谱在零频附近形成凹陷，并把主要能量推到
-          <span class="math inline">\(\pm f_s\)</span> 附近。</p>
-          <p>余弦相位的副载波因子是 <span class="math inline">\([1-\cos(\pi
-          fT_s)]^2\)</span> 这一项。当 <span class="math inline">\(f\)</span> 接近
-          0 时，利用泰勒展开</p>
+          <p>物理上，正弦相位 BOC 与余弦相位 BOC 的差异可以从频域和时域两个层面来理解。</p>
+          <p>先看频域。正弦相位的副载波因子是 <span class="math inline">\(\sin^2(\pi fT_s)\)</span> 这一项。当 <span class="math inline">\(f\)</span> 接近 0 时，利用小角度近似 <span class="math inline">\(\sin x\approx x\)</span>，它在低频附近呈 <span class="math inline">\(f^2\)</span> 量级的二次衰减。这已经会压制中心频点，让功率谱在零频附近形成凹陷，并把主要能量推到 <span class="math inline">\(\pm f_s\)</span> 附近。</p>
+          <p>余弦相位的副载波因子是 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span> 这一项。当 <span class="math inline">\(f\)</span> 接近 0 时，利用泰勒展开：</p>
           <p><span class="math display">\[
           \cos x\approx 1-\frac{x^2}{2}
           \]</span></p>
-          <p>可得</p>
+          <p>可得：</p>
           <p><span class="math display">\[
           1-\cos x\approx \frac{x^2}{2}
           \]</span></p>
-          <p>再经过外层平方后，整个因子在低频附近呈 <span
-          class="math inline">\(f^4\)</span>
-          量级的四次衰减。也就是说，余弦相位对中心低频的压制比正弦相位更强：正弦相位是二次压制，余弦相位近似是四次压制。中心能量被压得越彻底，在归一化总功率一定的条件下，能量就越倾向于向更高频的两侧分布。因此余弦
-          BOC 的频谱分裂程度更深，主瓣位置和能量分布也会更偏向两侧。</p>
-          <p>再看时域。根据时频对偶直觉，频域占用带宽越宽，高频成分越多，时域相关函数的主峰往往越尖锐、越窄。卫星导航接收机通过估计码相位延迟来测距；自相关主峰越窄，主峰附近斜率越陡，码跟踪鉴别器对热噪声和多径扰动的分辨能力就越强。因此，余弦相位
-          BOC
-          因为等效带宽更宽，往往具有更窄的相关主峰，也就带来更高测距分辨率的潜力。</p>
-          <p>但这个优势也有代价。BOC
-          自相关函数本来就具有多峰结构，本质上来自方波副载波在相关运算中的多层重叠。余弦相位又在码片边界引入了更尖锐的截断跳变，使两侧副峰更容易变大、变尖锐。接收机在捕获或跟踪时，如果没有足够稳健的模糊峰抑制策略，就可能把副峰误认为主峰而锁定，造成明显的码相位偏差。另一方面，余弦相位把能量推向更高频两侧，也意味着接收机射频前端和基带滤波器需要保留更宽的有效带宽，硬件成本、功耗和滤波设计难度都会随之增加。</p>
-          <p>因此教材给出</p>
-          <p><span class="math display">\[
-          G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
-          \frac{
-          \sin^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
-          }
-          {
-          T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          }
-          \qquad M\ \text{为偶数}
-          \tag{4.17}
-          \]</span></p>
-          <p><span class="math display">\[
-          G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
-          \frac{
-          \cos^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
-          }
-          {
-          T_c\left[\pi f\cos(\pi fT_s)\right]^2
-          }
-          \qquad M\ \text{为奇数}
-          \tag{4.18}
-          \]</span></p>
-          <p>这四个公式的结构非常整齐：</p>
-          <ul>
-          <li>分母完全相同，都是 <span class="math inline">\(T_c[\pi f\cos(\pi
-          fT_s)]^2\)</span></li>
-          <li>正弦相位还是余弦相位，决定与 <span
-          class="math inline">\(T_s\)</span> 有关的副载波因子。</li>
-          <li><span class="math inline">\(M\)</span> 为奇数还是偶数，决定与 <span
-          class="math inline">\(T_c\)</span> 有关的码片因子是 <span
-          class="math inline">\(\cos^2(\pi fT_c)\)</span> 还是 <span
-          class="math inline">\(\sin^2(\pi fT_c)\)</span></li>
-          </ul>
+          <p>再经过外层平方后，整个因子在低频附近呈 <span class="math inline">\(f^4\)</span> 量级的四次衰减。也就是说，余弦相位对中心低频的压制比正弦相位更强：正弦相位是二次压制，余弦相位近似是四次压制。中心能量被压得越彻底，在归一化总功率一定的条件下，能量就越倾向于向更高频的两侧分布。因此余弦 BOC 的频谱分裂程度更深，主瓣位置和能量分布也会更偏向两侧。</p>
+          <p>再看时域。根据时频对偶直觉，频域占用带宽越宽，高频成分越多，时域相关函数的主峰往往越尖锐、越窄。卫星导航接收机通过估计码相位延迟来测距；自相关主峰越窄，主峰附近斜率越陡，码跟踪鉴别器对热噪声和多径扰动的分辨能力就越强。因此，余弦相位 BOC 因为等效带宽更宽，往往具有更窄的相关主峰，也就带来更高测距分辨率的潜力。</p>
+          <p>但这个优势也有代价。BOC 自相关函数本来就具有多峰结构，本质上来自方波副载波在相关运算中的多层重叠。余弦相位又在码片边界引入了更尖锐的截断跳变，使两侧副峰更容易变大、变尖锐。接收机在捕获或跟踪时，如果没有足够稳健的模糊峰抑制策略，就可能把副峰误认为主峰而锁定，造成明显的码相位偏差。另一方面，余弦相位把能量推向更高频两侧，也意味着接收机射频前端和基带滤波器需要保留更宽的有效带宽，硬件成本、功耗和滤波设计难度都会随之增加。</p>
           </section>
           </section>
-          <section id="read-formulas" class="level2 boc-section">
+        </section><section id="read-formulas" class="level2 boc-section">
           <h2>6. 读懂四个谱公式：码片窗口筛网与副载波搬移包络的物理分工</h2>
           <p>读公式时，不要先被分子分母吓住。把它拆成两类作用，就会清楚很多。</p>
           <section id="码片窗口项的作用细密谱零点网格的筛网效应" class="level3">
@@ -1788,12 +1439,12 @@
           <p><span class="math display">\[\pi f T_c = M (\pi f T_s) = M \cdot \frac{2r+1}{2}\pi\]</span></p>
           <p>此时分子的行为取决于 <span class="math inline">\(M\)</span> 的奇偶性：</p>
           <ol>
-          <li><strong>当 <span class="math inline">\(M\)</span> 为偶数时</strong>（对应式 4.15 和 4.17），设 <span class="math inline">\(M = 2k\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
+          <li><strong>当 <span class="math inline">\(M\)</span> 为偶数时</strong>（对应<a href="#eq-415">式 (4.15)</a> 和 <a href="#eq-417">式 (4.17)</a>），设 <span class="math inline">\(M = 2k\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
           <p><span class="math display">\[\pi f T_c = 2k \cdot \frac{2r+1}{2}\pi = k(2r+1)\pi\]</span></p>
           因为 <span class="math inline">\(k(2r+1)\)</span> 为整数，所以分子中的码片窗口项为：
           <p><span class="math display">\[\sin^2(\pi f T_c) = \sin^2(n\pi) = 0 \quad (n \in \mathbb{Z})\]</span></p>
           </li>
-          <li><strong>当 <span class="math inline">\(M\)</span> 为奇数时</strong>（对应式 4.16 和 4.18），设 <span class="math inline">\(M = 2k+1\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
+          <li><strong>当 <span class="math inline">\(M\)</span> 为奇数时</strong>（对应<a href="#eq-416">式 (4.16)</a> 和 <a href="#eq-418">式 (4.18)</a>），设 <span class="math inline">\(M = 2k+1\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
           <p><span class="math display">\[\pi f T_c = (2k+1) \cdot \frac{2r+1}{2}\pi = \frac{(2k+1)(2r+1)}{2}\pi\]</span></p>
           因为两个奇数之积仍为奇数，可设 <span class="math inline">\((2k+1)(2r+1) = 2n+1\)</span>（<span class="math inline">\(n \in \mathbb{Z}\)</span>），所以分子中的码片窗口项为：
           <p><span class="math display">\[\cos^2(\pi f T_c) = \cos^2\left(\frac{2n+1}{2}\pi\right) = 0 \quad (n \in \mathbb{Z})\]</span></p>

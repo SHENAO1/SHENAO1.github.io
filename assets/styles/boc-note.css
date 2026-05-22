@@ -534,5 +534,90 @@
   transform: scale(0.85);
 }
 
+/* =========================================================================
+   TOC H4 深度缩进与高亮设计 (TOC H4 Level Indents & Highlights)
+   ========================================================================= */
+
+.boc-toc a.toc-h4 {
+  padding-left: 24px;
+  font-size: 10.5px;
+  color: var(--boc-muted);
+}
+
+/* 四级子章节激活状态：深铁锈红，右移呈现灵动吸入感 */
+.boc-toc a.toc-h4.active {
+  color: var(--boc-rust) !important;
+  font-weight: 600;
+  padding-left: 28px;
+}
+
+/* 四级子章节左侧高亮时呈现的精致极简小圆点 */
+.boc-toc a.toc-h4.active::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: var(--boc-rust);
+}
+
+/* =========================================================================
+   公式返回按钮与高亮样式表 (Targeted Formula Return Button & Highlights)
+   ========================================================================= */
+
+.boc-formula-container {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 14px auto;
+  box-sizing: border-box;
+}
+
+/* 返回按钮的精致样式 */
+.formula-back-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: none; /* 默认隐藏 */
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid rgba(185, 78, 31, 0.15);
+  border-radius: 4px;
+  background: rgba(255, 248, 230, 0.9);
+  color: var(--boc-rust, #b94e1f);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1.2;
+  transition: all 0.2s ease-in-out;
+}
+
+.formula-back-btn:hover {
+  background: #fff;
+  color: var(--boc-rust, #b94e1f);
+  border-color: rgba(185, 78, 31, 0.35);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 当容器被 :target 时点亮返回按钮 */
+.boc-formula-container:target .formula-back-btn {
+  display: inline-flex;
+}
+
+/* 对被 target 的公式卡片加一个淡淡的高亮和闪烁边框效果 */
+.boc-formula-container:target .math.display,
+.boc-formula-container:target .boc-formula {
+  border-color: rgba(185, 78, 31, 0.4) !important;
+  box-shadow: 0 0 10px rgba(185, 78, 31, 0.15);
+}
+
+
 
 
