@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>4.3.2 BOC 信号的功率谱密度 | Signal Notes</title>
-  <meta name="description" content="4.3.2 BOC 信号的功率谱密度章节笔记：融合教材原页、补充问答、傅里叶尺度解释和 PSD 严格式推导。">
+  <meta name="description" content="4.3.2 BOC 信号的功率谱密度：从方波副载波、傅里叶变换和提半角推导，读懂 BOC PSD、主瓣宽度与内侧旁瓣数。">
   <link rel="stylesheet" href="../../../assets/styles/site.css">
   <link rel="stylesheet" href="../../../assets/styles/boc-note.css">
   <script>
@@ -52,7 +52,7 @@
           </div>
           <div class="boc-kicker">Signal design / BOC spectrum</div>
           <h1>4.3.2 BOC 信号的功率谱密度</h1>
-          <p>从方波副载波的单码片积分出发，推导教材式 (4.15)-(4.18)，再把主瓣宽度 $2f_c$、普通旁瓣宽度 $f_c$、内侧旁瓣数 $M-2$ 放回同一张频谱零点网格里。</p>
+          <p>从教材式 (4.11) 的方波副载波出发，把截图中的正文和公式整理成可读推导：先看频谱为何搬移到 $\pm f_s$，再推导式 (4.15)-(4.18)，最后解释主瓣宽度 $2f_c$ 与内侧旁瓣数 $M-2$。</p>
           <div class="boc-meta" aria-label="章节标签">
             <span>《新一代卫星导航系统信号设计原理与实现技术》</span>
             <span>Chapter 4.3.2</span>
@@ -79,932 +79,649 @@
       <div class="boc-layout">
         <aside class="boc-toc" aria-label="章节目录">
           <strong>本节结构</strong>
-          <a href="#source">教材原页</a>
-          <a href="#symbols">符号约定</a>
-          <a href="#sine">正弦相位推导</a>
-          <a href="#cosine">余弦相位公式</a>
+          <a href="#route">本节主线</a>
+          <a href="#notation">符号与尺度</a>
+          <a href="#sine-derivation">单码片频谱</a>
+          <a href="#half-angle">提半角化简</a>
+          <a href="#psd">功率谱公式</a>
+          <a href="#read-formulas">读懂公式</a>
           <a href="#lobes">主瓣与旁瓣</a>
-          <a href="#questions">补充问题</a>
-          <a href="#gemini-full">Gemini 全文</a>
+          <a href="#figure-48">图 4-8 对照</a>
+          <a href="#summary">一句话复习</a>
         </aside>
 
         <article class="boc-article">
-          <section class="boc-section" id="source">
-            <h2>教材原页与本节目标</h2>
-            <p>教材 4.3.2 的核心是把 BOC 调制看成“BPSK-R 码片波形乘以方波副载波”。时域相乘，对应频域卷积；方波副载波的奇次谐波把原本靠近中心频点的谱搬到 $\pm f_s$ 一带。</p>
-            <div class="boc-source-strip">
-              <a href="assets/figures/book-4-3-2-part-1.png"><img src="assets/figures/book-4-3-2-part-1.png" alt="教材 4.3.2 起始页"></a>
-              <a href="assets/figures/book-4-3-2-part-2.png"><img src="assets/figures/book-4-3-2-part-2.png" alt="教材 4.3.2 公式页"></a>
-              <a href="assets/figures/book-4-3-2-part-3.png"><img src="assets/figures/book-4-3-2-part-3.png" alt="教材 4.3.2 图 4-8 和结论页"></a>
-            </div>
+          <section id="route" class="level2 boc-section">
+          <h2>1. 本节主线：先看见频谱为什么会分裂</h2>
+          <p>BOC
+          调制最容易让人迷惑的地方，是它的功率谱密度最大值不再位于载波中心附近，而是分裂到载波中心两侧。教材
+          4.3.2 要说明的正是这件事。</p>
+          <p>先用一句话抓住主链：</p>
+          <p><span class="math display">\[
+          \text{方波副载波}
+          \longrightarrow
+          \text{奇次谐波}
+          \longrightarrow
+          \text{频谱搬移到 }\pm f_s
+          \longrightarrow
+          \text{主瓣、旁瓣与零点网格}
+          \]</span></p>
+          <p>教材给出的正弦相位方波副载波是</p>
+          <p><span class="math display">\[
+          \gamma(t)=\operatorname{sgn}\left[\sin(2\pi f_s t+\psi)\right]
+          \tag{4.11}
+          \]</span></p>
+          <p>BOC 信号可以看成 BPSK-R
+          扩频码片波形乘以这个方波副载波。时域相乘，对应频域卷积，所以教材写成</p>
+          <p><span class="math display">\[
+          P_{\mathrm{BOC}}(f)
+          =
+          P_{\mathrm{BPSK-R}}(f)*\Gamma(f)
+          \tag{4.12}
+          \]</span></p>
+          <p>其中</p>
+          <p><span class="math display">\[
+          \Gamma(f)=\mathcal{F}\{\gamma(t)\}.
+          \]</span></p>
+          <p>方波副载波的关键性质是奇谐性：平移半个副载波周期后符号反转。若把完整副载波周期记为
+          <span class="math inline">\(T_{\mathrm{per}}\)</span>，可写成</p>
+          <p><span class="math display">\[
+          \gamma(t)=-\gamma\left(t+\frac{T_{\mathrm{per}}}{2}\right).
+          \tag{4.13}
+          \]</span></p>
+          <p>下文为了和式 (4.15)–(4.18)
+          的谱公式保持一致，把方波电平保持不变的半周期记为</p>
+          <p><span class="math display">\[
+          T_s=\frac{1}{2f_s}.
+          \]</span></p>
+          <p>于是奇谐性也可理解为</p>
+          <p><span class="math display">\[
+          \gamma(t)=-\gamma(t+T_s).
+          \]</span></p>
+          <p>因为方波只含奇次谐波，所以 <span
+          class="math inline">\(\Gamma(f)\)</span> 是一串线谱，只在</p>
+          <p><span class="math display">\[
+          f=\pm(2k+1)f_s,\qquad k=0,1,2,\ldots
+          \]</span></p>
+          <p>附近出现奇次谐波项，线谱间隔为 <span
+          class="math inline">\(2f_s\)</span>，包络近似服从 <span
+          class="math inline">\(\operatorname{sinc}(\pi
+          fT_s)\)</span>。这就解释了为什么 BOC
+          的频谱会从中心频点向两侧搬移：它是在用方波副载波的奇次谱线去搬移原本的
+          BPSK-R 频谱。</p>
+          <p>功率谱密度由频谱与其共轭相乘得到：</p>
+          <p><span class="math display">\[
+          G_{\mathrm{BOC}}(f)=P_{\mathrm{BOC}}(f)P_{\mathrm{BOC}}^*(f).
+          \tag{4.14}
+          \]</span></p>
+          <p>下面的问题就变成：怎样从一个码片内的方波片段，严格算出 <span
+          class="math inline">\(P_{\mathrm{BOC}}(f)\)</span>，再得到式
+          (4.15)–(4.18)？</p>
           </section>
-
-          <section class="boc-section" id="symbols">
-            <h2>先把符号钉稳</h2>
-            <p>码片周期和码速率互为倒数：</p>
-            <div class="boc-formula">
-              \[
-              T_c=\frac{1}{f_c}
-              \]
-            </div>
-            <p>教材里的 $T_s$ 是方波副载波的半周期，也就是方波电平保持不变的最小时间片：</p>
-            <div class="boc-formula">
-              \[
-              T_s=\frac{1}{2f_s}
-              \]
-            </div>
-            <p>所以调制阶数 $M$ 可以直接理解为一个码片里包含多少个副载波半周期：</p>
-            <div class="boc-formula is-rust">
-              \[
-              M=\frac{T_c}{T_s}=\frac{2f_s}{f_c},\qquad T_c=MT_s,\qquad 2f_s=Mf_c
-              \]
-            </div>
+          <section id="notation" class="level2 boc-section">
+          <h2>2. 符号约定：<span class="math inline">\(T_c\)</span> 管码片，<span
+          class="math inline">\(T_s\)</span> 管副载波片段</h2>
+          <p>码片速率为 <span class="math inline">\(f_c\)</span>，码片周期为</p>
+          <p><span class="math display">\[
+          T_c=\frac{1}{f_c}.
+          \]</span></p>
+          <p>副载波频率为 <span class="math inline">\(f_s\)</span>。因为 BOC
+          副载波是方波，它每半个周期翻转一次，所以单个方波电平片段的长度为</p>
+          <p><span class="math display">\[
+          T_s=\frac{1}{2f_s}.
+          \]</span></p>
+          <p>调制阶数 <span class="math inline">\(M\)</span>
+          就是一个码片里包含多少个这样的半周期片段：</p>
+          <p><span class="math display">\[
+          M=\frac{T_c}{T_s}=\frac{2f_s}{f_c}.
+          \]</span></p>
+          <p>后面会反复用到两个等价关系：</p>
+          <p><span class="math display">\[
+          T_c=MT_s,\qquad 2f_s=Mf_c.
+          \]</span></p>
+          <p>这个定义看上去只是符号选择，但它会让推导极其整齐。若把完整方波周期当作基本片段，每个码片内的片段数会多出一个
+          <span class="math inline">\(1/2\)</span>；而把 <span
+          class="math inline">\(T_s\)</span>
+          定义为半周期后，一个码片内正负电平的翻转次数就直接由 <span
+          class="math inline">\(M\)</span> 表示。</p>
+          <p>这里还有一个重要直觉：时域片段越宽，频域结构越窄；时域片段越窄，频域结构越宽。傅里叶变换的尺度性质可写为</p>
+          <p><span class="math display">\[
+          x\left(\frac{t}{a}\right)
+          \longleftrightarrow
+          aX(af),\qquad a&gt;1.
+          \]</span></p>
+          <p>也就是说，把时域信号拉宽 <span class="math inline">\(a\)</span>
+          倍，频谱会在频率轴上压窄 <span class="math inline">\(a\)</span>
+          倍。这就是为什么 <span class="math inline">\(T_c\)</span> 与 <span
+          class="math inline">\(T_s\)</span> 同时出现在谱公式里：<span
+          class="math inline">\(T_c\)</span> 决定码片窗口造成的细密零点网格，<span
+          class="math inline">\(T_s\)</span>
+          决定方波副载波片段造成的搬移与包络。</p>
           </section>
-
-          <section class="boc-section" id="sine">
-            <h2>正弦相位 BOC 的 PSD 推导</h2>
-            <p>教材给出的正弦相位方波副载波为</p>
-            <div class="boc-formula">
-              \[
-              \gamma(t)=\operatorname{sgn}\left[\sin(2\pi f_s t+\psi)\right]
-              \tag{4.11}
-              \]
-            </div>
-            <p>只看一个码片内的 BOC 基本脉冲。令第 $k$ 个副载波半周期上的方波符号为 $(-1)^k$，则</p>
-            <div class="boc-formula">
-              \[
-              p_s(t)=\sum_{k=0}^{M-1}(-1)^k\mathbf{1}_{[kT_s,(k+1)T_s)}(t)
-              \]
-            </div>
-            <h3>为什么会出现复指数 $e$</h3>
-            <p>连续时间傅里叶变换的定义本身包含复指数基函数：</p>
-            <div class="boc-formula">
-              \[
-              X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}\,dt
-              \]
-            </div>
-            <p>其中 $e^{-j2\pi ft}$ 来自欧拉公式 $e^{-j\theta}=\cos\theta-j\sin\theta$，作用是把时域信号投影到频率 $f$ 上。由于 $p_s(t)$ 里的指示函数只在 $[kT_s,(k+1)T_s)$ 内非零，整个积分会被切成 $M$ 个小区间：</p>
-            <div class="boc-formula">
-              \[
-              P_s(f)=
-              \sum_{k=0}^{M-1}(-1)^k
-              \int_{kT_s}^{(k+1)T_s}e^{-j2\pi ft}\,dt
-              \]
-            </div>
-
-            <h3>求解单个小区间的定积分</h3>
-            <p>先对每一个小区间计算：</p>
-            <div class="boc-formula">
-              \[
-              \begin{aligned}
-              \int_{kT_s}^{(k+1)T_s}e^{-j2\pi ft}\,dt
-              &=
-              \left[\frac{e^{-j2\pi ft}}{-j2\pi f}\right]_{kT_s}^{(k+1)T_s} \\
-              &=
-              \frac{e^{-j2\pi f(k+1)T_s}-e^{-j2\pi fkT_s}}
-              {-j2\pi f} \\
-              &=
-              \frac{e^{-j2\pi fkT_s}-e^{-j2\pi f(k+1)T_s}}
-              {j2\pi f} \\
-              &=
-              \frac{
-              e^{-j2\pi fkT_s}\left(1-e^{-j2\pi fT_s}\right)
-              }{j2\pi f} \\
-              &=
-              \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
-              \left(e^{-j2\pi fT_s}\right)^k
-              \end{aligned}
-              \]
-            </div>
-
-            <h3>代回求和并整理成等比数列</h3>
-            <p>把这个积分结果放回 $P_s(f)$：</p>
-            <div class="boc-formula">
-              \[
-              \begin{aligned}
-              P_s(f)
-              &=
-              \sum_{k=0}^{M-1}(-1)^k
-              \left[
-              \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
-              \left(e^{-j2\pi fT_s}\right)^k
-              \right] \\
-              &=
-              \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
-              \sum_{k=0}^{M-1}(-1)^k
-              \left(e^{-j2\pi fT_s}\right)^k \\
-              &=
-              \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
-              \sum_{k=0}^{M-1}\left(-e^{-j2\pi fT_s}\right)^k \\
-              &=
-              \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
-              \frac{1-\left(-e^{-j2\pi fT_s}\right)^M}
-              {1+e^{-j2\pi fT_s}}
-              \end{aligned}
-              \]
-            </div>
-            <p>最后一行使用的是有限项等比数列公式 $\sum_{k=0}^{M-1}q^k=(1-q^M)/(1-q)$，其中 $q=-e^{-j2\pi fT_s}$。</p>
-
-            <h3>用提半角把复指数化成三角函数</h3>
-            <p>从式 (4.11) 的方波副载波走到功率谱时，关键一步是把复指数形式改写成正弦、余弦形式。这样才能看清幅度包络和最终取模平方后的 PSD 结构。欧拉公式给出</p>
-            <div class="boc-formula">
-              \[
-              \sin\theta=\frac{e^{j\theta}-e^{-j\theta}}{2j},
-              \qquad
-              \cos\theta=\frac{e^{j\theta}+e^{-j\theta}}{2}
-              \]
-            </div>
-            <p>因此遇到 $1-e^{-j2\theta}$ 或 $1+e^{-j2\theta}$ 时，可以先提取半角相位因子：</p>
-            <div class="boc-formula">
-              \[
-              \begin{aligned}
-              1-e^{-j2\theta}
-              &=
-              e^{-j\theta}\left(e^{j\theta}-e^{-j\theta}\right)
-              =
-              2je^{-j\theta}\sin\theta,\\
-              1+e^{-j2\theta}
-              &=
-              e^{-j\theta}\left(e^{j\theta}+e^{-j\theta}\right)
-              =
-              2e^{-j\theta}\cos\theta
-              \end{aligned}
-              \]
-            </div>
-
-            <p>先处理不含 $M$ 的公共框架：</p>
-            <div class="boc-formula">
-              \[
-              \frac{1-e^{-j2\pi fT_s}}
-              {j2\pi f\left(1+e^{-j2\pi fT_s}\right)}
-              \]
-            </div>
-            <p>令 $\theta=\pi fT_s$，则</p>
-            <div class="boc-formula">
-              \[
-              \begin{aligned}
-              1-e^{-j2\pi fT_s}
-              &=2je^{-j\pi fT_s}\sin(\pi fT_s),\\
-              1+e^{-j2\pi fT_s}
-              &=2e^{-j\pi fT_s}\cos(\pi fT_s)
-              \end{aligned}
-              \]
-            </div>
-            <p>代回后，公共相位因子 $e^{-j\pi fT_s}$ 和常数 2 同时约掉：</p>
-            <div class="boc-formula">
-              \[
-              \frac{
-              2je^{-j\pi fT_s}\sin(\pi fT_s)
-              }{
-              j2\pi f\cdot 2e^{-j\pi fT_s}\cos(\pi fT_s)
-              }
-              =
-              \frac{\sin(\pi fT_s)}
-              {2\pi f\cos(\pi fT_s)}
-              \]
-            </div>
-
-            <p>再看带 $M$ 的分子项。当 $M$ 为偶数时，$(-1)^M=1$，所以</p>
-            <div class="boc-formula">
-              \[
-              \begin{aligned}
-              1-\left(-e^{-j2\pi fT_s}\right)^M
-              &=
-              1-e^{-j2\pi fMT_s}\\
-              &=
-              2je^{-j\pi fMT_s}\sin(\pi fMT_s)
-              \end{aligned}
-              \]
-            </div>
-            <p>于是正弦相位 BOC 的单码片频谱可以写成</p>
-            <div class="boc-formula">
-              \[
-              \begin{aligned}
-              P_s(f)
-              &=
-              \frac{\sin(\pi fT_s)}
-              {2\pi f\cos(\pi fT_s)}
-              \cdot
-              2je^{-j\pi fMT_s}\sin(\pi fMT_s)\\
-              &=
-              j\frac{\sin(\pi fT_s)\sin(\pi fMT_s)}
-              {\pi f\cos(\pi fT_s)}
-              e^{-j\pi fMT_s}
-              \end{aligned}
-              \]
-            </div>
-            <p>由于 $MT_s=T_c$，上式也就是</p>
-            <div class="boc-formula is-rust">
-              \[
-              P_s(f)=
-              j\frac{\sin(\pi fT_s)\sin(\pi fT_c)}
-              {\pi f\cos(\pi fT_s)}
-              e^{-j\pi fT_c}
-              \qquad (M\ \text{为偶数})
-              \]
-            </div>
-            <p>这里最后的 $e^{-j\pi fT_c}$ 只贡献线性相位，取模平方时消失；留下来的三角函数比值决定功率谱的形状。</p>
-
-            <p>当 $M$ 为奇数时，$(-1)^M=-1$，因此</p>
-            <div class="boc-formula">
-              \[
-              1-\left(-e^{-j2\pi fT_s}\right)^M
-              =
-              1+e^{-j2\pi fMT_s}
-              =
-              2e^{-j\pi fMT_s}\cos(\pi fMT_s)
-              \]
-            </div>
-            <p>所以奇数阶时，后续取模平方会把偶数阶中的 $\sin^2(\pi fT_c)$ 换成 $\cos^2(\pi fT_c)$。这正是式 (4.15) 与式 (4.16) 的差别来源。</p>
-
-            <p>把同一结果压缩写法表示，令 $a=\pi fT_s$，利用 $1-e^{-j2a}=2je^{-ja}\sin a$、$1+e^{-j2a}=2e^{-ja}\cos a$，得到</p>
-            <div class="boc-formula">
-              \[
-              P_s(f)=
-              \frac{\tan(\pi fT_s)}{2\pi f}
-              \left[
-              1-(-1)^M e^{-j2\pi fT_c}
-              \right]
-              \]
-            </div>
-            <p>于是 $M$ 的奇偶性只影响最后一项取模平方后的结果。</p>
-
-            <div class="boc-equation-grid">
-              <div class="boc-equation-card">
-                <span class="boc-label">M 为偶数</span>
-                \[
-                G_{\mathrm{BOC}_s}(f)=
-                \frac{\sin^2(\pi fT_c)\sin^2(\pi fT_s)}
-                {T_c\left[\pi f\cos(\pi fT_s)\right]^2}
-                \tag{4.15}
-                \]
-              </div>
-              <div class="boc-equation-card">
-                <span class="boc-label">M 为奇数</span>
-                \[
-                G_{\mathrm{BOC}_s}(f)=
-                \frac{\cos^2(\pi fT_c)\sin^2(\pi fT_s)}
-                {T_c\left[\pi f\cos(\pi fT_s)\right]^2}
-                \tag{4.16}
-                \]
-              </div>
-            </div>
+          <section id="sine-derivation" class="level2 boc-section">
+          <h2>3. 正弦相位 BOC：从单码片脉冲开始</h2>
+          <p>先只看一个码片 <span class="math inline">\(0\le t&lt;T_c\)</span>
+          内的 BOC
+          基本脉冲。正弦相位方波在相邻半周期内交替取正负号，所以可以把单码片脉冲写成</p>
+          <p><span class="math display">\[
+          p_s(t)=
+          \sum_{k=0}^{M-1}(-1)^k
+          \mathbf{1}_{[kT_s,(k+1)T_s)}(t).
+          \]</span></p>
+          <p>其中 <span
+          class="math inline">\(\mathbf{1}_{[kT_s,(k+1)T_s)}(t)\)</span>
+          是区间指示函数：只有当 <span class="math inline">\(t\)</span> 落在第
+          <span class="math inline">\(k\)</span> 个副载波半周期内时，它才等于
+          1。</p>
+          <section id="为什么推导里会出现复指数" class="level3">
+          <h3>3.1 为什么推导里会出现复指数</h3>
+          <p>连续时间傅里叶变换的定义为</p>
+          <p><span class="math display">\[
+          X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}\,dt.
+          \]</span></p>
+          <p>这里的 <span class="math inline">\(e^{-j2\pi ft}\)</span>
+          是傅里叶变换的基函数。由欧拉公式</p>
+          <p><span class="math display">\[
+          e^{-j\theta}=\cos\theta-j\sin\theta
+          \]</span></p>
+          <p>可知，它本质上是在用复正弦基函数测量信号在频率 <span
+          class="math inline">\(f\)</span> 上的投影。</p>
+          <p>把 <span class="math inline">\(p_s(t)\)</span>
+          代入傅里叶变换。由于指示函数把信号限制在 <span
+          class="math inline">\(M\)</span> 个小区间内，原来的全时域积分会被切成
+          <span class="math inline">\(M\)</span> 段：</p>
+          <p><span class="math display">\[
+          P_s(f)
+          =
+          \sum_{k=0}^{M-1}(-1)^k
+          \int_{kT_s}^{(k+1)T_s}
+          e^{-j2\pi ft}\,dt.
+          \]</span></p>
           </section>
-
-          <section class="boc-section" id="cosine">
-            <h2>余弦相位 BOC 只换副载波因子</h2>
-            <p>余弦相位 BOC 相当于方波副载波相位移动了四分之一周期。单码片窗口会截到首尾半段副载波片段，分段积分后，影响功率谱的是下面这个替换：</p>
-            <div class="boc-formula is-rust">
-              \[
-              \sin^2(\pi fT_s)
-              \quad\longrightarrow\quad
-              \left[1-\cos(\pi fT_s)\right]^2
-              \]
-            </div>
-            <div class="boc-equation-grid">
-              <div class="boc-equation-card">
-                <span class="boc-label">M 为偶数</span>
-                \[
-                G_{\mathrm{BOC}_c}(f)=
-                \frac{\sin^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2}
-                {T_c\left[\pi f\cos(\pi fT_s)\right]^2}
-                \tag{4.17}
-                \]
-              </div>
-              <div class="boc-equation-card">
-                <span class="boc-label">M 为奇数</span>
-                \[
-                G_{\mathrm{BOC}_c}(f)=
-                \frac{\cos^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2}
-                {T_c\left[\pi f\cos(\pi fT_s)\right]^2}
-                \tag{4.18}
-                \]
-              </div>
-            </div>
-            <p>四个式子的分母完全相同。$T_c$ 相关项给出细密零点网格，$T_s$ 相关项负责副载波相位带来的能量形状。</p>
+          <section id="先算一个半周期小片段" class="level3">
+          <h3>3.2 先算一个半周期小片段</h3>
+          <p>对其中一段积分，有</p>
+          <p><span class="math display">\[
+          \int_{kT_s}^{(k+1)T_s}e^{-j2\pi ft}\,dt
+          =
+          \left[
+          \frac{e^{-j2\pi ft}}{-j2\pi f}
+          \right]_{kT_s}^{(k+1)T_s}.
+          \]</span></p>
+          <p>代入上下限：</p>
+          <p><span class="math display">\[
+          =
+          \frac{e^{-j2\pi f(k+1)T_s}-e^{-j2\pi fkT_s}}
+          {-j2\pi f}.
+          \]</span></p>
+          <p>把分子顺序对调，消掉分母负号：</p>
+          <p><span class="math display">\[
+          =
+          \frac{e^{-j2\pi fkT_s}-e^{-j2\pi f(k+1)T_s}}
+          {j2\pi f}.
+          \]</span></p>
+          <p>再提出公因式 <span class="math inline">\(e^{-j2\pi
+          fkT_s}\)</span>：</p>
+          <p><span class="math display">\[
+          =
+          \frac{
+          e^{-j2\pi fkT_s}\left(1-e^{-j2\pi fT_s}\right)
+          }
+          {j2\pi f}.
+          \]</span></p>
+          <p>于是</p>
+          <p><span class="math display">\[
+          \int_{kT_s}^{(k+1)T_s}e^{-j2\pi ft}\,dt
+          =
+          \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
+          \left(e^{-j2\pi fT_s}\right)^k.
+          \]</span></p>
           </section>
-
-          <section class="boc-section" id="lobes">
-            <h2>主瓣宽度、旁瓣宽度与 $M-2$</h2>
-            <p>以式 (4.15) 为例，可写成</p>
-            <div class="boc-formula">
-              \[
-              G_{\mathrm{BOC}_s}(f)=
-              \underbrace{
-              \frac{\sin^2(\pi fT_c)}{T_c(\pi f)^2}
-              }_{\text{码片项}}
-              \cdot
-              \underbrace{
-              \tan^2(\pi fT_s)
-              }_{\text{副载波项}}
-              \]
-            </div>
-            <p>码片项的零点是</p>
-            <div class="boc-formula">
-              \[
-              f=\frac{k}{T_c}=kf_c
-              \]
-            </div>
-            <p>副载波项的零点是</p>
-            <div class="boc-formula">
-              \[
-              f=\frac{k}{T_s}=kMf_c
-              \]
-            </div>
-            <p>所以旁瓣切分的基本网格来自 $T_c$，间隔为 $f_c$。但分母中的 $\cos(\pi fT_s)$ 在</p>
-            <div class="boc-formula is-rust">
-              \[
-              f=(2r+1)f_s
-              \]
-            </div>
-            <p>处为零，这些位置正是方波副载波的奇次谱线。分子和分母同时趋零，形成有限峰值；物理上就是副载波把能量搬到 $\pm f_s$ 附近。</p>
-
-            <figure class="boc-figure">
-              <img src="assets/figures/boc-lobe-grid.png" alt="BOC 频谱零点网格、主瓣与内侧旁瓣计数示意">
-              <figcaption>零点网格由 $f_c$ 切分；在 $\pm f_s$ 附近，副载波搬移能量形成主瓣。</figcaption>
-            </figure>
-
-            <h3>主瓣宽度</h3>
-            <p>右侧主瓣围绕 $+f_s$。夹住它的最近两个普通零点在 $f_s-f_c$ 和 $f_s+f_c$，因此</p>
-            <div class="boc-formula">
-              \[
-              \Delta f_{\text{main}}
-              =(f_s+f_c)-(f_s-f_c)=2f_c
-              \]
-            </div>
-
-            <h3>普通旁瓣宽度</h3>
-            <p>普通旁瓣夹在相邻两个普通零点之间：</p>
-            <div class="boc-formula">
-              \[
-              \Delta f_{\text{side}}
-              =(k+1)f_c-kf_c=f_c
-              \]
-            </div>
-
-            <h3>内侧旁瓣数</h3>
-            <p>两个主瓣内侧区域从 $-f_s+f_c$ 到 $f_s-f_c$，总宽度为</p>
-            <div class="boc-formula">
-              \[
-              \Delta f_{\text{inner}}
-              =(f_s-f_c)-(-f_s+f_c)
-              =2f_s-2f_c
-              =(M-2)f_c
-              \]
-            </div>
-            <p>每个普通旁瓣宽度是 $f_c$，所以</p>
-            <div class="boc-formula is-rust">
-              \[
-              N_{\text{inner side lobes}}
-              =\frac{(M-2)f_c}{f_c}
-              =M-2
-              \]
-            </div>
-            <figure class="boc-figure">
-              <img src="assets/figures/fig-4-8-boc-power-spectrum.png" alt="教材图 4-8 BOC 信号的功率谱密度">
-              <figcaption>教材图 4-8：$\mathrm{BOC}_s(1,1)$ 的 $M=2$，内侧旁瓣为 0；$\mathrm{BOC}_c(6,1)$ 的 $M=12$，内侧旁瓣为 10。</figcaption>
-            </figure>
+          <section id="代回求和得到等比数列" class="level3">
+          <h3>3.3 代回求和，得到等比数列</h3>
+          <p>将上式代回 <span class="math inline">\(P_s(f)\)</span>：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          P_s(f)
+          &amp;=
+          \sum_{k=0}^{M-1}(-1)^k
+          \left[
+          \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
+          \left(e^{-j2\pi fT_s}\right)^k
+          \right]\\
+          &amp;=
+          \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
+          \sum_{k=0}^{M-1}
+          (-1)^k
+          \left(e^{-j2\pi fT_s}\right)^k\\
+          &amp;=
+          \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
+          \sum_{k=0}^{M-1}
+          \left(-e^{-j2\pi fT_s}\right)^k.
+          \end{aligned}
+          \]</span></p>
+          <p>最后一项是有限等比数列。令</p>
+          <p><span class="math display">\[
+          q=-e^{-j2\pi fT_s},
+          \]</span></p>
+          <p>则</p>
+          <p><span class="math display">\[
+          \sum_{k=0}^{M-1}q^k
+          =
+          \frac{1-q^M}{1-q}.
+          \]</span></p>
+          <p>因此</p>
+          <p><span class="math display">\[
+          P_s(f)=
+          \frac{1-e^{-j2\pi fT_s}}{j2\pi f}
+          \cdot
+          \frac{1-\left(-e^{-j2\pi fT_s}\right)^M}
+          {1+e^{-j2\pi fT_s}}.
+          \]</span></p>
+          <p>这一步完成了从分段方波脉冲到频谱闭式表达式的过渡。</p>
           </section>
-
-          <section class="boc-section" id="questions">
-            <h2>把两个补充问题并回教材</h2>
-            <div class="boc-callout">
-              <p><strong>为什么 $T_s=1/(2f_s)$？</strong></p>
-              <p>因为 BOC 副载波是方波。频率为 $f_s$ 的方波完整周期是 $1/f_s$，但每半个周期就翻转一次。教材关心的是一个码片内的正负方波片段数，所以把半周期定义为 $T_s$，这样 $M=T_c/T_s$。</p>
-            </div>
-            <div class="boc-callout">
-              <p><strong>$\sin^2(\pi fT_s)$ 也能给零点吗？</strong></p>
-              <p>能，但它给出的零点间隔是 $1/T_s=Mf_c$，比 $T_c$ 给出的 $f_c$ 稀疏，并且落在 $f_c$ 网格上。所以旁瓣宽度看最细网格，仍由 $T_c$ 控制。</p>
-            </div>
-            <div class="boc-callout">
-              <p><strong>所谓“特殊照顾”特殊在哪里？</strong></p>
-              <p>特殊在 $f=(2r+1)f_s$ 这些副载波奇次谐波位置。那里不是普通旁瓣，而是方波副载波把 BPSK-R 谱搬移过来形成的强峰，最明显的就是 $\pm f_s$ 两个主瓣。</p>
-            </div>
-            <div class="boc-chip-row">
-              <span class="boc-chip">核心记忆：$T_c$ 管零点网格</span>
-              <span class="boc-chip">核心记忆：$T_s$ 管副载波搬移</span>
-              <span class="boc-chip">核心记忆：主瓣吞掉一个零点</span>
-              <span class="boc-chip">核心记忆：内侧旁瓣数 $M-2$</span>
-            </div>
           </section>
-
-          <section class="boc-section boc-gemini-appendix" id="gemini-full">
-            <h2>Gemini 补充材料全文（未删减）</h2>
-            <p>下面两份内容来自本节的两个 Gemini Markdown 源文件。前面的正文已经把关键概念揉进推导线索里；这里保留完整原文，方便逐句核对，不再用润色后的摘要替代原材料。</p>
-            <details class="boc-source-full" open>
-              <summary>Gemini - BOC 信号主瓣旁瓣分析（全文）</summary>
-              <div class="boc-gemini-body">
-<h3 id="boc-信号主瓣旁瓣分析-flash">✅ BOC
-信号主瓣旁瓣分析-&gt;[Flash]</h3>
-<hr />
-<h4 id="导出信息">📤 导出信息</h4>
-<ul>
-<li><strong>会话标题</strong>: ✅ BOC 信号主瓣旁瓣分析-&gt;[Flash]</li>
-<li><strong>导出时间</strong>: 2026/5/21 23:52:57</li>
-<li><strong>来源</strong>: Gemini</li>
-<li><strong>链接</strong>:
-https://gemini.google.com/app/f4a1db18ae414f11</li>
-</ul>
-<hr />
-<h4 id="用户">🙋 用户</h4>
-<figure>
-<img src="assets/figures/gemini-boc-upload-preview.png"
-alt="所上传图片的预览图" />
-<figcaption aria-hidden="true">所上传图片的预览图</figcaption>
-</figure>
-<p>帮我详细讲解一下“BOC主瓣
-宽度为2fc，主瓣内旁瓣宽度为fc”，为什么调制阶数为M的BOC信号，主瓣内侧旁瓣的数目为M-2</p>
-<hr />
-<h4 id="gemini">🤖 Gemini</h4>
-<p>这两句话是 BOC（Binary Offset
-Carrier）信号频谱特征中非常经典且重要的结论。要彻底理解它们，我们需要从<strong>谱零点（Spectral
-Nulls）</strong>的分布以及<strong>调制阶数 <span
-class="math inline"><em>M</em></span></strong> 的几何意义出发。</p>
-<p>其实，这一切的背后都是非常纯粹且漂亮的数学关系。以下为你带来详细的推导与讲解：</p>
-<h4 id="基础概念与参数对齐">基础概念与参数对齐</h4>
-<p>为了避免概念混淆，我们首先明确课本中的符号定义：</p>
-<ul>
-<li><span
-class="math inline"><em>f</em><sub><em>c</em></sub></span>：伪随机码（PRN）码速率（Chip
-rate），对应的码片周期为 <span
-class="math inline"><em>T</em><sub><em>c</em></sub> = 1/<em>f</em><sub><em>c</em></sub></span>。</li>
-<li><span
-class="math inline"><em>f</em><sub><em>s</em></sub></span>：副载波频率（Subcarrier
-frequency）。</li>
-<li><span
-class="math inline"><em>M</em></span>：<strong>调制阶数</strong>，定义为
-<span class="math inline">$M =
-\frac{2f_s}{f_c}$</span>。它代表<strong>一个正德码片（PRN
-chip）内部包含的副载波半周期（半个方波）的个数</strong>。</li>
-<li>课本公式中的 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>
-实际上指的是副载波的<strong>半周期</strong>（即 <span
-class="math inline">$T_s = \frac{1}{2f_s}$</span>），因此有恒等式：<span
-class="math inline"><em>T</em><sub><em>c</em></sub> = <em>M</em> ⋅ <em>T</em><sub><em>s</em></sub></span>。</li>
-</ul>
-<h4
-id="一为什么boc主瓣宽度为-2f_c旁瓣宽度为-f_c">一、为什么“BOC主瓣宽度为
-<span
-class="math inline">2<em>f</em><sub><em>c</em></sub></span>，旁瓣宽度为
-<span class="math inline"><em>f</em><sub><em>c</em></sub></span>”？</h4>
-<p>BOC 信号的功率谱密度（PSD）公式虽然看起来复杂，但无论是正弦相位（式
-4.15、4.16）还是余弦相位（式
-4.17、4.18），它们的分子中都包含一个共同的项：</p>
-<p><span
-class="math display">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>)</span>
-这一项决定了整个功率谱的谱零点（零陷点）位置。</p>
-<h5 id="谱零点的位置">1. 谱零点的位置</h5>
-<p>令 <span
-class="math inline">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>) = 0</span>，可以得到谱零点分布在：</p>
-<p><span class="math display">$$\pi f T_c = k\pi \implies f =
-\frac{k}{T_c} = k \cdot f_c \quad (k \in \mathbb{Z})$$</span>
-这意味着，<strong>BOC 信号的谱零点是以 <span
-class="math inline"><em>f</em><sub><em>c</em></sub></span>
-为间隔均匀分布的</strong>。</p>
-<h5 id="主瓣宽度的推导">2. 主瓣宽度的推导</h5>
-<p>传统的 BPSK 信号能量集中在 <span
-class="math inline"><em>f</em> = 0</span> 附近。而 BOC
-信号通过副载波调制，将主能量向两侧推移，使能量最大值（主峰）对称地搬移到了
-<span class="math inline">±<em>f</em><sub><em>s</em></sub></span>
-附近（即副载波频率处）。</p>
-<p>以正主瓣为例：</p>
-<ul>
-<li><p>主峰位于 <span
-class="math inline"><em>f</em><sub><em>s</em></sub></span> 附近。因为
-<span class="math inline">$f_s = \frac{M}{2}f_c$</span>，所以主峰位于
-<span class="math inline">$\frac{M}{2}f_c$</span> 附近。</p></li>
-<li><p>卡住这个主峰的左右两个最近的谱零点，分别是比 <span
-class="math inline">$\frac{M}{2}f_c$</span> 略大和略小的两个 <span
-class="math inline"><em>f</em><sub><em>c</em></sub></span>
-的整数倍位置：</p>
-<ul>
-<li><strong>左侧边界（内侧谱零点）</strong>：<span
-class="math inline"><em>f</em><sub>left</sub> = <em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub></span></li>
-<li><strong>右侧边界（外侧谱零点）</strong>：<span
-class="math inline"><em>f</em><sub>right</sub> = <em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub></span></li>
-</ul></li>
-<li><p>因此，主瓣的宽度为左右边界之差：</p>
-<p><span
-class="math display">Width<sub>main</sub> = <em>f</em><sub>right</sub> − <em>f</em><sub>left</sub> = (<em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub>) − (<em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub>) = 2<em>f</em><sub><em>c</em></sub></span></p></li>
-</ul>
-<h5 id="旁瓣宽度的推导">3. 旁瓣宽度的推导</h5>
-<p>除了主瓣之外，其余的普通旁瓣没有受到副载波搬移机制的“特殊照顾”，它们老老实实地夹在两个相邻的普通谱零点
-<span
-class="math inline"><em>k</em> ⋅ <em>f</em><sub><em>c</em></sub></span>
-和 <span
-class="math inline">(<em>k</em> + 1) ⋅ <em>f</em><sub><em>c</em></sub></span>
-之间。 因此，任意普通旁瓣的宽度均为：</p>
-<p><span
-class="math display">Width<sub>side</sub> = (<em>k</em> + 1)<em>f</em><sub><em>c</em></sub> − <em>k</em><em>f</em><sub><em>c</em></sub> = <em>f</em><sub><em>c</em></sub></span></p>
-<h4
-id="二为什么调制阶数为-m-的-boc-信号主瓣内侧旁瓣数目为-m-2">二、为什么“调制阶数为
-<span class="math inline"><em>M</em></span> 的 BOC
-信号，主瓣内侧旁瓣数目为 <span
-class="math inline"><em>M</em> − 2</span>”？</h4>
-<p>这个问题可以通过<strong>几何空间填空</strong>的方式来秒杀。</p>
-<h5 id="数学区间推导">1. 数学区间推导</h5>
-<p>“两个主瓣的内侧所包含的旁瓣”指的是夹在<strong>左主瓣的右边界</strong>与<strong>右主瓣的左边界</strong>之间的全部区域。</p>
-<ul>
-<li>右主瓣的左边界（内侧零点）位于：<span
-class="math inline"><em>f</em><sub>right_inner</sub> = <em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub></span></li>
-<li>左主瓣的右边界（内侧零点）位于：<span
-class="math inline"><em>f</em><sub>left_inner</sub> = −<em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub></span></li>
-</ul>
-<p>我们要计算这两者之间所夹的<strong>总频带宽度</strong>：</p>
-<p><span
-class="math display"><em>Δ</em><em>f</em> = (<em>f</em><sub><em>s</em></sub> − <em>f</em><sub><em>c</em></sub>) − (−<em>f</em><sub><em>s</em></sub> + <em>f</em><sub><em>c</em></sub>) = 2<em>f</em><sub><em>s</em></sub> − 2<em>f</em><sub><em>c</em></sub></span>
-将 <span
-class="math inline">2<em>f</em><sub><em>s</em></sub> = <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>
-代入上式：</p>
-<p><span
-class="math display"><em>Δ</em><em>f</em> = <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub> − 2<em>f</em><sub><em>c</em></sub> = (<em>M</em> − 2)<em>f</em><sub><em>c</em></sub></span></p>
-<h5 id="计算旁瓣个数">2. 计算旁瓣个数</h5>
-<p>既然整个内侧空间的频带总宽度是 <span
-class="math inline">(<em>M</em> − 2)<em>f</em><sub><em>c</em></sub></span>，而我们前面已经证明了，每一个普通旁瓣的宽度恰好是
-<span class="math inline"><em>f</em><sub><em>c</em></sub></span>。</p>
-<p>那么，这个空间里能塞下多少个旁瓣呢？</p>
-<p><span class="math display">$$\text{旁瓣数目} =
-\frac{\text{内侧总宽度}}{\text{单个旁瓣宽度}} = \frac{(M - 2)f_c}{f_c} =
-M - 2$$</span></p>
-<h4 id="三结合课本插图-4-8-实例验证">三、结合课本插图 4-8 实例验证</h4>
-<p>我们可以用图中给出的两个典型信号来完美验证这个规律：</p>
-<h5 id="实例-1textboc_s11-信号">实例 1：<span
-class="math inline">BOC<sub><em>s</em></sub>(1, 1)</span> 信号</h5>
-<ul>
-<li><strong>参数</strong>：<span
-class="math inline"><em>f</em><sub><em>s</em></sub> = 1.023
-MHz</span>，<span
-class="math inline"><em>f</em><sub><em>c</em></sub> = 1.023
-MHz</span>。</li>
-<li><strong>调制阶数</strong>：<span
-class="math inline"><em>M</em> = 2 × 1/1 = 2</span>。</li>
-<li><strong>理论内侧旁瓣数</strong>：<span
-class="math inline"><em>M</em> − 2 = 2 − 2 = 0</span> 个。</li>
-<li><strong>图像验证</strong>：看图 4-8 中的黑色实线（<span
-class="math inline">BOC<sub><em>s</em></sub>(1, 1)</span>），两个高高耸起的主峰（位于
-<span class="math inline">±0.1 × 10<sup>7</sup> Hz</span>
-附近）之间<strong>直接凹陷下去，中间没有任何小山峰（旁瓣）</strong>。理论与图像完美相符。</li>
-</ul>
-<h5 id="实例-2textboc_c61-信号">实例 2：<span
-class="math inline">BOC<sub><em>c</em></sub>(6, 1)</span> 信号</h5>
-<ul>
-<li><strong>参数</strong>：<span
-class="math inline"><em>f</em><sub><em>s</em></sub> = 6 × 1.023
-MHz</span>，<span
-class="math inline"><em>f</em><sub><em>c</em></sub> = 1.023
-MHz</span>。</li>
-<li><strong>调制阶数</strong>：<span
-class="math inline"><em>M</em> = 2 × 6/1 = 12</span>。</li>
-<li><strong>理论内侧旁瓣数</strong>：<span
-class="math inline"><em>M</em> − 2 = 12 − 2 = 10</span> 个。</li>
-<li><strong>图像验证</strong>：看图 4-8 中的灰色细线（<span
-class="math inline">BOC<sub><em>c</em></sub>(6, 1)</span>），两个最高的主峰位于
-<span class="math inline">±0.6 × 10<sup>7</sup> Hz</span> 附近。
-<ul>
-<li>因为余弦相位在中心频点 <span
-class="math inline"><em>f</em> = 0</span>
-处是个零陷点（过零点），所以图形以 <span
-class="math inline"><em>f</em> = 0</span> 对称。</li>
-<li>我们在 <span class="math inline"><em>f</em> &gt; 0</span> 的一侧（即
-<span class="math inline">0</span> 到 <span
-class="math inline">0.6</span>
-之间）仔细数一数灰色的小山头，会发现刚好有 <strong>5
-个旁瓣</strong>。</li>
-<li>同理，左侧（<span class="math inline">−0.6</span> 到 <span
-class="math inline">0</span> 之间）也有 <strong>5 个旁瓣</strong>。</li>
-<li>两侧相加：<span class="math inline">5 + 5 = 10</span>
-个内侧旁瓣！再次与理论完美契合。</li>
-</ul></li>
-</ul>
-<hr />
-<h4 id="用户-1">🙋 用户</h4>
-<p>第一个问题，为什么是^2(f T_c)决定零点位置，^2(f
-T_s)没有能力决定零点位置吗？第二个问题“其余的普通旁瓣没有受到副载波搬移机制的“特殊照顾”，它们老老实实地夹在两个相邻的普通谱零点”为什么没有收到特殊照顾？特殊在哪里？</p>
-<hr />
-<h4 id="gemini-1">🤖 Gemini</h4>
-<p>这两个问题问得非常深刻，直接触及了 BOC
-信号频谱结构的数学本质和物理意义。</p>
-<p>我们把公式拆开来看，你就能一眼看清这其中的“幕后推手”。</p>
-<h4
-id="问题一为什么是-sin2pi-f-t_c-决定零点sin2pi-f-t_s-不行吗">问题一：为什么是
-<span
-class="math inline">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>)</span>
-决定零点，<span
-class="math inline">sin<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>
-不行吗？</h4>
-<p>我们以课本中的式（4.15）——正弦相位、 <span
-class="math inline"><em>M</em></span> 为偶数时的 BOC
-信号功率谱为例。为了看得更清楚，我们把这个公式重新因式分解、整理一下：</p>
-<p><span class="math display">$$G_{\text{BOC}_s}(f) = \frac{\sin^2(\pi f
-T_c) \cdot \sin^2(\pi f T_s)}{T_c \cdot [ \pi f \cos(\pi f T_s) ]^2} =
-\underbrace{\left[ \frac{\sin^2(\pi f T_c)}{T_c (\pi f)^2}
-\right]}_{\text{项 A：码片项}} \cdot \underbrace{\tan^2(\pi f
-T_s)}_{\text{项 B：副载波项}}$$</span>
-通过这个改写，你可以发现，频谱是由项 A（与码片周期 <span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>
-相关）<strong>和</strong>项 B（与副载波半周期 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>
-相关）共同相乘决定的。</p>
-<p>那么，为什么我们说是 <span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>
-决定了密集的谱零点分布呢？原因有两点：</p>
-<h5 id="密度的绝对碾压时频对偶原理">1.
-密度的绝对碾压（时频对偶原理）</h5>
-<p>在时域上，码片周期 <span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>
-是远大于副载波半周期 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span> 的（因为
-<span
-class="math inline"><em>T</em><sub><em>c</em></sub> = <em>M</em> ⋅ <em>T</em><sub><em>s</em></sub></span>，且调制阶数
-<span class="math inline"><em>M</em> ≥ 2</span>）。
-根据傅里叶变换的对偶性：<strong>时域越宽，频域越窄（变化越剧烈）</strong>。</p>
-<ul>
-<li><strong>项 A（含 <span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>）</strong>：由于
-<span class="math inline"><em>T</em><sub><em>c</em></sub></span>
-大，他在频域震荡得<strong>非常快、非常密</strong>。每隔 <span
-class="math inline"><em>f</em><sub><em>c</em></sub></span>
-就会产生一个零点。它就像一把<strong>细密的筛子</strong>。</li>
-<li><strong>项 B（含 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>）</strong>：由于
-<span class="math inline"><em>T</em><sub><em>s</em></sub></span>
-小，他在频域震荡得<strong>非常慢</strong>。要每隔 <span
-class="math inline">2<em>f</em><sub><em>s</em></sub></span>（即 <span
-class="math inline"><em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>）才产生一个零点。它是一把<strong>粗疏的耙子</strong>。</li>
-</ul>
-<h5 id="t_s-的零点完全被-t_c-包容了">2. <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span> 的零点完全被
-<span class="math inline"><em>T</em><sub><em>c</em></sub></span>
-“包容”了</h5>
-<p>我们来看看项 B（<span
-class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>）什么时候为
-0？ 当 <span
-class="math inline"><em>π</em><em>f</em><em>T</em><sub><em>s</em></sub> = <em>k</em><em>π</em></span>
-时，即 <span class="math inline">$f = \frac{k}{T_s} = 2k \cdot
-f_s$</span>。 因为 <span
-class="math inline">2<em>f</em><sub><em>s</em></sub> = <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>，所以这些零点位置实际上就是
-<span
-class="math inline"><em>f</em> = <em>k</em> ⋅ <em>M</em> ⋅ <em>f</em><sub><em>c</em></sub></span>。</p>
-<p>发现了吗？<strong>项 B 想让频谱为 0 的地方，项 A（每隔 <span
-class="math inline"><em>f</em><sub><em>c</em></sub></span> 就为
-0）早就已经是 0 了！</strong> <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>
-并没有能力创造出任何新的、更细密的零点，它定出的几个稀疏零点，只是刚好和
-<span class="math inline"><em>T</em><sub><em>c</em></sub></span>
-编织好的细密谱零点网中的某几根网格线<strong>重合</strong>了而已。</p>
-<blockquote>
-<p><strong>补充思考</strong>：如果 <span
-class="math inline"><em>M</em></span> 是奇数（式 4.16），项 A 会变成
-<span
-class="math inline">cos<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>c</em></sub>)</span>，此时零点位置整体平移了
-<span
-class="math inline">0.5<em>f</em><sub><em>c</em></sub></span>，但<strong>相邻零点之间的间隔依然是固定的
-<span
-class="math inline"><em>f</em><sub><em>c</em></sub></span></strong>。所以，决定“旁瓣宽度为
-<span
-class="math inline"><em>f</em><sub><em>c</em></sub></span>”这个网格尺度的，永远是
-<span class="math inline"><em>T</em><sub><em>c</em></sub></span>。</p>
-</blockquote>
-<h4
-id="问题二特殊照顾到底特殊在哪里为什么其余旁瓣没有">问题二：“特殊照顾”到底特殊在哪里？为什么其余旁瓣没有？</h4>
-<p>你看到的“其余普通旁瓣老老实实夹在中间”，是因为它们确实没分到能量。而那两个高高耸立的<strong>主瓣</strong>，才受到了物理机制的“特殊照顾”。</p>
-<p>这个“特殊照顾”，在物理上叫做<strong>频谱搬移</strong>，在数学上叫做<strong>极点放大</strong>。</p>
-<h5 id="什么是特殊照顾物理视角">1. 什么是“特殊照顾”？（物理视角）</h5>
-<p>BOC
-信号在时域上，是用伪码（BPSK）去<strong>乘以</strong>一个方波副载波。</p>
-<ul>
-<li>传统的 BPSK 信号，能量全集中在中心频点 <span
-class="math inline"><em>f</em> = 0</span> 附近（像一座大山）。</li>
-<li>方波副载波的傅里叶变换，在频域 <span
-class="math inline">±<em>f</em><sub><em>s</em></sub></span>
-处有两个最强的谱线（基波成分）。</li>
-<li>两者在时域相乘，等于在频域把 BPSK
-那座中心大山<strong>拦腰切断，分别向左、向右各搬移了 <span
-class="math inline"><em>f</em><sub><em>s</em></sub></span>
-的距离</strong>。</li>
-</ul>
-<p>这就是特殊照顾！<strong>副载波用自己的频率 <span
-class="math inline"><em>f</em><sub><em>s</em></sub></span>，强行把原本属于中心处的巨大能量，注入到了
-<span class="math inline">±<em>f</em><sub><em>s</em></sub></span>
-这两个特定位置。</strong></p>
-<h5 id="数学上如何体现这种特殊照顾">2.
-数学上如何体现这种“特殊照顾”？</h5>
-<p>我们再回头看刚刚改写出的公式：</p>
-<p><span class="math display">$$G_{\text{BOC}_s}(f) = \left[
-\frac{\sin^2(\pi f T_c)}{T_c (\pi f)^2} \right] \cdot \tan^2(\pi f
-T_s)$$</span> 如果没有右边的 <span
-class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>，左边的项随着频率
-<span class="math inline"><em>f</em></span> 的增大，由于分母有 <span
-class="math inline"><em>f</em><sup>2</sup></span>，谱线高度会衰减得非常快（这就是普通
-BPSK 的衰减速度）。</p>
-<p>但是，当频率 <span class="math inline"><em>f</em></span>
-逐渐靠近副载波频率 <span
-class="math inline"><em>f</em><sub><em>s</em></sub></span> 时：</p>
-<p><span class="math display">$$\pi f T_s \to \pi f_s T_s = \pi f_s
-\left(\frac{1}{2f_s}\right) = \frac{\pi}{2}$$</span> 此时，<strong><span
-class="math inline">$\tan^2(\pi f T_s) \to \tan^2(\frac{\pi}{2}) \to
-\infty$</span></strong>！</p>
-<p>这个 <span class="math inline">tan<sup>2</sup></span> 项在 <span
-class="math inline"><em>f</em> = ±<em>f</em><sub><em>s</em></sub></span>
-附近变成了一个<strong>恐怖的“能量放大器”（数学上的极点）</strong>。它疯狂地对抗分母上
-<span class="math inline"><em>f</em><sup>2</sup></span>
-的衰减，甚至强行把本该在这里归零的谱线<strong>硬生生地拉了起来，反向冲高</strong>，从而形成了两个高耸的、宽度为
-<span class="math inline">2<em>f</em><sub><em>c</em></sub></span>
-的主瓣。</p>
-<h5 id="为什么其余普通旁瓣没有受到照顾">3.
-为什么其余普通旁瓣没有受到照顾？</h5>
-<p>因为这个“能量放大器” <span
-class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>
-是有选择性的。它只在 <span
-class="math inline"><em>f</em> = ±<em>f</em><sub><em>s</em></sub></span>（以及
-<span
-class="math inline">3<em>f</em><sub><em>s</em></sub>, 5<em>f</em><sub><em>s</em></sub></span>
-等高次谐波，但高次谐波处分母的 <span
-class="math inline"><em>f</em><sup>2</sup></span>
-已经太大了，很难拉起来）附近才会暴涨。</p>
-<p>而在远离 <span
-class="math inline">±<em>f</em><sub><em>s</em></sub></span>
-的中继区域（比如在 <span
-class="math inline">−<em>f</em><sub><em>s</em></sub></span> 和 <span
-class="math inline">+<em>f</em><sub><em>s</em></sub></span>
-之间的区域），<span
-class="math inline">tan<sup>2</sup>(<em>π</em><em>f</em><em>T</em><sub><em>s</em></sub>)</span>
-的值非常小，甚至在某些地方自己也变成了 0。</p>
-<p>在这些区域：</p>
-<ul>
-<li>没有副载波搬移过来的核心能量。</li>
-<li><span class="math inline">tan<sup>2</sup></span>
-放大器熄火，无法对抗 <span class="math inline">$\frac{1}{f^2}$</span>
-的自然衰减。</li>
-</ul>
-<p>所以，这些区域的信号只能听天由命，任由 <span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>
-编织出的细密零点网（间隔为 <span
-class="math inline"><em>f</em><sub><em>c</em></sub></span>）对其进行切割。切出来的小碎块，就是那些“老老实实”呆在底部的<strong>普通旁瓣</strong>。</p>
-<hr />
-<h4 id="用户-2">🙋 用户</h4>
-<p>为什么Ts=1/2fs</p>
-<hr />
-<h4 id="gemini-2">🤖 Gemini</h4>
-<p>这其实是卫星导航（GNSS）领域在推导 BOC
-调制时，约定俗成的一个<strong>符号定义习惯</strong>。</p>
-<p>在常规的信号处理中，频率为 <span
-class="math inline"><em>f</em><sub><em>s</em></sub></span>
-的信号，其<strong>完整周期</strong>确实是 <span class="math inline">$T =
-\frac{1}{f_s}$</span>。但在你贴出的课本教材中，将 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>
-定义为了<strong>副载波的半周期（Half-period）</strong>，即：</p>
-<p><span class="math display">$$T_s = \frac{1}{2f_s}$$</span>
-为什么要故意用“半周期”来当做基准时间单位呢？这背后有两个非常直观的原因：</p>
-<h5 id="物理意义方波副载波的电平持续时间">1.
-物理意义：方波副载波的“电平持续时间”</h5>
-<p>BOC 信号使用的副载波 <span
-class="math inline"><em>γ</em>(<em>t</em>)</span>
-不是正弦波，而是<strong>方波</strong>（即式 4.11 的 <span
-class="math inline">sgn[sin (2<em>π</em><em>f</em><sub><em>s</em></sub><em>t</em>)]</span>）。</p>
-<p>对于一个频率为 <span
-class="math inline"><em>f</em><sub><em>s</em></sub></span> 的方波：</p>
-<ul>
-<li>在前半个周期，它的电平是 <span class="math inline">+1</span>；</li>
-<li>在后半个周期，它的电平是 <span class="math inline">−1</span>。</li>
-</ul>
-<p>也就是说，这个方波<strong>每隔 <span
-class="math inline">$\frac{1}{2f_s}$</span>
-秒就会发生一次正负翻转</strong>。在物理上，每一次翻转中间维持常数（<span
-class="math inline">+1</span> 或 <span
-class="math inline">−1</span>）的这段时间，就是方波最基本的“脉冲片”。为了研究方便，作者直接把这个<strong>最基本的电平持续时间</strong>定义为了
-<span class="math inline"><em>T</em><sub><em>s</em></sub></span>。</p>
-<h5 id="为了让调制阶数-m-的公式极其整齐">2. 为了让调制阶数 <span
-class="math inline"><em>M</em></span> 的公式极其整齐</h5>
-<p>BOC 信号有一个核心参数叫<strong>调制阶数 <span
-class="math inline"><em>M</em></span></strong>，它的物理定义是：<strong>一个伪码码片（PRN
-Chip）内部，究竟包含了多少个副载波的“半周期”（即多少个方波脉冲）</strong>。</p>
-<p>我们来做个简单的数学连连看：</p>
-<ul>
-<li><p>一个伪码码片的持续时间是 <span class="math inline">$T_c =
-\frac{1}{f_c}$</span>。</p></li>
-<li><p>如果我们定义副载波半周期为 <span class="math inline">$T_s =
-\frac{1}{2f_s}$</span>。</p></li>
-<li><p>那么一个码片时间 <span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>
-内部包含的半周期个数 <span class="math inline"><em>M</em></span>
-自然就是：</p>
-<p><span class="math display">$$M = \frac{T_c}{T_s} =
-\frac{\frac{1}{f_c}}{\frac{1}{2f_s}} =
-\frac{2f_s}{f_c}$$</span></p></li>
-</ul>
-<p>发现了嘛？正是因为定义了 <span class="math inline">$T_s =
-\frac{1}{2f_s}$</span>，才有了课本里那个完美的恒等式：</p>
-<p><span
-class="math display"><em>T</em><sub><em>c</em></sub> = <em>M</em> ⋅ <em>T</em><sub><em>s</em></sub></span>
-这个公式的几何含义瞬间变得无比清晰：<strong>1 个大码片（<span
-class="math inline"><em>T</em><sub><em>c</em></sub></span>） = <span
-class="math inline"><em>M</em></span> 个小副载波半周期（<span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>）</strong>。</p>
-<blockquote>
-<p><strong>大白话总结</strong>： 如果不把 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>
-定义为半周期，那公式就会变成 <span class="math inline">$T_c =
-\frac{M}{2} T_{\text{full}}$</span>，每次推导都要带着个分母
-<code>2</code> 晃来晃去。为了公式的美观和推导的顺畅，先辈们索性把 <span
-class="math inline"><em>T</em><sub><em>s</em></sub></span>
-直接强行定义成了那“半个周期”。</p>
-</blockquote>
-<hr />
-              </div>
-            </details>
-            <details class="boc-source-full">
-              <summary>Gemini - 傅里叶变换时频宽度对偶性（全文）</summary>
-              <div class="boc-gemini-body">
-<h3 id="傅里叶变换时频宽度对偶性-flash">✅
-傅里叶变换时频宽度对偶性-&gt;[Flash]</h3>
-<hr />
-<h4 id="导出信息">📤 导出信息</h4>
-<ul>
-<li><strong>会话标题</strong>: ✅
-傅里叶变换时频宽度对偶性-&gt;[Flash]</li>
-<li><strong>导出时间</strong>: 2026/5/21 23:49:56</li>
-<li><strong>来源</strong>: Gemini</li>
-<li><strong>链接</strong>:
-https://gemini.google.com/app/d8fbf5804d1ccafc</li>
-</ul>
-<hr />
-<h4 id="用户">🙋 用户</h4>
-<p>傅里叶变换的对偶性：时域越宽，频域越窄（变化越剧烈）。怎么解释？</p>
-<hr />
-<h4 id="gemini">🤖 Gemini</h4>
-<p>你敏锐地抓住了傅里叶变换中最核心、最美妙的对称性质之一！不过在信号处理的严格定义里，你提到的“时域越宽，频域越窄”<strong>，通常被称为</strong>尺度变换特性（Scaling
-Property）<strong>或</strong>时频不确定性原理。而“对偶性（Duality）”一般指时域和频域公式结构的对称性（例如时域的冲激对应频域的常数，反过来频域的冲激也对应时域的常数）。</p>
-<p>不过它们背后的物理本质是完全相通的。要直观理解为什么“时域越宽，频域越窄（变化越剧烈）”，我们可以从<strong>物理直觉</strong>、<strong>数学公式</strong>和<strong>时频不确定性</strong>三个层面来拆解：</p>
-<h5 id="物理直觉频率是变化的快慢">1. 物理直觉：频率是“变化的快慢”</h5>
-<p>这是最容易建立直观感知的视角：</p>
-<ul>
-<li><strong>时域越宽 <span class="math inline">→</span> 变化越平缓 <span
-class="math inline">→</span> 高频成分越少 <span
-class="math inline">→</span> 频域越窄</strong>
-如果一个信号在时域上拉得很宽（比如一个持续很久、缓缓起伏的波包），这意味着它随时间<strong>改变得非常缓慢</strong>。既然变化缓慢，它里面就不需要包含什么“急剧”的细节，因此高频分量几乎为零，能量全部集中在零频（直流）附近的低频区域，谱线自然就缩得很窄。</li>
-<li><strong>时域越窄 <span class="math inline">→</span> 变化越剧烈 <span
-class="math inline">→</span> 高频成分越多 <span
-class="math inline">→</span> 频域越宽</strong>
-反过来，如果一个信号在时域上极窄（比如一瞬间拉起的方波脉冲，或者理想的
-<span class="math inline"><em>δ</em>(<em>t</em>)</span>
-冲激信号），它在极短的时间内经历了从 0 到峰值再到 0
-的巨大突变。为了在数学上“拼凑”出这种无限剧烈的边缘，你必须借用大量频率极高的正弦波去重叠。因此，时域越窄，需要的频率范围就越宽。</li>
-</ul>
-<blockquote>
-<p><strong>极端的两面：</strong></p>
-<ul>
-<li><strong>完美的单频正弦波</strong>：在时域上无限宽（从 <span
-class="math inline">−∞</span> 到 <span
-class="math inline">+∞</span>），它永远平滑，因此它在频域窄到了极致——只有一个孤零零的谱线。</li>
-<li><strong>理想冲激信号 <span
-class="math inline"><em>δ</em>(<em>t</em>)</span></strong>：在时域上窄到了极致（只在
-<span class="math inline"><em>t</em> = 0</span>
-有值），它的瞬间变化率无限大，因此它在频域宽到了极致——在所有频率上都有值（均匀白谱）。</li>
-</ul>
-</blockquote>
-<h5 id="数学支撑尺度变换特性scaling-property">2.
-数学支撑：尺度变换特性（Scaling Property）</h5>
-<p>傅里叶变换的数学公式直接推导出了这个结果。假设时域信号 <span
-class="math inline"><em>x</em>(<em>t</em>)</span> 的傅里叶变换是 <span
-class="math inline"><em>X</em>(<em>f</em>)</span>：</p>
-<p><span
-class="math display"><em>x</em>(<em>t</em>) ↔︎ <em>X</em>(<em>f</em>)</span>
-如果我们把时域信号在时间轴上“拉宽” <span
-class="math inline"><em>a</em></span> 倍（其中 <span
-class="math inline"><em>a</em> &gt; 1</span>，新信号为 <span
-class="math inline"><em>x</em>(<em>t</em>/<em>a</em>)</span>），根据尺度变换性质，它的频谱会变成：</p>
-<p><span class="math display">$$x\left(\frac{t}{a}\right)
-\longleftrightarrow a \cdot X(a f)$$</span> 注意看频域自变量变成了 <span
-class="math inline"><em>a</em><em>f</em></span>：</p>
-<ul>
-<li>原来在 <span class="math inline"><em>f</em> = 1 Hz</span>
-处的频谱值，现在被压缩到了 <span
-class="math inline"><em>f</em> = 1/<em>a</em> Hz</span> 处。</li>
-<li>这意味着整个频谱图在频率轴上被等比例压缩（变窄）了。</li>
-<li>而前面的系数 <span class="math inline"><em>a</em></span>
-变大，说明频谱的高度<strong>变高</strong>了，这是为了保证信号的总能量在时频转换前后保持守恒（帕塞瓦尔定理）。</li>
-</ul>
-<h5 id="本质时频不确定性原理">3. 本质：时频不确定性原理</h5>
-<p>这不仅仅是信号处理的巧合，它是一条基础的数学物理定律。信号无法同时在时域和频域上都无限集中。如果我们定义时域的“宽度”为
-<span class="math inline"><em>Δ</em><em>t</em></span>，频域的“宽度”为
-<span
-class="math inline"><em>Δ</em><em>f</em></span>，它们之间永远满足一个不等式：</p>
-<p><span
-class="math display"><em>Δ</em><em>t</em> ⋅ <em>Δ</em><em>f</em> ≥ <em>C</em>  (常数)</span>
-在所有信号中，高斯波包（Gaussian
-Packet）是唯一能达到这个下限完美平衡的信号。<img
-src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT970FiP0As0UNHp_uoOKX-_rQu0NpPMYjCiBMCzDRJvuu_dRxk7m8-6gk&amp;s=10"
-alt="高斯波包的时频不确定性：时域宽度与频域宽度互为倒数，AI 生成" />
-高斯波包的时频不确定性：时域宽度与频域宽度互为倒数. 来源： Cantor’s
-Paradise</p>
-<p>如上图所示，当你在左图的时域（<span
-class="math inline"><em>Δ</em><em>x</em></span>）把高斯曲线拉得越宽，右图对应的频域谱线（<span
-class="math inline"><em>Δ</em><em>k</em></span>）就必然会缩得越窄。</p>
-<p>这也正是量子力学中<strong>海森堡不确定性原理</strong>（位置与动量不能同时精确测量）在信号分析里的纯数学版本。因为粒子的波函数在位置空间和动量空间表征上，本质上就是一对傅里叶变换。</p>
-<hr />
-              </div>
-            </details>
+          <section id="half-angle" class="level2 boc-section">
+          <h2>4. 提半角：把复指数变成正弦、余弦</h2>
+          <p>现在要把复指数形式化成更容易读出幅度的三角函数形式。核心工具仍是欧拉公式：</p>
+          <p><span class="math display">\[
+          \sin\theta=
+          \frac{e^{j\theta}-e^{-j\theta}}{2j},
+          \qquad
+          \cos\theta=
+          \frac{e^{j\theta}+e^{-j\theta}}{2}.
+          \]</span></p>
+          <p>当遇到 <span class="math inline">\(1-e^{-j2\theta}\)</span> 或 <span
+          class="math inline">\(1+e^{-j2\theta}\)</span>
+          时，关键是先提出半角相位因子：</p>
+          <p><span class="math display">\[
+          1-e^{-j2\theta}
+          =
+          e^{-j\theta}
+          \left(e^{j\theta}-e^{-j\theta}\right)
+          =
+          2je^{-j\theta}\sin\theta,
+          \]</span></p>
+          <p><span class="math display">\[
+          1+e^{-j2\theta}
+          =
+          e^{-j\theta}
+          \left(e^{j\theta}+e^{-j\theta}\right)
+          =
+          2e^{-j\theta}\cos\theta.
+          \]</span></p>
+          <p>先处理不含 <span class="math inline">\(M\)</span> 的公共框架：</p>
+          <p><span class="math display">\[
+          \frac{1-e^{-j2\pi fT_s}}
+          {j2\pi f\left(1+e^{-j2\pi fT_s}\right)}.
+          \]</span></p>
+          <p>令 <span class="math inline">\(\theta=\pi fT_s\)</span>，有</p>
+          <p><span class="math display">\[
+          1-e^{-j2\pi fT_s}
+          =
+          2je^{-j\pi fT_s}\sin(\pi fT_s),
+          \]</span></p>
+          <p><span class="math display">\[
+          1+e^{-j2\pi fT_s}
+          =
+          2e^{-j\pi fT_s}\cos(\pi fT_s).
+          \]</span></p>
+          <p>代回后，公共相位因子 <span class="math inline">\(e^{-j\pi
+          fT_s}\)</span> 与常数 2 约掉：</p>
+          <p><span class="math display">\[
+          \frac{
+          2je^{-j\pi fT_s}\sin(\pi fT_s)
+          }{
+          j2\pi f\cdot 2e^{-j\pi fT_s}\cos(\pi fT_s)
+          }
+          =
+          \frac{\sin(\pi fT_s)}
+          {2\pi f\cos(\pi fT_s)}.
+          \]</span></p>
+          <p>剩下的就是带 <span class="math inline">\(M\)</span> 的分子项：</p>
+          <p><span class="math display">\[
+          1-\left(-e^{-j2\pi fT_s}\right)^M.
+          \]</span></p>
+          <section id="m-为偶数" class="level3">
+          <h3>4.1 <span class="math inline">\(M\)</span> 为偶数</h3>
+          <p>若 <span class="math inline">\(M\)</span> 为偶数，则 <span
+          class="math inline">\((-1)^M=1\)</span>，所以</p>
+          <p><span class="math display">\[
+          \left(-e^{-j2\pi fT_s}\right)^M
+          =
+          e^{-j2\pi fMT_s}.
+          \]</span></p>
+          <p>于是</p>
+          <p><span class="math display">\[
+          1-\left(-e^{-j2\pi fT_s}\right)^M
+          =
+          1-e^{-j2\pi fMT_s}
+          =
+          2je^{-j\pi fMT_s}\sin(\pi fMT_s).
+          \]</span></p>
+          <p>因此</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          P_s(f)
+          &amp;=
+          \frac{\sin(\pi fT_s)}
+          {2\pi f\cos(\pi fT_s)}
+          \cdot
+          2je^{-j\pi fMT_s}\sin(\pi fMT_s)\\
+          &amp;=
+          j\frac{\sin(\pi fT_s)\sin(\pi fMT_s)}
+          {\pi f\cos(\pi fT_s)}
+          e^{-j\pi fMT_s}.
+          \end{aligned}
+          \]</span></p>
+          <p>利用 <span class="math inline">\(MT_s=T_c\)</span>，得到</p>
+          <p><span class="math display">\[
+          P_s(f)=
+          j\frac{\sin(\pi fT_s)\sin(\pi fT_c)}
+          {\pi f\cos(\pi fT_s)}
+          e^{-j\pi fT_c},
+          \qquad M\ \text{为偶数}.
+          \]</span></p>
+          <p>最后的 <span class="math inline">\(e^{-j\pi fT_c}\)</span>
+          只贡献线性相位。求功率谱密度时取模平方，它的模为 1，不改变谱幅度。</p>
+          </section>
+          <section id="m-为奇数" class="level3">
+          <h3>4.2 <span class="math inline">\(M\)</span> 为奇数</h3>
+          <p>若 <span class="math inline">\(M\)</span> 为奇数，则 <span
+          class="math inline">\((-1)^M=-1\)</span>，所以</p>
+          <p><span class="math display">\[
+          1-\left(-e^{-j2\pi fT_s}\right)^M
+          =
+          1+e^{-j2\pi fMT_s}.
+          \]</span></p>
+          <p>继续提半角：</p>
+          <p><span class="math display">\[
+          1+e^{-j2\pi fMT_s}
+          =
+          2e^{-j\pi fMT_s}\cos(\pi fMT_s).
+          \]</span></p>
+          <p>因此</p>
+          <p><span class="math display">\[
+          P_s(f)=
+          \frac{\sin(\pi fT_s)\cos(\pi fT_c)}
+          {\pi f\cos(\pi fT_s)}
+          e^{-j\pi fT_c},
+          \qquad M\ \text{为奇数}.
+          \]</span></p>
+          <p>这就是奇偶性进入功率谱公式的根源：偶数阶给出 <span
+          class="math inline">\(\sin(\pi fT_c)\)</span>，奇数阶给出 <span
+          class="math inline">\(\cos(\pi fT_c)\)</span>。</p>
+          </section>
+          </section>
+          <section id="psd" class="level2 boc-section">
+          <h2>5. 从频谱到教材式 (4.15)–(4.18)</h2>
+          <p>归一化功率谱密度可按</p>
+          <p><span class="math display">\[
+          G(f)=\frac{1}{T_c}\left|P(f)\right|^2
+          \]</span></p>
+          <p>理解。由于相位因子取模后消失，正弦相位 BOC 的结果为：</p>
+          <p><span class="math display">\[
+          G_{\mathrm{BOC}_s(f_s,f_c)}(f)=
+          \frac{
+          \sin^2(\pi fT_c)\sin^2(\pi fT_s)
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          },
+          \qquad M\ \text{为偶数}
+          \tag{4.15}
+          \]</span></p>
+          <p><span class="math display">\[
+          G_{\mathrm{BOC}_s(f_s,f_c)}(f)=
+          \frac{
+          \cos^2(\pi fT_c)\sin^2(\pi fT_s)
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          },
+          \qquad M\ \text{为奇数}
+          \tag{4.16}
+          \]</span></p>
+          <p>对于余弦相位 BOC，副载波相位相当于移动了四分之一周期。它改变的是与
+          <span class="math inline">\(T_s\)</span>
+          相关的副载波因子：正弦相位中的</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_s)
+          \]</span></p>
+          <p>会换成</p>
+          <p><span class="math display">\[
+          \left[1-\cos(\pi fT_s)\right]^2.
+          \]</span></p>
+          <p>因此教材给出</p>
+          <p><span class="math display">\[
+          G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
+          \frac{
+          \sin^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          },
+          \qquad M\ \text{为偶数}
+          \tag{4.17}
+          \]</span></p>
+          <p><span class="math display">\[
+          G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
+          \frac{
+          \cos^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          },
+          \qquad M\ \text{为奇数}
+          \tag{4.18}
+          \]</span></p>
+          <p>这四个公式的结构非常整齐：</p>
+          <ul>
+          <li>分母完全相同，都是 <span class="math inline">\(T_c[\pi f\cos(\pi
+          fT_s)]^2\)</span>。</li>
+          <li>正弦相位还是余弦相位，决定与 <span
+          class="math inline">\(T_s\)</span> 有关的副载波因子。</li>
+          <li><span class="math inline">\(M\)</span> 为奇数还是偶数，决定与 <span
+          class="math inline">\(T_c\)</span> 有关的码片因子是 <span
+          class="math inline">\(\cos^2(\pi fT_c)\)</span> 还是 <span
+          class="math inline">\(\sin^2(\pi fT_c)\)</span>。</li>
+          </ul>
+          </section>
+          <section id="read-formulas" class="level2 boc-section">
+          <h2>6. 如何读这四个功率谱公式</h2>
+          <p>读公式时，不要先被分子分母吓住。把它拆成两类作用，就会清楚很多。</p>
+          <p>第一类是码片窗口项：</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_c)
+          \quad\text{或}\quad
+          \cos^2(\pi fT_c).
+          \]</span></p>
+          <p>它决定细密的谱零点网格。以偶数阶为例，</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_c)=0
+          \quad\Rightarrow\quad
+          f=\frac{k}{T_c}=kf_c.
+          \]</span></p>
+          <p>所以相邻普通零点的间隔是 <span class="math inline">\(f_c\)</span>。若
+          <span class="math inline">\(M\)</span> 为奇数，码片项换成 <span
+          class="math inline">\(\cos^2(\pi fT_c)\)</span>，零点整体平移半个 <span
+          class="math inline">\(f_c\)</span>，但相邻零点之间的间隔仍然是 <span
+          class="math inline">\(f_c\)</span>。</p>
+          <p>第二类是副载波项：</p>
+          <p><span class="math display">\[
+          \sin^2(\pi fT_s),
+          \qquad
+          \left[1-\cos(\pi fT_s)\right]^2,
+          \qquad
+          \cos(\pi fT_s).
+          \]</span></p>
+          <p>这些项决定正弦相位、余弦相位和副载波搬移位置。尤其是分母中的</p>
+          <p><span class="math display">\[
+          \cos(\pi fT_s)=0
+          \]</span></p>
+          <p>给出</p>
+          <p><span class="math display">\[
+          \pi fT_s=\frac{(2r+1)\pi}{2}
+          \quad\Rightarrow\quad
+          f=(2r+1)f_s.
+          \]</span></p>
+          <p>这些位置正是方波副载波的奇次谐波位置。分母趋零并不意味着功率谱真的发散，因为分子在这些位置也会同时趋零；极限运算后得到有限峰值。物理上看，这些点就是副载波把
+          BPSK-R 频谱搬移过来的位置，其中最显著的是 <span
+          class="math inline">\(\pm f_s\)</span> 两个主瓣。</p>
+          </section>
+          <section id="lobes" class="level2 boc-section">
+          <h2>7. 主瓣宽度、旁瓣宽度与 <span
+          class="math inline">\(M-2\)</span></h2>
+          <p>现在回到教材文字中的三个结论：</p>
+          <ol type="1">
+          <li>BOC 信号的主瓣宽度是 <span
+          class="math inline">\(2f_c\)</span>。</li>
+          <li>主瓣内侧旁瓣宽度是 <span class="math inline">\(f_c\)</span>。</li>
+          <li>调制阶数为 <span class="math inline">\(M\)</span>
+          时，两个主瓣内侧旁瓣数为 <span class="math inline">\(M-2\)</span>。</li>
+          </ol>
+          <figure class="boc-figure">
+          <img src="assets/figures/boc-lobe-grid.png"
+          alt="BOC 频谱零点网格、主瓣与内侧旁瓣计数示意" />
+          <figcaption aria-hidden="true">BOC
+          频谱零点网格、主瓣与内侧旁瓣计数示意</figcaption>
+          </figure>
+          <section id="为什么普通旁瓣宽度是-f_c" class="level3">
+          <h3>7.1 为什么普通旁瓣宽度是 <span
+          class="math inline">\(f_c\)</span></h3>
+          <p>普通旁瓣夹在相邻两个普通零点之间。由码片项可知普通零点间隔为</p>
+          <p><span class="math display">\[
+          f_c.
+          \]</span></p>
+          <p>所以普通旁瓣宽度就是</p>
+          <p><span class="math display">\[
+          \Delta f_{\text{side}}
+          =(k+1)f_c-kf_c
+          =f_c.
+          \]</span></p>
+          <p>这也是为什么不能只盯着 <span class="math inline">\(\sin^2(\pi
+          fT_s)\)</span>。它当然也会给零点，但由于</p>
+          <p><span class="math display">\[
+          \frac{1}{T_s}=Mf_c,
+          \]</span></p>
+          <p>它给出的零点间隔是 <span class="math inline">\(Mf_c\)</span>，比
+          <span class="math inline">\(T_c\)</span> 给出的 <span
+          class="math inline">\(f_c\)</span> 稀疏，并且落在 <span
+          class="math inline">\(f_c\)</span>
+          网格上。旁瓣宽度看的是最细网格，所以由 <span
+          class="math inline">\(T_c\)</span> 控制。</p>
+          </section>
+          <section id="为什么主瓣宽度是-2f_c" class="level3">
+          <h3>7.2 为什么主瓣宽度是 <span class="math inline">\(2f_c\)</span></h3>
+          <p>BOC 的两个主峰位于 <span class="math inline">\(\pm f_s\)</span>
+          附近。以右侧主瓣为例，它围绕 <span class="math inline">\(+f_s\)</span>
+          展开。夹住它的两个最近普通零点在</p>
+          <p><span class="math display">\[
+          f_s-f_c
+          \quad\text{和}\quad
+          f_s+f_c.
+          \]</span></p>
+          <p>所以右侧主瓣宽度为</p>
+          <p><span class="math display">\[
+          \Delta f_{\text{main}}
+          =(f_s+f_c)-(f_s-f_c)
+          =2f_c.
+          \]</span></p>
+          <p>左侧主瓣同理，围绕 <span
+          class="math inline">\(-f_s\)</span>，宽度也为 <span
+          class="math inline">\(2f_c\)</span>。</p>
+          <p>可以把它理解成：普通旁瓣只占一个零点间隔，而主瓣位于副载波奇次谐波的强搬移位置，相当于把中心附近本该形成普通零点的结构抬成了强峰，因此它跨过两个
+          <span class="math inline">\(f_c\)</span> 间隔。</p>
+          </section>
+          <section id="为什么主瓣内侧旁瓣数是-m-2" class="level3">
+          <h3>7.3 为什么主瓣内侧旁瓣数是 <span
+          class="math inline">\(M-2\)</span></h3>
+          <p>两个主瓣内侧区域，从左主瓣的右边界到右主瓣的左边界：</p>
+          <p><span class="math display">\[
+          f_{\text{left inner}}=-f_s+f_c,
+          \qquad
+          f_{\text{right inner}}=f_s-f_c.
+          \]</span></p>
+          <p>所以内侧总宽度为</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          \Delta f_{\text{inner}}
+          &amp;=(f_s-f_c)-(-f_s+f_c)\\
+          &amp;=2f_s-2f_c.
+          \end{aligned}
+          \]</span></p>
+          <p>利用</p>
+          <p><span class="math display">\[
+          2f_s=Mf_c,
+          \]</span></p>
+          <p>得到</p>
+          <p><span class="math display">\[
+          \Delta f_{\text{inner}}
+          =(M-2)f_c.
+          \]</span></p>
+          <p>每个普通旁瓣宽度为 <span
+          class="math inline">\(f_c\)</span>，因此两个主瓣内侧的普通旁瓣数为</p>
+          <p><span class="math display">\[
+          N_{\text{inner side lobes}}
+          =
+          \frac{(M-2)f_c}{f_c}
+          =M-2.
+          \]</span></p>
+          <p>这不是额外规定，而是由主瓣位置 <span class="math inline">\(\pm
+          f_s\)</span> 和零点网格间隔 <span class="math inline">\(f_c\)</span>
+          一起决定的几何结果。</p>
+          </section>
+          </section>
+          <section id="figure-48" class="level2 boc-section">
+          <h2>8. 用图 4-8 对照理解</h2>
+          <p>教材图 4-8 同时画出了 <span
+          class="math inline">\(\mathrm{BOC}_s(1,1)\)</span> 与 <span
+          class="math inline">\(\mathrm{BOC}_c(6,1)\)</span>
+          的基带功率谱密度。图中的横轴是距载波中心频率偏移，纵轴是功率谱密度。</p>
+          <figure class="boc-figure">
+          <img src="assets/figures/fig-4-8-boc-power-spectrum.png"
+          alt="教材图 4-8：BOC 信号的功率谱密度" />
+          <figcaption aria-hidden="true">教材图 4-8：BOC
+          信号的功率谱密度</figcaption>
+          </figure>
+          <p>对 <span class="math inline">\(\mathrm{BOC}_s(1,1)\)</span>，有</p>
+          <p><span class="math display">\[
+          M=\frac{2f_s}{f_c}=2.
+          \]</span></p>
+          <p>因此两个主瓣内侧旁瓣数为</p>
+          <p><span class="math display">\[
+          M-2=0.
+          \]</span></p>
+          <p>图中可以看到，两个主瓣之间没有额外的小旁瓣。</p>
+          <p>对 <span class="math inline">\(\mathrm{BOC}_c(6,1)\)</span>，有</p>
+          <p><span class="math display">\[
+          M=\frac{2f_s}{f_c}=12.
+          \]</span></p>
+          <p>因此两个主瓣内侧旁瓣数为</p>
+          <p><span class="math display">\[
+          M-2=10.
+          \]</span></p>
+          <p>从图上看，就是两个主瓣之间有一串更细的旁瓣；左右对称时可理解为内侧各
+          5 个。</p>
+          </section>
+          <section id="summary" class="level2 boc-section">
+          <h2>9. 一句话复习</h2>
+          <p>BOC 功率谱的形状可以这样记：</p>
+          <p><span class="math display">\[
+          T_c\ \text{决定零点网格，}
+          \qquad
+          T_s\ \text{决定副载波搬移。}
+          \]</span></p>
+          <p>码片周期 <span class="math inline">\(T_c\)</span> 给出 <span
+          class="math inline">\(f_c\)</span> 间隔的细密零点；副载波半周期 <span
+          class="math inline">\(T_s\)</span> 让方波在 <span
+          class="math inline">\(\pm f_s\)</span>
+          等奇次谐波处搬移能量。于是普通旁瓣宽度为 <span
+          class="math inline">\(f_c\)</span>，而 <span class="math inline">\(\pm
+          f_s\)</span> 附近的两个强峰成为主瓣，每个宽 <span
+          class="math inline">\(2f_c\)</span>。两个主瓣内侧总宽度是 <span
+          class="math inline">\((M-2)f_c\)</span>，所以内侧旁瓣数就是 <span
+          class="math inline">\(M-2\)</span>。</p>
           </section>
         </article>
       </div>
