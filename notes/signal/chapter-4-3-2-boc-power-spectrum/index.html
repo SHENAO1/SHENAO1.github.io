@@ -1054,14 +1054,117 @@
           (A^2-1)(A-1)^2
           \end{aligned}
           \]</span></p>
-          <p>完全平方式 <span class="math inline">\((A-1)^2\)</span>
-          就是在这里出现的。直观上，余弦相位在固定码片边界被切开，跳变沿呈现</p>
+          <p>完全平方式 <span class="math inline">\((A-1)^2\)</span> 就是在这里出现的。上面我们是通过传统的<strong>分段定积分法</strong>推导出了多项式 <span class="math inline">\(B_2(A)\)</span>。现在，我们介绍一种在信号处理中更加通用、物理概念极其清晰的捷径——<strong>求导冲激法</strong>，并用它来推导功率谱。</p>
+
+          <section id="derivative-method" class="level4">
+          <h4>💡 更优雅的捷径：时域求导与冲激法</h4>
+          <p>对于分段常数的方波信号，我们完全可以避开繁琐的分段积分。在信号分析中，分段常数信号的导数就是一系列在跳变点处的<strong>狄拉克冲激函数（Dirac Delta）</strong>：</p>
           <p><span class="math display">\[
-          +1\ -2\ +2\ -1
+          p_c'(t) = \sum_{k} d_k \delta(t - t_k)
           \]</span></p>
-          <p>这种二阶差分式的对称结构；这种结构在复指数多项式中表现为 <span
-          class="math inline">\(A=1\)</span> 附近的重根，因此会出现平方因子。</p>
-          <p>求模平方时，</p>
+          <p>其中 <span class="math inline">\(d_k\)</span> 为信号在跳变点 <span class="math inline">\(t_k\)</span> 处的<strong>物理跳变高度（即右侧值减左侧值）</strong>。根据傅里叶变换的微分性质，时域求导对应频域乘以 <span class="math inline">\(j 2\pi f\)</span>（记 <span class="math inline">\omega = 2\pi f\)</span>）：</p>
+          <p><span class="math display">\[
+          \mathcal{F}\{p_c'(t)\} = j\omega P_c(f) \implies P_c(f) = \frac{1}{j\omega} \mathcal{F}\{p_c'(t)\}
+          \]</span></p>
+          <p>由于时延冲激信号的傅里叶变换极为简单：<span class="math inline">\(\mathcal{F}\{\delta(t-t_k)\} = e^{-j\omega t_k}\)</span>，我们可以直接写出导数信号的频谱：</p>
+          <p><span class="math display">\[
+          \mathcal{F}\{p_c'(t)\} = \sum_{k} d_k e^{-j\omega t_k}
+          \]</span></p>
+          <p>对于上述 <span class="math inline">\(M=2\)</span> 的余弦相位单码片波形（在 <span class="math inline">\([0, 2T_s]\)</span> 之外为 0），我们扫描其跳变点 and 跳变方向：</p>
+          <ul>
+          <li>在 <span class="math inline">\(t_0 = 0\)</span> 处，信号从 <span class="math inline">\(0 \rightarrow +1\)</span>，跳变高度 <span class="math inline">\(d_0 = +1\)</span>；</li>
+          <li>在 <span class="math inline">\(t_1 = T_s/2\)</span> 处，信号从 <span class="math inline">\(+1 \rightarrow -1\)</span>，跳变高度 <span class="math inline">\(d_1 = -2\)</span>；</li>
+          <li>在 <span class="math inline">\(t_2 = 3T_s/2\)</span> 处，信号从 <span class="math inline">\(-1 \rightarrow +1\)</span>，跳变高度 <span class="math inline">\(d_2 = +2\)</span>；</li>
+          <li>在 <span class="math inline">\(t_3 = 2T_s\)</span> 处，信号从 <span class="math inline">\(+1 \rightarrow 0\)</span>，跳变高度 <span class="math inline">\(d_3 = -1\)</span>。</li>
+          </ul>
+          <p>因此，导数的时域表示为：</p>
+          <p><span class="math display">\[
+          p_c'(t) = \delta(t) - 2\delta(t - T_s/2) + 2\delta(t - 3T_s/2) - \delta(t - 2T_s)
+          \]</span></p>
+          <p>对其求傅里叶变换，并代入基础复指数算子 <span class="math inline">\(A = e^{-j\omega T_s/2}\)</span>（即时延项）：</p>
+          <p><span class="math display">\[
+          \mathcal{F}\{p_c'(t)\} = 1 - 2A + 2A^3 - A^4
+          \]</span></p>
+          <p>现在，我们将它代回原信号频谱公式中，并提取分母的负号：</p>
+          <p><span class="math display">\[
+          P_c(f) = \frac{1}{j\omega} (1 - 2A + 2A^3 - A^4) = \frac{1}{-j\omega} (A^4 - 2A^3 + 2A - 1) = \frac{1}{-j\omega} B_2(A)
+          \]</span></p>
+          <p><strong>大功告成！</strong> 我们没有做任何积分，仅通过观察跳变高度，就在一步之内推导出了分子的多项式：</p>
+          <p><span class="math display">\[
+          B_2(A) = A^4 - 2A^3 + 2A - 1
+          \]</span></p>
+          <p>这也完美诠释了为什么 <span class="math inline">\(B_2(A)\)</span> 的常数项是 <span class="math inline">\(-1\)</span> 而非 <span class="math inline">\(+1\)</span>：因为在公式中我们为了配合分母的 <span class="math inline">\(-j\omega\)</span>，将导数的系数乘以了 <span class="math inline">\(-1\)</span>。因此，多项式中的各项系数正好是<strong>物理跳变高度的相反数（即 <span class="math inline">\(-d_k\)</span>）</strong>！</p>
+          </section>
+
+          <section id="代数深挖重根定理与手把手因式分解" class="level4">
+          <h4>5.6.1 代数深挖：重根定理与手把手因式分解</h4>
+          <p>为什么我们会说多项式 <span class="math inline">\(B_2(A) = A^4 - 2A^3 + 2A - 1\)</span> 在 <span class="math inline">\(A = 1\)</span> 处包含二重以上的重根呢？</p>
+          <p>在高等代数中，有一个经典的<strong>重根判定定理</strong>：</p>
+          <blockquote>
+          <p><strong>重根判定定理</strong>：若多项式 <span class="math inline">\(B(A)\)</span> 满足 <span class="math inline">\(B(A_0) = 0\)</span> 且其一阶导数 <span class="math inline">\(B'(A_0) = 0\)</span>，则 <span class="math inline">\(A_0\)</span> 至少是该多项式的<strong>二重根</strong>。如果更高阶导数也为 0，则重数相应增加。</p>
+          </blockquote>
+          <p><strong>定理证明</strong>：<br>
+          由于 <span class="math inline">\(B(A_0) = 0\)</span>，根据因式定理，我们必能提取出一个因式 <span class="math inline">\((A-A_0)\)</span>，即：</p>
+          <p><span class="math display">\[
+          B(A) = (A - A_0) \cdot g(A)
+          \]</span></p>
+          <p>对两边利用乘法法则求导：</p>
+          <p><span class="math display">\[
+          B'(A) = g(A) + (A - A_0) \cdot g'(A)
+          \]</span></p>
+          <p>将 <span class="math inline">\(A = A_0\)</span> 代入上式：</p>
+          <p><span class="math display">\[
+          B'(A_0) = g(A_0) + 0 = g(A_0)
+          \]</span></p>
+          <p>因为已知 <span class="math inline">\(B'(A_0) = 0\)</span>，故有 <span class="math inline">\(g(A_0) = 0\)</span>。这说明多项式 <span class="math inline">\(g(A)\)</span> 也必定含有因式 <span class="math inline">\((A-A_0)\)</span>，即 <span class="math inline">\(g(A) = (A-A_0)h(A)\)</span>。代回原式可得：</p>
+          <p><span class="math display">\[
+          B(A) = (A - A_0)^2 \cdot h(A)
+          \]</span></p>
+          <p>因此 <span class="math inline">\(A_0\)</span> 至少是二重根。现在我们将 <span class="math inline">\(A_0 = 1\)</span> 代入我们的多项式 <span class="math inline">\(B_2(A)\)</span>：</p>
+          <ul>
+          <li><strong>零阶值</strong>：<span class="math inline">\(B_2(1) = 1^4 - 2(1)^3 + 2(1) - 1 = 0\)</span>；</li>
+          <li><strong>一阶导数</strong>：<span class="math inline">\(B_2'(A) = 4A^3 - 6A^2 + 2 \implies B_2'(1) = 4 - 6 + 2 = 0\)</span>；</li>
+          <li><strong>二阶导数</strong>：<span class="math inline">\(B_2''(A) = 12A^2 - 12A \implies B_2''(1) = 12 - 12 = 0\)</span>；</li>
+          <li><strong>三阶导数</strong>：<span class="math inline">\(B_2'''(A) = 24A - 12 \implies B_2'''(1) = 12 \neq 0\)</span>。</li>
+          </ul>
+          <p>由于零阶、一阶、二阶导数在 <span class="math inline">\(A=1\)</span> 处全部为 0，这说明 <strong><span class="math inline">\(A=1\)</span> 实际上是该多项式的“三重根”！</strong></p>
+          <p>下面我们手把手地对它进行因式分解，看看它是如何暴露出来的。我们使用<strong>两两分组法</strong>：</p>
+          <p><span class="math display">\[
+          \begin{aligned}
+          B_2(A) &amp;= A^4 - 2A^3 + 2A - 1 \\
+          &amp;= (A^4 - 1) - 2A(A^2 - 1) \\
+          &amp;= (A^2 - 1)(A^2 + 1) - 2A(A^2 - 1) \\
+          &amp;= (A^2 - 1)(A^2 - 2A + 1) \\
+          &amp;= (A^2 - 1)(A - 1)^2
+          \end{aligned}
+          \]</span></p>
+          <p>如果将左边的平方差进一步拆开，我们就会看到它完整的三重根面貌：</p>
+          <p><span class="math display">\[
+          B_2(A) = (A + 1)(A - 1)^3
+          \]</span></p>
+          <p>这就完全印证了重根判定定理的结论。</p>
+          </section>
+
+          <section id="物理本源多重零陷与频谱分裂的物理本质" class="level4">
+          <h4>5.6.2 物理本源：多重零陷与“频谱分裂”的物理本质</h4>
+          <p>这个多重根在通信工程和频谱设计中，蕴含着极具美感的物理本源：</p>
+          <ol>
+          <li><strong>零频（直流）的对应关系</strong>：<br>
+          复指数算子 <span class="math inline">\(A = e^{-j\pi f T_s}\)</span>，当 <span class="math inline">\(A = 1\)</span> 时，正好对应频率 <span class="math inline">\(f = 0\)</span>（即中心载频/直流分量）。</li>
+          <li><strong>单根 <span class="math inline">\((A-1)\)</span> 的物理本质——直流积分为 0</strong>：<br>
+          因为 BOC 信号在一个码片内的正负电平时间完全相等（无直流偏置），时域总积分为 0。所以在零频处必然存在一个单零点 <span class="math inline">\((A-1)\)</span>。</li>
+          <li><strong>三重根 <span class="math inline">\((A-1)^3\)</span> 的物理本质——多重零陷与频谱搬移</strong>：<br>
+          在 <span class="math inline">\(f \to 0\)</span> 附近，因子 <span class="math inline">\((A-1)^3\)</span> 可以等效为 <span class="math inline">\((-j\pi f T_s)^3\)</span>，它代表了一个高达三阶的高通差分滤波器，以极快的速度（<span class="math inline">\(f^3\)</span>）衰减趋近于 0。这使得原始信号的频谱在 <span class="math inline">\(f \to 0\)</span> 附近的行为为：</li>
+          </ol>
+          <p><span class="math display">\[
+          P_c(f) = \frac{1}{-j 2\pi f} B_2(A) \propto \frac{f^3}{f} = f^2
+          \]</span></p>
+          <p>对功率谱密度求模平方后，其在中心频点附近的衰减速度高达：</p>
+          <p><span class="math display">\[
+          G_c(f) \propto |P_c(f)|^2 \propto f^4
+          \]</span></p>
+          <p><strong>这就是频谱分裂的根源！</strong> 三重根在零频处挖出了一个极其宽阔、平坦且深邃的“大低谷”（零陷），强行把所有能量从中心频点“推开”，使其彻底向两侧移动，从而完美实现了能量分布的双主瓣分裂效果。</p>
+          <p>求模平方时，我们继续使用模平方性质化简：</p>
           <p><span class="math display">\[
           \left|B_2\right|^2
           =
@@ -1632,15 +1735,13 @@
           <ul>
           <li>因为 <span
           class="math inline">\(T_c=MT_s\)</span>，码片周期比副载波半周期长。</li>
-          <li>时域越宽，频域结构越窄、振荡越密。</li>
-          <li>所以它每隔 <span class="math inline">\(1/T_c=f_c\)</span>
-          就给出一个零点，像一张细密的筛网。</li>
+          <li>时域越宽，频域结构越窄（谱瓣窄）、振荡越密。</li>
+          <li>所以它的零点间距极小（<span class="math inline">\(\Delta f_c = 1/T_c = f_c\)</span>），每隔 <span class="math inline">\(f_c\)</span> 就给出一个零点，像一张细密的筛网。</li>
           </ul></li>
           <li>副载波项含 <span class="math inline">\(T_s\)</span>：
           <ul>
           <li><p><span class="math inline">\(T_s\)</span> 比 <span
-          class="math inline">\(T_c\)</span>
-          短，因此它在频域中的零点更稀疏。</p></li>
+          class="math inline">\(T_c\)</span> 短。根据时频对偶原理，时域越窄，频域展得越宽（谱瓣极宽）。这在数学上的直接体现是：零点间距 <span class="math inline">\(\Delta f_s = 1/T_s\)</span> 变得非常大，因此在频率轴上的零点分布<strong>更稀疏</strong>（相当于每隔较远才有一个零点，从而撑开了一个极宽的频域包络）。</p></li>
           <li><p>由 <span class="math inline">\(\tan^2(\pi fT_s)=0\)</span>
           得到</p>
           <p><span class="math display">\[
@@ -1648,9 +1749,7 @@
           \quad\Rightarrow\quad
           f=\frac{k}{T_s}=kMf_c
           \]</span></p></li>
-          <li><p>这些零点只是 <span class="math inline">\(f_c\)</span>
-          网格上的某些点，并没有创造出比 <span class="math inline">\(f_c\)</span>
-          更细的新零点。</p></li>
+          <li><p>这些零点相隔 <span class="math inline">\(Mf_c\)</span> 才会出现一个，它们只是 <span class="math inline">\(f_c\)</span> 网格上的某些特定稀疏点，并没有创造出比 <span class="math inline">\(f_c\)</span> 更细密的新零点。</p></li>
           </ul></li>
           </ul>
           <p>所以，<span class="math inline">\(T_s\)</span>
@@ -1682,6 +1781,26 @@
           <p>这些位置正是方波副载波的奇次谐波位置。分母趋零并不意味着功率谱真的发散，因为分子在这些位置也会同时趋零；极限运算后得到有限峰值。物理上看，这些点就是副载波把
           BPSK-R 频谱搬移过来的位置，其中最显著的是 <span
           class="math inline">\(\pm f_s\)</span> 两个主瓣。</p>
+          <blockquote>
+          <p><strong>证明（分子在分母零点处为何同时趋零）：</strong></p>
+          <p>设分母零点位置满足 <span class="math inline">\(\cos(\pi f T_s) = 0\)</span>，即 <span class="math inline">\(\pi f T_s = \frac{2r+1}{2}\pi\)</span>（其中 <span class="math inline">\(r \in \mathbb{Z}\)</span>）。</p>
+          <p>根据 <span class="math inline">\(T_c = M T_s\)</span>，有：</p>
+          <p><span class="math display">\[\pi f T_c = M (\pi f T_s) = M \cdot \frac{2r+1}{2}\pi\]</span></p>
+          <p>此时分子的行为取决于 <span class="math inline">\(M\)</span> 的奇偶性：</p>
+          <ol>
+          <li><strong>当 <span class="math inline">\(M\)</span> 为偶数时</strong>（对应式 4.15 和 4.17），设 <span class="math inline">\(M = 2k\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
+          <p><span class="math display">\[\pi f T_c = 2k \cdot \frac{2r+1}{2}\pi = k(2r+1)\pi\]</span></p>
+          因为 <span class="math inline">\(k(2r+1)\)</span> 为整数，所以分子中的码片窗口项为：
+          <p><span class="math display">\[\sin^2(\pi f T_c) = \sin^2(n\pi) = 0 \quad (n \in \mathbb{Z})\]</span></p>
+          </li>
+          <li><strong>当 <span class="math inline">\(M\)</span> 为奇数时</strong>（对应式 4.16 和 4.18），设 <span class="math inline">\(M = 2k+1\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
+          <p><span class="math display">\[\pi f T_c = (2k+1) \cdot \frac{2r+1}{2}\pi = \frac{(2k+1)(2r+1)}{2}\pi\]</span></p>
+          因为两个奇数之积仍为奇数，可设 <span class="math inline">\((2k+1)(2r+1) = 2n+1\)</span>（<span class="math inline">\(n \in \mathbb{Z}\)</span>），所以分子中的码片窗口项为：
+          <p><span class="math display">\[\cos^2(\pi f T_c) = \cos^2\left(\frac{2n+1}{2}\pi\right) = 0 \quad (n \in \mathbb{Z})\]</span></p>
+          </li>
+          </ol>
+          <p>综上所述，无论 <span class="math inline">\(M\)</span> 是奇数还是偶数，当分母趋近于零时，分子中的码片窗口项都精确为零。通过洛必达法则求极限，在此处得到的是有限大的功率谱密度峰值，而不会发生发散。</p>
+          </blockquote>
           <p>这也解释了所谓“特殊照顾”到底特殊在哪里。</p>
           <ul>
           <li>从物理上看：
@@ -1992,5 +2111,112 @@
     });
   </script>
   <script src="../../../assets/scripts/site.js"></script>
+  <script>
+    // =========================================================================
+    // LaTeX 一键复制功能 (Synchronous Extraction + MathJax Promise Injection)
+    // =========================================================================
+    (function() {
+      // 1. 同步阶段：在 MathJax 运行并清空 DOM 前，立即锁定并提取干净的 LaTeX 源码
+      const mathBlocks = document.querySelectorAll('.boc-formula, .math.display');
+      
+      // 逆转义 HTML 实体的辅助函数，确保 LaTeX 里的 <, >, & 等符号高保真还原
+      function decodeLatex(text) {
+        const entities = {
+          'lt': '<',
+          'gt': '>',
+          'amp': '&',
+          'quot': '"',
+          'apos': "'"
+        };
+        // 剥离 Pandoc 生成的外层 \[ ... \] 或 $$ ... $$
+        let clean = text.trim();
+        if (clean.startsWith('\\[') && clean.endsWith('\\]')) {
+          clean = clean.substring(2, clean.length - 2);
+        } else if (clean.startsWith('$$') && clean.endsWith('$$')) {
+          clean = clean.substring(2, clean.length - 2);
+        }
+        return clean.trim().replace(/&([^;]+);/g, (match, entity) => {
+          return entities[entity] || match;
+        });
+      }
+
+      mathBlocks.forEach(block => {
+        const raw = block.textContent;
+        block.setAttribute('data-latex', decodeLatex(raw));
+      });
+
+      // 2. 异步注入阶段：在 MathJax 渲染完成后，安全插入复制按钮并绑定事件
+      function initCopyButtons() {
+        const copyIcon = `<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+        const checkIcon = `<svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+        mathBlocks.forEach(block => {
+          const latexCode = block.getAttribute('data-latex');
+          if (!latexCode) return;
+
+          // 创建复制按钮
+          const btn = document.createElement('button');
+          btn.className = 'copy-latex-btn';
+          btn.type = 'button';
+          btn.innerHTML = copyIcon + '<span>Copy</span>';
+          btn.title = '复制 LaTeX 代码';
+
+          // 绑定点击事件，采用高兼容性剪贴板复制方案
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
+
+            const textToCopy = block.getAttribute('data-latex');
+            
+            // 兼容性复制实现
+            function doCopy() {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                return navigator.clipboard.writeText(textToCopy);
+              } else {
+                return new Promise((resolve, reject) => {
+                  try {
+                    const ta = document.createElement('textarea');
+                    ta.value = textToCopy;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    if (success) resolve();
+                    else reject(new Error('Copy failed'));
+                  } catch (err) {
+                    reject(err);
+                  }
+                });
+              }
+            }
+
+            doCopy().then(() => {
+              // 成功反馈
+              btn.classList.add('copied');
+              btn.innerHTML = checkIcon + '<span>Copied!</span>';
+              
+              setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = copyIcon + '<span>Copy</span>';
+              }, 2000);
+            }).catch(err => {
+              console.error('Copy failed:', err);
+              btn.querySelector('span').textContent = 'Failed';
+            });
+          });
+
+          block.appendChild(btn);
+        });
+      }
+
+      // 3. 稳健的生命周期钩子：优先配合 MathJax 3 渲染完毕 Promise，若未定义则 DOMContentLoaded 后执行
+      if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
+        window.MathJax.startup.promise.then(initCopyButtons);
+      } else {
+        window.addEventListener('load', initCopyButtons);
+      }
+    })();
+  </script>
 </body>
 </html>
