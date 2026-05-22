@@ -146,7 +146,7 @@
           <p>附近出现奇次谐波项，线谱间隔为 <span
           class="math inline">\(2f_s\)</span>，包络近似服从 <span
           class="math inline">\(\operatorname{sinc}(\pi
-          fT_s)\)</span>。这就解释了为什么 BOC
+          fT_s)\)</span>这就解释了为什么 BOC
           的频谱会从中心频点向两侧搬移：它是在用方波副载波的奇次谱线去搬移原本的
           BPSK-R 频谱。</p>
           <section id="为什么半波反对称只留下奇次谐波" class="level3">
@@ -209,7 +209,7 @@
           \]</span></p>
           <p>对后半段令 <span
           class="math inline">\(\tau=t-T_{\mathrm{per}}/2\)</span>，即 <span
-          class="math inline">\(t=\tau+T_{\mathrm{per}}/2\)</span>。若信号满足半波反对称</p>
+          class="math inline">\(t=\tau+T_{\mathrm{per}}/2\)</span>若信号满足半波反对称</p>
           <p><span class="math display">\[
           x\left(\tau+\frac{T_{\mathrm{per}}}{2}\right)=-x(\tau)
           \]</span></p>
@@ -299,7 +299,7 @@
           \]</span></p>
           <p>从直观上说，半波对称意味着信号过了半个周期就已经重复一次，它真正的周期其实是
           <span class="math inline">\(T_{\mathrm{per}}/2\)</span>，真正基频是
-          <span class="math inline">\(2f_s\)</span>。如果仍然用原来的 <span
+          <span class="math inline">\(2f_s\)</span>如果仍然用原来的 <span
           class="math inline">\(f_s\)</span>
           作尺度来数，它表现出来的就全是偶次谐波。</p>
           <p>功率谱密度由频谱与其共轭相乘得到：</p>
@@ -319,7 +319,7 @@
           <p><span class="math display">\[
           T_c=\frac{1}{f_c}
           \]</span></p>
-          <p>副载波频率为 <span class="math inline">\(f_s\)</span>。因为 BOC
+          <p>副载波频率为 <span class="math inline">\(f_s\)</span>因为 BOC
           副载波是方波，它每半个周期翻转一次，所以单个方波电平片段的长度为</p>
           <p><span class="math display">\[
           T_s=\frac{1}{2f_s}
@@ -654,7 +654,7 @@
           \]</span></p>
           <p>这就是奇偶性进入功率谱公式的根源：偶数阶给出 <span
           class="math inline">\(\sin(\pi fT_c)\)</span>，奇数阶给出 <span
-          class="math inline">\(\cos(\pi fT_c)\)</span>。</p>
+          class="math inline">\(\cos(\pi fT_c)\)</span></p>
           </section>
           </section>
           <section id="psd" class="level2 boc-section">
@@ -665,7 +665,7 @@
           \]</span></p>
           <p>理解。由于相位因子取模后消失，正弦相位 BOC 的结果为：</p>
           <p>这里分母是 <span class="math inline">\(T_c\)</span>，不是 <span
-          class="math inline">\(T_s\)</span>。原因要从随机信号的构成看：导航信号中的随机独立量是伪码码片，码片序列每隔
+          class="math inline">\(T_s\)</span>原因要从随机信号的构成看：导航信号中的随机独立量是伪码码片，码片序列每隔
           <span class="math inline">\(T_c\)</span>
           才更新一次；而方波副载波在一个码片内按固定规律翻转，它只是确定性的内部纹理。若把
           BOC 基带写成</p>
@@ -691,7 +691,7 @@
           class="math inline">\(T_c\)</span> 的单码片复合脉冲的傅里叶变换，<span
           class="math inline">\(|P(f)|^2\)</span>
           对应单码片能量谱；把能量谱转成功率谱，就要除以这段能量实际占据的时间
-          <span class="math inline">\(T_c\)</span>。<span
+          <span class="math inline">\(T_c\)</span><span
           class="math inline">\(T_s\)</span> 的作用不是作为平均时间基准，而是通过
           <span class="math inline">\(P(f)\)</span>
           内部的副载波结构决定谱形分裂、奇次谐波和主瓣位置。</p>
@@ -794,10 +794,10 @@
           <ul>
           <li>正弦相位：每个内部小区间长度都是 <span
           class="math inline">\(T_s\)</span>，所以可以直接写成 <span
-          class="math inline">\(\sum_{k=0}^{M-1}(-1)^k\mathbf{1}_{[kT_s,(k+1)T_s)}(t)\)</span>。</li>
+          class="math inline">\(\sum_{k=0}^{M-1}(-1)^k\mathbf{1}_{[kT_s,(k+1)T_s)}(t)\)</span></li>
           <li>余弦相位：第一个和最后一个小区间只有 <span
           class="math inline">\(T_s/2\)</span>，内部小区间才是 <span
-          class="math inline">\(T_s\)</span>。</li>
+          class="math inline">\(T_s\)</span></li>
           </ul>
           <p>因此，式 (3) 里的正弦相位单码片表达式不能直接套给余弦相位。以偶数阶
           <span class="math inline">\(M\)</span>
@@ -816,8 +816,8 @@
           \end{aligned}
           \]</span></p>
           <p>对偶数 <span class="math inline">\(M\)</span>，最后一项幅值为 <span
-          class="math inline">\(+1\)</span>。这个表达式把“头尾被切开”的边界效应显式写了出来。正是这些半长边界片段，使余弦相位的副载波因子不再是
-          <span class="math inline">\(\sin^2(\pi fT_s)\)</span>。</p>
+          class="math inline">\(+1\)</span>这个表达式把“头尾被切开”的边界效应显式写了出来。正是这些半长边界片段，使余弦相位的副载波因子不再是
+          <span class="math inline">\(\sin^2(\pi fT_s)\)</span></p>
           </section>
           <section id="先用三角恒等式看出两者差在哪里" class="level3">
           <h3>5.3 先用三角恒等式看出两者差在哪里</h3>
@@ -852,14 +852,14 @@
           <p>放在一起看：</p>
           <ul>
           <li>正弦相位：<span
-          class="math inline">\(4\sin^2\theta\cos^2\theta\)</span>。</li>
+          class="math inline">\(4\sin^2\theta\cos^2\theta\)</span></li>
           <li>余弦相位：<span
-          class="math inline">\(4\sin^2\theta\sin^2\theta\)</span>。</li>
+          class="math inline">\(4\sin^2\theta\sin^2\theta\)</span></li>
           </ul>
           <p>二者共享 <span
           class="math inline">\(4\sin^2\theta\)</span>，差别在于后一个因子由 <span
           class="math inline">\(\cos^2\theta\)</span> 变成了 <span
-          class="math inline">\(\sin^2\theta\)</span>。这就是“四分之一周期移动”在有限码片窗口中留下的频域痕迹：边界被切开以后，原来对齐整半周期的那部分余弦权重，被半周期错位后的正弦权重取代。</p>
+          class="math inline">\(\sin^2\theta\)</span>这就是“四分之一周期移动”在有限码片窗口中留下的频域痕迹：边界被切开以后，原来对齐整半周期的那部分余弦权重，被半周期错位后的正弦权重取代。</p>
           </section>
           <section id="为什么是差的平方不是平方的差" class="level3">
           <h3>5.4 为什么是“差的平方”，不是“平方的差”</h3>
@@ -925,7 +925,7 @@
           1-2\cos\theta+\cos^2\theta
           \]</span></p>
           <p>可以看到中间多出来的交叉项 <span
-          class="math inline">\(-2\cos\theta\)</span>。这个交叉项正是头尾半长边界片段与内部整长片段共同叠加后留下的数学痕迹。</p>
+          class="math inline">\(-2\cos\theta\)</span>这个交叉项正是头尾半长边界片段与内部整长片段共同叠加后留下的数学痕迹。</p>
           </section>
           <section id="用最小例子看完全平方式从哪里来" class="level3">
           <h3>5.5 用最小例子看完全平方式从哪里来</h3>
@@ -942,10 +942,10 @@
           <li><span class="math inline">\([T_s/2,3T_s/2)\)</span> 上取 <span
           class="math inline">\(-1\)</span>；</li>
           <li><span class="math inline">\([3T_s/2,2T_s)\)</span> 上取 <span
-          class="math inline">\(+1\)</span>。</li>
+          class="math inline">\(+1\)</span></li>
           </ul>
           <p>令 <span class="math inline">\(\omega=2\pi
-          f\)</span>。它的傅里叶变换为</p>
+          f\)</span>它的傅里叶变换为</p>
           <p><span class="math display">\[
           \begin{aligned}
           P_c(f)
@@ -1034,7 +1034,7 @@
           <section id="一般偶数阶余弦相位的严格推导" class="level3">
           <h3>5.6 一般偶数阶余弦相位的严格推导</h3>
           <p>下面把上面的例子推广到一般偶数 <span
-          class="math inline">\(M\)</span>。仍令</p>
+          class="math inline">\(M\)</span>仍令</p>
           <p><span class="math display">\[
           \omega=2\pi f
           \qquad
@@ -1066,7 +1066,7 @@
           \end{aligned}
           \]</span></p>
           <p>把方括号记为 <span
-          class="math inline">\(B_M\)</span>。展开后，它的符号结构为</p>
+          class="math inline">\(B_M\)</span>展开后，它的符号结构为</p>
           <p><span class="math display">\[
           B_M
           =
@@ -1141,7 +1141,7 @@
           class="math inline">\((1-A)^2\)</span> 是边界切割造成的完全平方式，<span
           class="math inline">\(1+A^2\)</span>
           则会在三角化简中给出教材公式分母里的 <span
-          class="math inline">\(\cos(\pi fT_s)\)</span>。</p>
+          class="math inline">\(\cos(\pi fT_s)\)</span></p>
           <p>将 <span class="math inline">\(A=e^{-j\theta}\)</span>、<span
           class="math inline">\(\theta=\pi fT_s\)</span> 代入，化简残余因子：</p>
           <p><span class="math display">\[
@@ -1276,7 +1276,7 @@
           <p>化出的 <span class="math inline">\(\cos(\pi fT_s)\)</span>
           完整配对，所以最后保留下来的副载波因子是简洁的 <span
           class="math inline">\(\sin^2(\pi
-          fT_s)\)</span>。余弦相位的差分步长被边界切成 <span
+          fT_s)\)</span>余弦相位的差分步长被边界切成 <span
           class="math inline">\(T_s/2\)</span>，先产生 <span
           class="math inline">\(\sin^2(\pi fT_s/2)\)</span>，再通过</p>
           <p><span class="math display">\[
@@ -1285,7 +1285,7 @@
           1-\cos(\pi fT_s)
           \]</span></p>
           <p>升回教材统一的自变量，于是形成 <span
-          class="math inline">\([1-\cos(\pi fT_s)]^2\)</span>。</p>
+          class="math inline">\([1-\cos(\pi fT_s)]^2\)</span></p>
           </section>
           <section id="正弦相位与余弦相位的结构对比" class="level3">
           <h3>5.8 正弦相位与余弦相位的结构对比</h3>
@@ -1362,13 +1362,13 @@
           <p>这四个公式的结构非常整齐：</p>
           <ul>
           <li>分母完全相同，都是 <span class="math inline">\(T_c[\pi f\cos(\pi
-          fT_s)]^2\)</span>。</li>
+          fT_s)]^2\)</span></li>
           <li>正弦相位还是余弦相位，决定与 <span
           class="math inline">\(T_s\)</span> 有关的副载波因子。</li>
           <li><span class="math inline">\(M\)</span> 为奇数还是偶数，决定与 <span
           class="math inline">\(T_c\)</span> 有关的码片因子是 <span
           class="math inline">\(\cos^2(\pi fT_c)\)</span> 还是 <span
-          class="math inline">\(\sin^2(\pi fT_c)\)</span>。</li>
+          class="math inline">\(\sin^2(\pi fT_c)\)</span></li>
           </ul>
           </section>
           </section>
@@ -1387,11 +1387,11 @@
           \quad\Rightarrow\quad
           f=\frac{k}{T_c}=kf_c
           \]</span></p>
-          <p>所以相邻普通零点的间隔是 <span class="math inline">\(f_c\)</span>。若
+          <p>所以相邻普通零点的间隔是 <span class="math inline">\(f_c\)</span>若
           <span class="math inline">\(M\)</span> 为奇数，码片项换成 <span
           class="math inline">\(\cos^2(\pi fT_c)\)</span>，零点整体平移半个 <span
           class="math inline">\(f_c\)</span>，但相邻零点之间的间隔仍然是 <span
-          class="math inline">\(f_c\)</span>。</p>
+          class="math inline">\(f_c\)</span></p>
           <p>这里正好回答一个常见疑问：既然式 (4.15) 的分子里也有 <span
           class="math inline">\(\sin^2(\pi
           fT_s)\)</span>，为什么不说它也决定零点呢？</p>
@@ -1445,7 +1445,7 @@
           当然会影响谱形，但它给出的零点已经被 <span
           class="math inline">\(T_c\)</span>
           的细密零点网格“包容”了。决定普通旁瓣宽度的，是最细的零点间隔，也就是
-          <span class="math inline">\(f_c\)</span>。</p>
+          <span class="math inline">\(f_c\)</span></p>
           <p>第二类是副载波项：</p>
           <p><span class="math display">\[
           \sin^2(\pi fT_s)
@@ -1514,11 +1514,10 @@
           class="math inline">\(M-2\)</span></h2>
           <p>现在回到教材文字中的三个结论：</p>
           <ol type="1">
-          <li>BOC 信号的主瓣宽度是 <span
-          class="math inline">\(2f_c\)</span>。</li>
-          <li>主瓣内侧旁瓣宽度是 <span class="math inline">\(f_c\)</span>。</li>
+          <li>BOC 信号的主瓣宽度是 <span class="math inline">\(2f_c\)</span></li>
+          <li>主瓣内侧旁瓣宽度是 <span class="math inline">\(f_c\)</span></li>
           <li>调制阶数为 <span class="math inline">\(M\)</span>
-          时，两个主瓣内侧旁瓣数为 <span class="math inline">\(M-2\)</span>。</li>
+          时，两个主瓣内侧旁瓣数为 <span class="math inline">\(M-2\)</span></li>
           </ol>
           <figure class="boc-figure">
           <img src="assets/figures/boc-lobe-grid.png"
@@ -1540,7 +1539,7 @@
           =f_c
           \]</span></p>
           <p>这也是为什么不能只盯着 <span class="math inline">\(\sin^2(\pi
-          fT_s)\)</span>。它当然也会给零点，但由于</p>
+          fT_s)\)</span>它当然也会给零点，但由于</p>
           <p><span class="math display">\[
           \frac{1}{T_s}=Mf_c
           \]</span></p>
@@ -1569,7 +1568,7 @@
           \]</span></p>
           <p>左侧主瓣同理，围绕 <span
           class="math inline">\(-f_s\)</span>，宽度也为 <span
-          class="math inline">\(2f_c\)</span>。</p>
+          class="math inline">\(2f_c\)</span></p>
           <p>可以把它理解成：普通旁瓣只占一个零点间隔，而主瓣位于副载波奇次谐波的强搬移位置，相当于把中心附近本该形成普通零点的结构抬成了强峰，因此它跨过两个
           <span class="math inline">\(f_c\)</span> 间隔。</p>
           </section>
@@ -1659,9 +1658,9 @@
           等奇次谐波处搬移能量。于是普通旁瓣宽度为 <span
           class="math inline">\(f_c\)</span>，而 <span class="math inline">\(\pm
           f_s\)</span> 附近的两个强峰成为主瓣，每个宽 <span
-          class="math inline">\(2f_c\)</span>。两个主瓣内侧总宽度是 <span
+          class="math inline">\(2f_c\)</span>两个主瓣内侧总宽度是 <span
           class="math inline">\((M-2)f_c\)</span>，所以内侧旁瓣数就是 <span
-          class="math inline">\(M-2\)</span>。</p>
+          class="math inline">\(M-2\)</span></p>
           </section>
         </article>
       </div>
