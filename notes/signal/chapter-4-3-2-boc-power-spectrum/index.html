@@ -91,10 +91,11 @@
           <a href="#先澄清这里的四分之一周期到底是多少" class="toc-h4">5.2.1 四分之一周期澄清</a>
           <a href="#为什么不是把正弦相位公式直接平移一下" class="toc-h4">5.2.2 为什么不能直接平移</a>
           <a href="#先用三角恒等式看出两者差在哪里" class="toc-h4">5.2.3 三角恒等式对比</a>
-          <a href="#为什么是差的平方不是平方的差" class="toc-h4">5.2.4 为什么是差 of the 平方</a>
+          <a href="#为什么是差的平方不是平方的差" class="toc-h4">5.2.4 为什么是差的平方</a>
           <a href="#余弦相位频谱推导与最小例子代数剖析" class="toc-h3">5.3 频谱推导与最小例子</a>
           <a href="#用最小例子看完全平方式从哪里来" class="toc-h4">5.3.1 最小例子因式分解</a>
           <a href="#一般偶数阶余弦相位的严格推导" class="toc-h4">5.3.2 偶数阶余弦严格推导</a>
+          <a href="#一般奇数阶余弦相位的严格推导" class="toc-h4">5.3.3 奇数阶余弦严格推导</a>
           <a href="#正弦相位谱解析与正余弦结构对比" class="toc-h3">5.4 正弦相位与结构对比</a>
           <a href="#正弦相位为什么最后仍是-sin2pi-ft_s" class="toc-h4">5.4.1 正弦相位仍是sin</a>
           <a href="#正弦相位与余弦相位的结构对比" class="toc-h4">5.4.2 正余弦结构总结对比</a>
@@ -718,7 +719,7 @@
           </section>
           <section id="psd" class="level2 boc-section">
           <h2>5. 从频谱到四个归一化功率谱密度公式</h2>
-          
+
           <section id="归一化功率谱均值与分母时间基准" class="level3">
           <h3>5.1 归一化功率谱均值与分母时间基准</h3>
           <p>归一化功率谱密度可按</p>
@@ -734,7 +735,12 @@
           \qquad M\ \text{为偶数}
           \tag{4.15}
           \]</span></p>
-{RETURN_BUTTON_HTML}
+<a href="javascript:history.back()" class="formula-back-btn" title="返回正文">
+  <svg class="back-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+  </svg>
+  返回
+</a>
 </div>
           <div id="eq-416" class="boc-formula-container">
 <p><span class="math display">\[
@@ -748,14 +754,19 @@
           \qquad M\ \text{为奇数}
           \tag{4.16}
           \]</span></p>
-{RETURN_BUTTON_HTML}
+<a href="javascript:history.back()" class="formula-back-btn" title="返回正文">
+  <svg class="back-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+  </svg>
+  返回
+</a>
 </div>
           <p>理解。由于相位因子取模后消失，正弦相位 BOC 的结果与时域单码片波形的绝对定位无关，它在奇偶阶下的结构切换完全由码片窗函数在时域的拼接项数决定。本节核心要旨在于分析更具挑战性的余弦相位 BOC 频谱结构。</p>
           </section>
 
           <section id="余弦相位边界切割与差的平方物理本质" class="level3">
           <h3>5.2 余弦相位边界切割与“差的平方”物理本质</h3>
-          
+
           <section id="先澄清这里的四分之一周期到底是多少" class="level4">
           <h4>5.2.1 这里的“四分之一周期”到底是多少</h4>
           <p>余弦相位副载波可以写成</p>
@@ -789,23 +800,23 @@
           \implies
           1-\cos\theta = 2\sin^2\left(\frac{\theta}{2}\right)
           \]</span></p>
-          <p>令 <span class="math inline">\(	heta = \pi fT_s\)</span>，则可得：</p>
+          <p>令 <span class="math inline">\(\theta = \pi fT_s\)</span>，则可得：</p>
           <p><span class="math display">\[
-          1-\cos(\pi fT_s) = 2\sin^2\left(\frac{\pi fT_s}{2}ight)
+          1-\cos(\pi fT_s) = 2\sin^2\left(\frac{\pi fT_s}{2}\right)
           \]</span></p>
           <p>带回平方中，余弦相位的右侧项展开为：</p>
           <p><span class="math display">\[
           \left[1-\cos(\pi fT_s)\right]^2
           =
-          4\sin^4\left(\frac{\pi fT_s}{2}ight)
+          4\sin^4\left(\frac{\pi fT_s}{2}\right)
           \]</span></p>
           <p>而正弦相位的右侧项则为：</p>
           <p><span class="math display">\[
           \sin^2(\pi fT_s)
           =
-          \left[2\sin\left(\frac{\pi fT_s}{2}ight)\cos\left(\frac{\pi fT_s}{2}ight)\right]^2
+          \left[2\sin\left(\frac{\pi fT_s}{2}\right)\cos\left(\frac{\pi fT_s}{2}\right)\right]^2
           =
-          4\sin^2\left(\frac{\pi fT_s}{2}ight)\cos^2\left(\frac{\pi fT_s}{2}ight)
+          4\sin^2\left(\frac{\pi fT_s}{2}\right)\cos^2\left(\frac{\pi fT_s}{2}\right)
           \]</span></p>
           <p>这二者一对比，结构上的物理含义立即显现：正弦相位保留了由 <span class="math inline">\(\cos^2\)</span> 贡献的高频分量，而余弦相位则将其替换为了 <span class="math inline">\(\sin^2\)</span> 因子。这个极微小的代数差异，最终将彻底重塑整个谱密度的包络分布。</p>
           </section>
@@ -822,7 +833,7 @@
 
           <section id="余弦相位频谱推导与最小例子代数剖析" class="level3">
           <h3>5.3 余弦相位频谱推导与最小例子代数剖析</h3>
-          
+
           <section id="用最小例子看完全平方式从哪里来" class="level4">
           <h4>5.3.1 最小例子 M=2 的因式分解与物理本质</h4>
           <p>先取最小偶数阶例子 <span class="math inline">\(M=2\)</span>，也就是副载波频率与码片速率之比为 1（对应 <span class="math inline">\(\mathrm{BOC}_c(1,1)\)</span> 时的副载波部分）。此时其单码片波形 <span class="math inline">\(p_c(t)\)</span> 在 <span class="math inline">\([0, 2T_s]\)</span>（注意此时 <span class="math inline">\(T_c = 2T_s\)</span>）内的跳变结构为：</p>
@@ -831,13 +842,13 @@
           <li>在 <span class="math inline">\([T_s/2, 3T_s/2)\)</span> 上电平取 <span class="math inline">\(-1\)</span>；</li>
           <li>在 <span class="math inline">\([3T_s/2, 2T_s)\)</span> 上电平取 <span class="math inline">\(+1\)</span>。</li>
           </ul>
-          
+
           <section id="时域分段定积分法传统代数起点" class="level5">
           <h5>5.3.1.1 时域分段定积分法（传统代数起点）</h5>
           <p>首先采用最直接的时域分段定积分法。令 <span class="math inline">\(\omega = 2\pi f\)</span>，则单码片脉冲的傅里叶变换为：</p>
           <p><span class="math display">\[
           \begin{aligned}
-          P_c(f) 
+          P_c(f)
           &= \int_{0}^{T_s/2} e^{-j\omega t}\,dt - \int_{T_s/2}^{3T_s/2} e^{-j\omega t}\,dt + \int_{3T_s/2}^{2T_s} e^{-j\omega t}\,dt \\
           &= \frac{1}{-j\omega} \left[ \left( e^{-j\omega T_s/2} - 1 \right) - \left( e^{-j\omega 3T_s/2} - e^{-j\omega T_s/2} \right) + \left( e^{-j\omega 2T_s} - e^{-j\omega 3T_s/2} \right) \right] \\
           &= \frac{1}{-j\omega} \left[ e^{-j\omega 2T_s} - 2e^{-j\omega 3T_s/2} + 2e^{-j\omega T_s/2} - 1 \right]
@@ -857,7 +868,7 @@
           <section id="更优雅的时域求导冲激法与系数符号决定的本质" class="level5">
           <h5>5.3.1.2 更优雅的时域“求导冲激法”与系数符号决定的本质</h5>
           <p>那么，有没有一种方法能够避开上面繁琐的积分过程，并且能一眼看出多项式各项正负号的物理物理机制？<strong>时域求导冲激法</strong>正是为此而生。它不仅可以直接用于推导功率谱，还能揭示复指数多项式系数与时域跳变高度的完美对应。</p>
-          
+
           <section id="时域求导冲激法的数学原理与功率谱推导" class="level6">
           <h6>1. 时域求导冲激法的数学原理与功率谱推导</h6>
           <p>对于任何分段常数（Piecewise Constant）波形（如矩形脉冲序列），其在突变点 <span class="math inline">\(t_k\)</span> 处的导数就是一系列<strong>狄拉克冲激函数（Dirac Delta）</strong>的叠加：</p>
@@ -1098,7 +1109,7 @@
           {\pi f\cos(\pi fT_s)}
           \]</span></p>
           <p>整体的负号和时延相位因子在取模平方时都会完全消失，所以它绝对不影响信号的能量分布。因为 <span class="math inline">\(MT_s = T_c\)</span>，取模平方并除以周期 <span class="math inline">\(T_c\)</span> 即可完美推导出：</p>
-          <div id="eq-417" class="boc-formula-container">
+          <div id="eq-417-deriv" class="boc-formula-container">
 <p><span class="math display">\[
           G_{\mathrm{BOC}_c(f_s,f_c)}(f)
           =
@@ -1109,11 +1120,15 @@
           T_c\left[\pi f\cos(\pi fT_s)\right]^2
           }
           \qquad M\ \text{为偶数}
-          \tag{4.17}
           \]</span></p>
-{RETURN_BUTTON_HTML}
+<a href="javascript:history.back()" class="formula-back-btn" title="返回正文">
+  <svg class="back-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+  </svg>
+  返回
+</a>
 </div>
-          <p>这就是教材式 (4.17)。</p>
+          <p>这就是<a href="#eq-417">教材式 (4.17)</a>。</p>
           </section>
 
           <section id="一般奇数阶余弦相位的严格推导" class="level4">
@@ -1228,7 +1243,7 @@
           \end{aligned}
           \]</span></p>
           <p>取模平方并除以码片周期 <span class="math inline">\(T_c\)</span>，即可完美推导出奇数阶余弦相位 BOC 的功率谱密度公式：</p>
-          <div id="eq-418" class="boc-formula-container">
+          <div id="eq-418-deriv" class="boc-formula-container">
 <p><span class="math display">\[
           G_{\mathrm{BOC}_c(f_s,f_c)}(f)
           =
@@ -1236,21 +1251,25 @@
           \cos^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
           }
           {
-          T_c\left[\pi f\cos(\pi fT_s)ight]^2
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
           }
           \qquad M\ \text{为奇数}
-          \tag{4.18}
           \]</span></p>
-{RETURN_BUTTON_HTML}
+<a href="javascript:history.back()" class="formula-back-btn" title="返回正文">
+  <svg class="back-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+  </svg>
+  返回
+</a>
 </div>
-          <p>这就是教材式 (4.18)！</p>
-          <p>通过这套极其严密的代数推导，奇偶阶谱密度的切换逻辑水落石出：奇数阶下，由于单码片首尾符号相同（都为负），在多项式展开中形成了对偶 of 等比级数符号，导致原先的 <span class="math inline">\(1-A^{2M}\)</span> 变换为了 <span class="math inline">\(1+A^{2M}\)</span>，这在提半角后就完美地将码片窗项由正弦平方 <span class="math inline">\(\sin^2(\pi fT_c)\)</span> 转变为了余弦平方 <span class="math inline">\({\cos^2(\pi fT_c)}\)</span>，而与边界切割相关的副载波因子 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span> 保持完好。数学规律如此简洁优美，真是令人叹为观止！</p>
+          <p>这就是<a href="#eq-418">教材式 (4.18)</a>！</p>
+          <p>通过这套极其严密的代数推导，奇偶阶谱密度的切换逻辑水落石出：奇数阶下，由于单码片首尾符号相同（都为负），在多项式展开中形成了对偶的等比级数符号，导致原先的 <span class="math inline">\(1-A^{2M}\)</span> 变换为了 <span class="math inline">\(1+A^{2M}\)</span>，这在提半角后就完美地将码片窗项由正弦平方 <span class="math inline">\(\sin^2(\pi fT_c)\)</span> 转变为了余弦平方 <span class="math inline">\({\cos^2(\pi fT_c)}\)</span>，而与边界切割相关的副载波因子 <span class="math inline">\([1-\cos(\pi fT_s)]^2\)</span> 保持完好。数学规律如此简洁优美，真是令人叹为观止！</p>
           </section>
           </section>
 
           <section id="正弦相位谱解析与正余弦结构对比" class="level3">
           <h3>5.4 正弦相位谱解析与正余弦结构对比</h3>
-          
+
           <section id="正弦相位为什么最后仍是-sin2pi-ft_s" class="level4">
           <h4>5.4.1 正弦相位为什么最后仍是 <span class="math inline">\(\sin^2(\pi fT_s)\)</span></h4>
           <p>正弦相位也可以从复指数差分角度看到平方结构，但它的差分步长和整半周期 <span class="math inline">\(T_s\)</span> 对齐。以偶数阶为例，前面已经推到：</p>
@@ -1334,6 +1353,45 @@
           <p>再经过外层平方后，整个因子在低频附近呈 <span class="math inline">\(f^4\)</span> 量级的四次衰减。也就是说，余弦相位对中心低频的压制比正弦相位更强：正弦相位是二次压制，余弦相位近似是四次压制。中心能量被压得越彻底，在归一化总功率一定的条件下，能量就越倾向于向更高频的两侧分布。因此余弦 BOC 的频谱分裂程度更深，主瓣位置和能量分布也会更偏向两侧。</p>
           <p>再看时域。根据时频对偶直觉，频域占用带宽越宽，高频成分越多，时域相关函数的主峰往往越尖锐、越窄。卫星导航接收机通过估计码相位延迟来测距；自相关主峰越窄，主峰附近斜率越陡，码跟踪鉴别器对热噪声和多径扰动的分辨能力就越强。因此，余弦相位 BOC 因为等效带宽更宽，往往具有更窄的相关主峰，也就带来更高测距分辨率的潜力。</p>
           <p>但这个优势也有代价。BOC 自相关函数本来就具有多峰结构，本质上来自方波副载波在相关运算中的多层重叠。余弦相位又在码片边界引入了更尖锐的截断跳变，使两侧副峰更容易变大、变尖锐。接收机在捕获或跟踪时，如果没有足够稳健的模糊峰抑制策略，就可能把副峰误认为主峰而锁定，造成明显的码相位偏差。另一方面，余弦相位把能量推向更高频两侧，也意味着接收机射频前端和基带滤波器需要保留更宽的有效带宽，硬件成本、功耗和滤波设计难度都会随之增加。</p>
+          <p>因此教材给出：</p>
+          <div id="eq-417" class="boc-formula-container">
+<p><span class="math display">\[
+          G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
+          \frac{
+          \sin^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          }
+          \qquad M\ \text{为偶数}
+          \tag{4.17}
+          \]</span></p>
+<a href="javascript:history.back()" class="formula-back-btn" title="返回正文">
+  <svg class="back-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+  </svg>
+  返回
+</a>
+</div>
+          <div id="eq-418" class="boc-formula-container">
+<p><span class="math display">\[
+          G_{\mathrm{BOC}_c(f_s,f_c)}(f)=
+          \frac{
+          \cos^2(\pi fT_c)\left[1-\cos(\pi fT_s)\right]^2
+          }
+          {
+          T_c\left[\pi f\cos(\pi fT_s)\right]^2
+          }
+          \qquad M\ \text{为奇数}
+          \tag{4.18}
+          \]</span></p>
+<a href="javascript:history.back()" class="formula-back-btn" title="返回正文">
+  <svg class="back-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z"/>
+  </svg>
+  返回
+</a>
+</div>
           </section>
           </section>
         </section><section id="read-formulas" class="level2 boc-section">
@@ -1769,7 +1827,7 @@
     (function() {
       // 1. 同步阶段：在 MathJax 运行并清空 DOM 前，立即锁定并提取干净的 LaTeX 源码
       const mathBlocks = document.querySelectorAll('.boc-formula, .math.display');
-      
+
       // 逆转义 HTML 实体的辅助函数，确保 LaTeX 里的 <, >, & 等符号高保真还原
       function decodeLatex(text) {
         const entities = {
@@ -1817,7 +1875,7 @@
             e.stopPropagation(); // 阻止事件冒泡
 
             const textToCopy = block.getAttribute('data-latex');
-            
+
             // 兼容性复制实现
             function doCopy() {
               if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1846,7 +1904,7 @@
               // 成功反馈
               btn.classList.add('copied');
               btn.innerHTML = checkIcon + '<span>Copied!</span>';
-              
+
               setTimeout(() => {
                 btn.classList.remove('copied');
                 btn.innerHTML = copyIcon + '<span>Copy</span>';

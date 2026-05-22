@@ -201,9 +201,9 @@ $$P_c(f) = \frac{1}{-j\omega} \left[ \left(e^{-j\omega \frac{1}{2}T_s} - 1\right
 $$\text{括号内} = A^4 - 2A^3 + 2A - 1$$
 现在，我们对这个多项式做因式分解：
 $$\begin{aligned}
-A^4 - 2A^3 + 2A - 1 &= (A^4 - 1) - 2A(A^2 - 1) \
-&= (A^2 - 1)(A^2 + 1) - 2A(A^2 - 1) \
-&= (A^2 - 1)(A^2 - 2A + 1) \
+A^4 - 2A^3 + 2A - 1 &= (A^4 - 1) - 2A(A^2 - 1) \\
+&= (A^2 - 1)(A^2 + 1) - 2A(A^2 - 1) \\
+&= (A^2 - 1)(A^2 - 2A + 1) \\
 &= (A^2 - 1)\mathbf{(A - 1)^2}
 \end{aligned}$$
 
@@ -303,9 +303,9 @@ $$(1 - e^{-j\omega T_s})^2 \quad （\text{令 } \theta = \omega T_s = 2\pi f T_s
 $$\left| (1 - e^{-j\theta})^2 \right|^2 = \left( \left| 1 - e^{-j\theta} \right|^2 \right)^2$$
 第一步，先算括号里面的模平方 $\left| 1 - e^{-j\theta} \right|^2$：
 $$\begin{aligned}
-\left| 1 - e^{-j\theta} \right|^2 &= \left| 1 - (\cos\theta - j\sin\theta) \right|^2 \
-&= (1 - \cos\theta)^2 + \sin^2\theta \
-&= 1 - 2\cos\theta + \cos^2\theta + \sin^2\theta \
+\left| 1 - e^{-j\theta} \right|^2 &= \left| 1 - (\cos\theta - j\sin\theta) \right|^2 \\
+&= (1 - \cos\theta)^2 + \sin^2\theta \\
+&= 1 - 2\cos\theta + \cos^2\theta + \sin^2\theta \\
 &= 2(1 - \cos\theta)
 \end{aligned}$$
 
@@ -623,7 +623,7 @@ $$1 - e^{-j\theta} = e^{-j\frac{\theta}{2}} \left( e^{j\frac{\theta}{2}} - e^{-j
 $$1 - e^{-j\theta} = e^{-j\frac{\theta}{2}} \cdot 2j\sin\left(\frac{\theta}{2}\right)$$
 现在对它整体求平方，并加上前面的负号：
 $$\begin{aligned}
--(1 - e^{-j\theta})^2 &= - \left[ e^{-j\frac{\theta}{2}} \cdot 2j\sin\left(\frac{\theta}{2}\right) \right]^2 \
+-(1 - e^{-j\theta})^2 &= - \left[ e^{-j\frac{\theta}{2}} \cdot 2j\sin\left(\frac{\theta}{2}\right) \right]^2 \\
 &= - \left[ e^{-j\theta} \cdot (4j^2) \cdot \sin^2\left(\frac{\theta}{2}\right) \right]
 \end{aligned}$$
 
