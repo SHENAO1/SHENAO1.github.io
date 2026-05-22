@@ -75,11 +75,11 @@
               <strong>跟踪环路</strong>
               <p>PLL、环路带宽、动态应力、后续 DLL/FLL。</p>
             </a>
-            <a class="knowledge-block" href="#signal-block">
+            <a class="knowledge-block is-ready" href="#signal-block">
               <span class="knowledge-number">03</span>
-              <span class="knowledge-state is-upcoming">待整理</span>
+              <span class="knowledge-state">专题已建</span>
               <strong>信号体制与 BOC</strong>
-              <p>BOC 生成、频谱结构、相关函数与实验图。</p>
+              <p>BOC 生成、功率谱密度、主瓣旁瓣与相关函数。</p>
             </a>
             <a class="knowledge-block" href="#practice-block">
               <span class="knowledge-number">04</span>
@@ -218,27 +218,34 @@
               <span class="knowledge-section-kicker">03 / Signal</span>
               <div>
                 <h2>信号体制与 BOC</h2>
-                <p>这一块先留作信号结构与仿真实验的入口，后续适合放 BOC 生成、频谱、相关函数和调制方式对比。</p>
+                <p>这一块收《新一代卫星导航系统信号设计原理与实现技术》里的信号体制内容，先从 BOC 功率谱密度开始，后续继续放 BOC 生成、相关函数和调制方式对比。</p>
               </div>
             </div>
 
             <div class="catalog-grid catalog-grid--single">
-              <article class="catalog-card">
-                <div class="catalog-art" aria-hidden="true"></div>
-                <div class="catalog-status is-upcoming">计划整理</div>
+              <article class="catalog-card catalog-card--feature">
+                <img src="signal/chapter-4-3-2-boc-power-spectrum/assets/figures/boc-lobe-grid.png" alt="BOC 频谱零点网格与主瓣旁瓣示意">
+                <div class="catalog-card-body">
+                <div class="catalog-status">已整理为章节笔记</div>
                 <div class="catalog-meta">
-                  <span>Topic note</span>
+                  <span>Chapter 4.3.2</span>
                   <span>主题：BOC</span>
-                  <span>形式：实验型文章</span>
+                  <span>形式：教材原页 + 严格推导</span>
                 </div>
-                <h3>BOC 信号生成与相关特性</h3>
-                <p>后续可以把 BOC 相关实验和生成代码整理成“概念 + 仿真 + 图示”的专题页，而不是只停留在脚本目录。</p>
+                <h3>4.3.2 BOC 信号的功率谱密度</h3>
+                <p>融合教材原页、BOC 主瓣旁瓣补充问答和傅里叶时频尺度解释，推导式 (4.15)-(4.18)，并解释主瓣宽度 <code>2f_c</code>、普通旁瓣宽度 <code>f_c</code>、内侧旁瓣数 <code>M-2</code>。</p>
+                <ul>
+                  <li>新书内容单独放进 <code>notes/signal/</code> 专题。</li>
+                  <li>页面采用重新设计的频谱网格风格，和跟踪环章节区分开。</li>
+                </ul>
                 <div class="catalog-footer">
                   <div class="chip-row">
-                    <span>BOC</span>
-                    <span>频谱</span>
-                    <span>相关特性</span>
+                    <span>BOC PSD</span>
+                    <span>4.15-4.18</span>
+                    <span>M-2</span>
                   </div>
+                  <a class="text-link" href="signal/chapter-4-3-2-boc-power-spectrum/">阅读章节笔记</a>
+                </div>
                 </div>
               </article>
             </div>

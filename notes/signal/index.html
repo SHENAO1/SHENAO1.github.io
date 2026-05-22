@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Signal Notes | SHENAO1 的学习主页</title>
+  <meta name="description" content="信号体制与 BOC 专题笔记索引：整理新一代卫星导航信号设计中的 BOC 定义、功率谱密度与相关函数。">
+  <link rel="stylesheet" href="../../assets/styles/site.css">
+</head>
+<body class="page-topic">
+  <div class="site-shell">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a class="is-current" href="../index.html">Notes</a>
+        <a href="../../video-notes/">Video Notes</a>
+        <a href="../../index.html#projects">Projects</a>
+        <a href="../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="index-panel">
+        <div class="breadcrumb">
+          <a href="../../index.html">Home</a>
+          <span>/</span>
+          <a href="../index.html">Notes</a>
+          <span>/</span>
+          <span>Signal</span>
+        </div>
+
+        <div class="index-header">
+          <div class="index-copy">
+            <div class="eyeline">Signal structure collection</div>
+            <h1>把信号体制、BOC 频谱和相关函数单独从跟踪环里拆出来。</h1>
+            <p>这一块对应《新一代卫星导航系统信号设计原理与实现技术》中的扩频调制章节。页面风格会和跟踪环笔记区分开：更强调频谱轴、零点网格和公式推导。</p>
+          </div>
+
+          <article class="index-feature">
+            <div class="eyeline">Current focus</div>
+            <h2>4.3.2 BOC 信号的功率谱密度</h2>
+            <p>本节把教材原页、两个补充 Markdown 和严格式推导合并，重点回答主瓣宽度、旁瓣宽度与内侧旁瓣数为什么分别是 <code>2f_c</code>、<code>f_c</code> 和 <code>M-2</code>。</p>
+            <div class="chip-row">
+              <span>BOC</span>
+              <span>Power spectral density</span>
+              <span>Main lobe</span>
+              <span>Derivation</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="catalog-grid catalog-grid--single">
+          <article class="catalog-card catalog-card--feature">
+            <img src="chapter-4-3-2-boc-power-spectrum/assets/figures/boc-lobe-grid.png" alt="BOC 频谱零点网格与主瓣旁瓣示意">
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为章节笔记</div>
+              <div class="catalog-meta">
+                <span>Chapter 4.3.2</span>
+                <span>信号体制与 BOC</span>
+                <span>形式：教材原页 + 推导笔记</span>
+              </div>
+              <h3>4.3.2 BOC 信号的功率谱密度</h3>
+              <p>从方波副载波、单码片积分和功率谱公式出发，推导正弦相位/余弦相位 BOC 的 PSD，并解释零点网格、主瓣宽度和内侧旁瓣计数。</p>
+              <ul>
+                <li>保留教材 4.3.2 裁剪页与图 4-8 原始截图。</li>
+                <li>融合 BOC 主瓣旁瓣分析与傅里叶时频尺度补充。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>4.15-4.18</span>
+                  <span>零点网格</span>
+                  <span>M-2</span>
+                </div>
+                <a class="text-link" href="chapter-4-3-2-boc-power-spectrum/">阅读章节笔记</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <p class="catalog-section-note">后续 4.3.1、4.3.3 和 BOC 相关函数可以继续放在这个专题下，保持同一本书的信号体制内容独立成组。</p>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../index.html">Home</a>
+        <a href="../index.html">Notes</a>
+        <a href="../../video-notes/">Video Notes</a>
+        <a href="../../index.html#projects">Projects</a>
+        <a href="../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../assets/scripts/site.js"></script>
+</body>
+</html>
