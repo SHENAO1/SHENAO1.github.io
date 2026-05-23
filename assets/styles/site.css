@@ -2226,17 +2226,24 @@ body.is-scrolled .site-nav {
 
 .notes-book-hero {
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-columns: 150px minmax(0, 1fr);
   gap: 18px;
   align-items: center;
 }
 
+.book-cover-pair {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  min-width: 0;
+}
+
 .notes-book-hero img {
-  width: 100%;
-  aspect-ratio: 859 / 1280;
-  max-height: 220px;
-  object-fit: cover;
+  width: min(48%, 76px);
+  aspect-ratio: 5 / 7;
+  object-fit: contain;
   border-radius: 10px;
+  background: #fff;
   box-shadow: 0 18px 34px rgba(7, 23, 34, 0.16);
 }
 
@@ -2280,6 +2287,11 @@ body.is-scrolled .site-nav {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.52);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.book-library {
+  display: grid;
+  gap: 18px;
 }
 
 .directory-heading {
@@ -2339,9 +2351,10 @@ body.is-scrolled .site-nav {
 .book-cover-frame img {
   display: block;
   width: 100%;
-  aspect-ratio: 859 / 1280;
-  object-fit: cover;
+  aspect-ratio: 5 / 7;
+  object-fit: contain;
   border-radius: 10px;
+  background: #fff;
 }
 
 .book-card-body {
@@ -2697,7 +2710,7 @@ a.chapter-row:hover {
   }
 
   .notes-book-hero {
-    grid-template-columns: 86px minmax(0, 1fr);
+    grid-template-columns: 116px minmax(0, 1fr);
     gap: 14px;
   }
 
