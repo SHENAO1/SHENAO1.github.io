@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>从 LLM 到 Agent Skill，一期视频带你打通底层逻辑 | Video Notes | SHENAO1 的学习主页</title>
+  <meta name="description" content="BibiGPT 视频总结：从 LLM 到 Agent Skill，一期视频带你打通底层逻辑">
+  <link rel="stylesheet" href="../assets/styles/site.css">
+  <style>
+    .note-body { max-width: 820px; margin: 2rem auto; padding: 0 1.5rem; }
+    .note-body h2 { margin-top: 2.4rem; border-bottom: 1px solid var(--line); padding-bottom: .45rem; }
+    .note-body h3 { margin-top: 1.8rem; color: var(--ink); }
+    .note-body blockquote { border-left: 3px solid var(--cyan-deep); padding: .6rem 1rem; margin: 1rem 0; background: var(--surface); border-radius: var(--radius-sm); }
+    .note-body img { max-width: 100%; border-radius: var(--radius-md); margin: 1rem 0; }
+    .note-meta { display: flex; gap: .8rem; flex-wrap: wrap; margin: 1rem 0 2rem; }
+    .note-tag { display: inline-block; padding: .2rem .7rem; border-radius: 999px; background: var(--paper-deep); color: var(--ink-soft); font-size: .82rem; border: 1px solid var(--line); }
+    .source-link { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem 1rem; border-radius: var(--radius-sm); background: var(--surface-strong); border: 1px solid var(--line); color: var(--cyan-deep); text-decoration: none; font-size: .9rem; }
+    .source-link:hover { background: var(--paper-deep); }
+    .video-meta { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; }
+    .abstract { font-size: 1.05rem; line-height: 1.85; color: var(--ink-soft); margin-bottom: 2rem; }
+  </style>
+</head>
+<body class="page-video">
+  <div class="site-shell">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../index.html">
+        <span class="brand-mark">S1</span>
+        <span class="brand-copy">
+          <small>Blog · Notes · GitHub</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../notes/">Notes</a>
+        <a class="is-current" href="index.html">Video Notes</a>
+        <a href="../index.html#projects">Projects</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+    </header>
+    <main class="page-grid">
+      <section class="index-panel">
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a><span>/</span>
+          <a href="index.html">Video Notes</a><span>/</span>
+          <span>从 LLM 到 Agent Skill，…</span>
+        </div>
+        <article class="note-body">
+          <h1>🎬 从 LLM 到 Agent Skill，一期视频带你打通底层逻辑</h1>
+          <div class="video-meta">作者：马克的技术工作坊 · 时长：32:31</div>
+          <div class="note-meta">
+            <a class="source-link" href="https://www.bilibili.com/video/BV1E7wtzaEdq" target="_blank">🔗 B站原视频</a>
+            <a class="source-link" href="https://bibigpt.co/video/BV1E7wtzaEdq" target="_blank">📝 BibiGPT 总结</a>
+            <span class="note-tag">LLM</span><span class="note-tag">AI智能体</span><span class="note-tag">Agent</span><span class="note-tag">MCP</span><span class="note-tag">提示词工程</span><span class="note-tag">技术科普</span>
+          </div>
+          <p class="abstract">本视频由"马克的技术工作坊"制作，旨在从工程视角由浅入深地拆解 AI 领域的核心底层逻辑。作者将 LLM、Token、Context、Prompt、Tool、MCP、Agent 以及 Agent Skill 等看似复杂的新名词串联在一起，构建了一套完整的知识体系。</p>
+          <h2>🏗️ 分段总结</h2>
+          
+          <h3>🚀 核心引擎：LLM与Transformer架构 · [00:00]</h3>
+          <p>几乎所有现代大模型都基于Google在2017年提出的Transformer架构。核心工作原理被比喻为"文字接龙游戏"：模型接收输入后，通过矩阵运算预测并输出概率最高的词（Token），循环此过程直至生成完整回答。</p>
+
+          <h3>🧩 文本基石：Tokenizer与Token · [03:17]</h3>
+          <p>Token是大模型处理文本的最小单位。Tokenizer负责编码和解码。一个Token约等于0.75个英文单词或1.5-2个汉字。</p>
+
+          <h3>🧠 临时记忆：Context与Context Window · [08:13]</h3>
+          <p>大模型本身无状态，"记忆"源于每次请求时将完整对话历史打包成Context发送给模型。Context Window定义了最大Token容量，当前主流模型已达百万Token级别。</p>
+
+          <h3>🎯 指令核心：Prompt（System与User） · [11:44]</h3>
+          <p>Prompt质量直接决定输出质量。User Prompt是用户的具体任务；System Prompt定义大模型的人设、角色和行事规则。</p>
+
+          <h3>🔧 能力延伸：Tool（工具）与调用流程 · [15:14]</h3>
+          <p>工具本质上是一个函数。完整流程：用户提问→平台转发→大模型决定调用哪个工具→平台实际调用→结果返回大模型总结→呈现给用户。</p>
+
+          <h3>🔌 统一标准：MCP（模型上下文协议） · [19:23]</h3>
+          <p>MCP是统一的工具接入标准协议，类比Type-C接口：工具开发者只需按MCP规范开发一次，即可在所有支持MCP的平台上使用。</p>
+
+          <h3>🤖 智能进阶：Agent与Agent Skill · [21:12]</h3>
+          <p>Agent能自主规划、决策、调用工具完成复杂任务。Agent Skill是为Agent编写的Markdown说明文档，预设工作步骤和规则。</p>
+
+          <h3>📚 体系回顾与总结 · [30:46]</h3>
+          <p>LLM是核心引擎，Token是基本单元，Context是临时记忆体，Prompt是指令输入，Tool和MCP连接外部世界，Agent和Agent Skill赋予自主完成任务的能力。</p>
+
+          <hr>
+          <blockquote>
+            📝 由 <a href="https://bibigpt.co/video/BV1E7wtzaEdq" target="_blank">BibiGPT</a> 自动生成，Hermes Agent 整理归档 ·
+            <a href="../index.html">← 返回 Video Notes</a>
+          </blockquote>
+        </article>
+      </section>
+    </main>
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../index.html">Home</a><a href="../notes/">Notes</a>
+        <a href="index.html">Video Notes</a><a href="../index.html#projects">Projects</a>
+        <a href="../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+  <script src="../assets/scripts/site.js"></script>
+</body>
+</html>
