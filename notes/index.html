@@ -75,11 +75,11 @@
                 <span>北斗 / GPS / 软件接收机</span>
               </div>
               <h3>北斗/GPS 双模软件接收机原理与实现技术</h3>
-              <p>这本书对应当前站点里的信号捕获和跟踪环笔记。4.1.6、4.2.1、4.2.2 都来自它的第 4 章“信号捕获和跟踪”。</p>
+              <p>这本书对应当前站点里的信号捕获和跟踪环笔记。现在先把 1-9 章全部建档，已经整理的 4.1.6、4.2.1、4.2.2 会挂在第 4 章下面。</p>
               <div class="book-progress" aria-label="本书整理进度">
+                <span><strong>9</strong> 章已建档</span>
                 <span><strong>3</strong> 篇已发布</span>
                 <span><strong>1</strong> 个跟踪专题</span>
-                <span><strong>第 4 章</strong> 捕获与跟踪</span>
               </div>
               <div class="catalog-footer">
                 <div class="chip-row">
@@ -104,11 +104,11 @@
                 <span>GNSS / 北斗 / 信号设计</span>
               </div>
               <h3>新一代卫星导航系统信号设计原理与实现技术</h3>
-              <p>这本书当前只接入了 4.3.2 BOC 信号功率谱密度。它和软件接收机那本书分开归档，避免章节来源混在一起。</p>
+              <p>这本书当前只接入了 4.3.2 BOC 信号功率谱密度。现在先把 1-8 章全部建档，后续整理 4.3.1、4.3.3 或其他章节时直接补到对应章下面。</p>
               <div class="book-progress" aria-label="本书整理进度">
+                <span><strong>8</strong> 章已建档</span>
                 <span><strong>1</strong> 篇已发布</span>
                 <span><strong>1</strong> 个信号专题</span>
-                <span><strong>4.3.2</strong> BOC 功率谱</span>
               </div>
               <div class="catalog-footer">
                 <div class="chip-row">
@@ -131,32 +131,86 @@
             </div>
           </div>
 
-          <div class="chapter-list" aria-label="鲁郁书籍章节笔记">
-            <a class="chapter-row" href="../chapter-4-1-6/">
+          <div class="chapter-list" aria-label="鲁郁书籍章节目录">
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-01/">
               <div>
-                <span>Chapter 4.1.6</span>
-                <strong>基于数据分块和频率补偿的信号捕获</strong>
-                <p>分块、块间增益、频率补偿、竖块 FFT 与最终频率估计。</p>
+                <span>Chapter 01</span>
+                <strong>定位、坐标系和时间标准</strong>
+                <p>定位基本问题、坐标系统、时间系统与双模接收机的基础坐标/时间框架。</p>
               </div>
-              <span class="chapter-state">讲义页</span>
+              <span class="chapter-state is-outline">已建档</span>
             </a>
 
-            <a class="chapter-row" href="tracking/chapter-4-2-1-basic-pll/">
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-02/">
               <div>
-                <span>Chapter 4.2.1</span>
-                <strong>基本的锁相环</strong>
-                <p>传递函数、等效噪声带宽、不同阶数环路和交互讲义入口。</p>
+                <span>Chapter 02</span>
+                <strong>GPS 和北斗卫星导航系统简介</strong>
+                <p>系统组成、星座、信号与服务能力的总览，为后续接收机实现铺垫背景。</p>
               </div>
-              <span class="chapter-state">HTML 笔记</span>
+              <span class="chapter-state is-outline">已建档</span>
             </a>
 
-            <a class="chapter-row" href="tracking/chapter-4-2-2-linear-pll-thermal-noise/">
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-03/">
               <div>
-                <span>Chapter 4.2.2</span>
-                <strong>线性锁相环的热噪声性能分析</strong>
-                <p>教材正文、图 4.31/4.32 和补充笔记中的 8 组问题分析。</p>
+                <span>Chapter 03</span>
+                <strong>GPS 和北斗的信号格式与导航电文</strong>
+                <p>信号格式、码结构、导航电文和接收机解析时需要关注的数据组织方式。</p>
               </div>
-              <span class="chapter-state">章节笔记</span>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-04/">
+              <div>
+                <span>Chapter 04</span>
+                <strong>信号捕获和跟踪</strong>
+                <p>已整理 4.1.6 信号捕获、4.2.1 基本锁相环和 4.2.2 线性 PLL 热噪声性能。</p>
+              </div>
+              <span class="chapter-state">3 篇已发布</span>
+            </a>
+
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-05/">
+              <div>
+                <span>Chapter 05</span>
+                <strong>双模观测量提取和误差分析</strong>
+                <p>伪距、载波相位等观测量提取，以及双模定位中常见误差项的整理入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-06/">
+              <div>
+                <span>Chapter 06</span>
+                <strong>卫星位置和速度的计算</strong>
+                <p>由导航电文计算卫星位置、速度和相关校正量的章节占位。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-07/">
+              <div>
+                <span>Chapter 07</span>
+                <strong>位置、速度和时间解算</strong>
+                <p>PVT 解算、线性化、迭代和双模定位求解流程的整理入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-08/">
+              <div>
+                <span>Chapter 08</span>
+                <strong>射频前端</strong>
+                <p>射频链路、采样、中频与接收机硬件前端相关内容的章节占位。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/beidou-gps-luyu/chapter-09/">
+              <div>
+                <span>Chapter 09</span>
+                <strong>北斗和 GPS 双模软件接收机的实现</strong>
+                <p>软件接收机整体实现、模块组织和工程验证内容的最终章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
             </a>
           </div>
 
@@ -175,14 +229,77 @@
             </div>
           </div>
 
-          <div class="chapter-list" aria-label="姚铮陆明泉书籍章节笔记">
-            <a class="chapter-row" href="signal/chapter-4-3-2-boc-power-spectrum/">
+          <div class="chapter-list" aria-label="姚铮陆明泉书籍章节目录">
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-01/">
               <div>
-                <span>Chapter 4.3.2</span>
-                <strong>BOC 信号的功率谱密度</strong>
-                <p>从方波副载波、单码片积分和功率谱公式推导到零点网格与主瓣旁瓣计数。</p>
+                <span>Chapter 01</span>
+                <strong>绪论</strong>
+                <p>GNSS 发展、导航信号重要性和各系统信号体制演进的总览入口。</p>
               </div>
-              <span class="chapter-state">章节笔记</span>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-02/">
+              <div>
+                <span>Chapter 02</span>
+                <strong>卫星导航信号的结构</strong>
+                <p>测距、载波、扩频、数据/导频、多路复用和导航电文结构的章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-03/">
+              <div>
+                <span>Chapter 03</span>
+                <strong>直接序列扩频的基本性质</strong>
+                <p>扩频信号模型、相关函数、功率谱密度和扩频序列性质的章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-04/">
+              <div>
+                <span>Chapter 04</span>
+                <strong>卫星导航中的扩频调制技术</strong>
+                <p>已整理 4.3.2 BOC 功率谱密度；4.3.1、4.3.3 和其他调制方式后续继续补充。</p>
+              </div>
+              <span class="chapter-state">1 篇已发布</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-05/">
+              <div>
+                <span>Chapter 05</span>
+                <strong>导航信号扩频调制的性能分析</strong>
+                <p>码跟踪、捕获、抗多径、频谱分离和等效载噪比等性能指标入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-06/">
+              <div>
+                <span>Chapter 06</span>
+                <strong>扩频信号恒包络复用的基本理论</strong>
+                <p>高功放、相位映射、恒包络复用和效率分析相关内容的章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-07/">
+              <div>
+                <span>Chapter 07</span>
+                <strong>扩频信号恒包络复用的构造方法</strong>
+                <p>QPSK、POCET、QPSM、ACE-BOC 等复用构造方法的章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="books/xinyidai-gnss-signal/chapter-08/">
+              <div>
+                <span>Chapter 08</span>
+                <strong>结束语</strong>
+                <p>卫星导航信号性能评估与未来发展趋势的收束章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
             </a>
           </div>
 

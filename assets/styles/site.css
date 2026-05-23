@@ -2510,6 +2510,12 @@ a.chapter-row:hover {
   background: rgba(212, 108, 88, 0.12);
 }
 
+.chapter-state.is-outline {
+  border-color: rgba(16, 42, 63, 0.1);
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.62);
+}
+
 .chapter-row.is-upcoming {
   color: var(--ink-soft);
 }
@@ -3523,6 +3529,12 @@ button:focus-visible,
     color: #f4c7bc;
     background: rgba(224, 140, 122, 0.18);
     border-color: rgba(224, 140, 122, 0.3);
+  }
+
+  .chapter-state.is-outline {
+    color: var(--ink-soft);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   .book-topic-links a {
