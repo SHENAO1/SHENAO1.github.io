@@ -36,269 +36,134 @@
 
         <div class="index-header notes-landing-header">
           <div class="index-copy">
-            <div class="eyeline">Knowledge block directory</div>
-            <h1>先按知识块进入，再读具体章节。</h1>
-            <p>Notes 页现在作为目录使用：先把 GNSS 学习内容拆成稳定的知识块，再在每个块下面放章节讲义、推导笔记和实验线索。这样后续新增内容时不会继续堆在同一页里。</p>
+            <div class="eyeline">Book-first notes library</div>
+            <h1>先选书，再读这本书里的章节笔记。</h1>
+            <p>Notes 页改成按教材和参考书归档：每本书保留封面、作者、整理进度和章节入口。专题页仍然存在，但不再作为第一层入口。</p>
           </div>
 
-          <article class="index-feature notes-directory-card">
-            <div class="eyeline">Catalog rule</div>
-            <h2>知识块 → 主题页 → 单篇章节</h2>
-            <p>根目录只负责告诉你“去哪一块找”。具体正文继续下沉到专题目录或章节页里，避免 Notes 首页变成杂物堆。</p>
-            <div class="directory-rule">
-              <span>知识块：捕获、跟踪、信号体制、推导路线、视频复盘</span>
-              <span>主题页：同类章节集中管理</span>
-              <span>单篇章节：公式、图、实验和复习摘要</span>
+          <article class="index-feature notes-book-hero">
+            <img src="../assets/images/books/xinyidai-gnss-signal-cover.webp" alt="《新一代卫星导航系统信号设计原理与实现技术》书籍封面">
+            <div>
+              <div class="eyeline">Current book</div>
+              <h2>新一代卫星导航系统信号设计原理与实现技术</h2>
+              <p>当前已接入捕获、PLL、热噪声和 BOC 功率谱相关笔记。</p>
             </div>
           </article>
         </div>
 
-        <section class="knowledge-directory" aria-labelledby="knowledge-directory-heading">
+        <section class="book-library" aria-labelledby="book-library-heading">
           <div class="directory-heading">
             <div>
-              <div class="eyeline">Notes map</div>
-              <h2 id="knowledge-directory-heading">知识块目录</h2>
+              <div class="eyeline">Bookshelf</div>
+              <h2 id="book-library-heading">书籍书架</h2>
             </div>
-            <p>点击下面的块，会跳到对应目录区。已经整理好的内容会提供直接入口；还没整理的块先保留位置和收纳规则。</p>
+            <p>先从书籍进入，再在同一本书下面找章节。以后新增教材时，只需要继续加一本书卡片。</p>
           </div>
 
-          <nav class="knowledge-block-grid" aria-label="Notes 知识块目录">
-            <a class="knowledge-block is-ready" href="#capture-block">
-              <span class="knowledge-number">01</span>
-              <span class="knowledge-state">已发布</span>
-              <strong>信号捕获与搜索</strong>
-              <p>数据分块、频率补偿、FFT 捕获、捕获指标。</p>
+          <article class="book-card" id="xinyidai-gnss-signal">
+            <a class="book-cover-frame" href="#xinyidai-gnss-signal-chapters" aria-label="查看《新一代卫星导航系统信号设计原理与实现技术》的章节笔记">
+              <img src="../assets/images/books/xinyidai-gnss-signal-cover.webp" alt="《新一代卫星导航系统信号设计原理与实现技术》封面">
             </a>
-            <a class="knowledge-block is-ready" href="#tracking-block">
-              <span class="knowledge-number">02</span>
-              <span class="knowledge-state">专题已建</span>
-              <strong>跟踪环路</strong>
-              <p>PLL、环路带宽、动态应力、后续 DLL/FLL。</p>
-            </a>
-            <a class="knowledge-block is-ready" href="#signal-block">
-              <span class="knowledge-number">03</span>
-              <span class="knowledge-state">专题已建</span>
-              <strong>信号体制与 BOC</strong>
-              <p>BOC 生成、频谱结构、相关函数与实验图。</p>
-            </a>
-            <a class="knowledge-block" href="#practice-block">
-              <span class="knowledge-number">04</span>
-              <span class="knowledge-state is-upcoming">待整理</span>
-              <strong>公式推导与复习路线</strong>
-              <p>章节桥接、核心公式链、实现流程索引。</p>
-            </a>
-            <a class="knowledge-block" href="#media-block">
-              <span class="knowledge-number">05</span>
-              <span class="knowledge-state">独立模块</span>
-              <strong>视频与实验复盘</strong>
-              <p>课程视频摘要、实验录屏和章节回链。</p>
-            </a>
-          </nav>
+            <div class="book-card-body">
+              <div class="catalog-status">正在整理</div>
+              <div class="catalog-meta">
+                <span>姚铮、陆明泉 著</span>
+                <span>电子工业出版社</span>
+                <span>GNSS / 北斗 / 信号设计</span>
+              </div>
+              <h3>新一代卫星导航系统信号设计原理与实现技术</h3>
+              <p>这一组笔记围绕同一本书展开，当前已把捕获、锁相环、线性 PLL 热噪声和 BOC 功率谱密度接入站点。后续 4.3.1、相关函数和更多实验页也继续挂在这本书下面。</p>
+              <div class="book-progress" aria-label="本书整理进度">
+                <span><strong>4</strong> 篇已发布</span>
+                <span><strong>2</strong> 个专题索引</span>
+                <span><strong>4.x</strong> 章节线索</span>
+              </div>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>捕获</span>
+                  <span>PLL</span>
+                  <span>BOC</span>
+                  <span>功率谱</span>
+                </div>
+                <a class="text-link" href="#xinyidai-gnss-signal-chapters">查看本书章节</a>
+              </div>
+            </div>
+          </article>
         </section>
 
-        <div class="knowledge-sections" aria-label="知识块详细目录">
-          <section class="knowledge-section" id="capture-block">
-            <div class="knowledge-section-head">
-              <span class="knowledge-section-kicker">01 / Capture</span>
+        <section class="book-section" id="xinyidai-gnss-signal-chapters" aria-labelledby="xinyidai-gnss-signal-heading">
+          <div class="book-section-head">
+            <span class="book-section-kicker">Book / Chapter notes</span>
+            <div>
+              <h2 id="xinyidai-gnss-signal-heading">《新一代卫星导航系统信号设计原理与实现技术》</h2>
+              <p>按书内章节顺序排，不再先拆成知识块。专题页只作为同类内容的补充索引。</p>
+            </div>
+          </div>
+
+          <div class="chapter-list" aria-label="本书章节笔记">
+            <a class="chapter-row" href="../chapter-4-1-6/">
               <div>
-                <h2>信号捕获与搜索</h2>
-                <p>这一块收 GNSS 接收机进入跟踪前的搜索流程：数据如何分块、频率如何补偿、相关峰如何被快速找出来。</p>
+                <span>Chapter 4.1.6</span>
+                <strong>基于数据分块和频率补偿的信号捕获</strong>
+                <p>分块、块间增益、频率补偿、竖块 FFT 与最终频率估计。</p>
               </div>
-            </div>
+              <span class="chapter-state">讲义页</span>
+            </a>
 
-            <div class="catalog-grid catalog-grid--single">
-              <article class="catalog-card catalog-card--feature">
-                <img src="../chapter-4-1-6/assets/figures/fig-4-20-horizontal-vertical-blocks.png" alt="4.1.6 讲义预览图">
-                <div class="catalog-card-body">
-                  <div class="catalog-status">已整理为讲义页</div>
-                  <div class="catalog-meta">
-                    <span>Chapter 4.1.6</span>
-                    <span>主题：信号捕获</span>
-                    <span>形式：完整讲义 + 交互</span>
-                  </div>
-                  <h3>4.1.6 基于数据分块和频率补偿的信号捕获</h3>
-                  <p>从分块、块间增益、频率补偿、竖块 FFT 到横块捕获，把教材链路改写成了一份可直接复习的讲义。</p>
-                  <ul>
-                    <li>补上候选补偿量组织、矩阵重排和最终频率估计的逻辑链。</li>
-                    <li>保留关键公式：<code>G(L,f_k)</code>、最优 <code>Delta f_k</code>、竖块 FFT。</li>
-                  </ul>
-                  <div class="catalog-footer">
-                    <div class="chip-row">
-                      <span>Data partitioning</span>
-                      <span>Frequency compensation</span>
-                      <span>FFT capture</span>
-                    </div>
-                    <a class="text-link" href="../chapter-4-1-6/">进入讲义页</a>
-                  </div>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="knowledge-section" id="tracking-block">
-            <div class="knowledge-section-head">
-              <span class="knowledge-section-kicker">02 / Tracking</span>
+            <a class="chapter-row" href="tracking/chapter-4-2-1-basic-pll/">
               <div>
-                <h2>跟踪环路</h2>
-                <p>这一块收锁相环、延迟锁定环、环路参数、动态误差和热噪声性能。跟踪类正文统一放进 <code>notes/tracking/</code>，首页只保留方向感。</p>
+                <span>Chapter 4.2.1</span>
+                <strong>基本的锁相环</strong>
+                <p>传递函数、等效噪声带宽、不同阶数环路和交互讲义入口。</p>
               </div>
-            </div>
+              <span class="chapter-state">HTML 笔记</span>
+            </a>
 
-            <div class="catalog-grid">
-              <article class="catalog-card">
-                <div class="catalog-art" aria-hidden="true"></div>
-                <div class="catalog-status">已建立主题目录</div>
-                <div class="catalog-meta">
-                  <span>Tracking topic</span>
-                  <span>主题：跟踪环</span>
-                  <span>形式：主题索引</span>
-                </div>
-                <h3>跟踪环主题索引</h3>
-                <p>跟踪相关笔记不再直接堆在 <code>notes/</code> 根目录，而是统一收进 <code>notes/tracking/</code>。后续 DLL、FLL、离散实现也可以继续落到这里。</p>
-                <div class="catalog-footer">
-                  <div class="chip-row">
-                    <span>PLL</span>
-                    <span>Tracking topic</span>
-                    <span>Loop bandwidth</span>
-                  </div>
-                  <a class="text-link" href="tracking/">进入跟踪环专题</a>
-                </div>
-              </article>
-
-              <article class="catalog-card">
-                <div class="catalog-status">已整理为章节笔记</div>
-                <div class="catalog-meta">
-                  <span>Chapter 4.2.1</span>
-                  <span>跟踪环主题</span>
-                  <span>形式：HTML 笔记 + 交互讲义</span>
-                </div>
-                <h3>4.2.1 基本的锁相环</h3>
-                <p>承接教材中的基本锁相环模型，方便从传递函数、等效噪声带宽和不同阶数环路继续往后读。</p>
-                <ul>
-                  <li>笔记路径：<code>notes/tracking/chapter-4-2-1-basic-pll/</code></li>
-                  <li>交互讲义路径：<code>chapter-4-2-1/</code></li>
-                </ul>
-                <div class="catalog-footer">
-                  <div class="chip-row">
-                    <span>HTML note</span>
-                    <span>Derivations</span>
-                    <span>Demo</span>
-                  </div>
-                  <a class="text-link" href="tracking/chapter-4-2-1-basic-pll/">阅读章节笔记</a>
-                </div>
-              </article>
-
-              <article class="catalog-card">
-                <div class="catalog-status">已整理为章节笔记</div>
-                <div class="catalog-meta">
-                  <span>Chapter 4.2.2</span>
-                  <span>跟踪环主题</span>
-                  <span>形式：教材正文 + 补充分析</span>
-                </div>
-                <h3>4.2.2 线性锁相环的热噪声性能分析</h3>
-                <p>完整合并教材正文、公式、图 4.31/4.32 截图和补充笔记中的 8 组问题分析，继续承接 4.2.1 的 <code>H(s)</code>、<code>E(s)</code> 与噪声带宽。</p>
-                <ul>
-                  <li>笔记路径：<code>notes/tracking/chapter-4-2-2-linear-pll-thermal-noise/</code></li>
-                  <li>图示采用教材截图，不重绘。</li>
-                </ul>
-                <div class="catalog-footer">
-                  <div class="chip-row">
-                    <span>Thermal noise</span>
-                    <span>PLL</span>
-                    <span>Full note</span>
-                  </div>
-                  <a class="text-link" href="tracking/chapter-4-2-2-linear-pll-thermal-noise/">阅读章节笔记</a>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="knowledge-section" id="signal-block">
-            <div class="knowledge-section-head">
-              <span class="knowledge-section-kicker">03 / Signal</span>
+            <a class="chapter-row" href="tracking/chapter-4-2-2-linear-pll-thermal-noise/">
               <div>
-                <h2>信号体制与 BOC</h2>
-                <p>这一块已经独立成信号体制专题入口，当前先接入 BOC 功率谱密度笔记，后续继续收 BOC 生成、相关函数和调制方式对比。</p>
+                <span>Chapter 4.2.2</span>
+                <strong>线性锁相环的热噪声性能分析</strong>
+                <p>教材正文、图 4.31/4.32 和补充笔记中的 8 组问题分析。</p>
               </div>
-            </div>
+              <span class="chapter-state">章节笔记</span>
+            </a>
 
-            <div class="catalog-grid catalog-grid--single">
-              <article class="catalog-card">
-                <div class="catalog-art" aria-hidden="true"></div>
-                <div class="catalog-status">已建立专题目录</div>
-                <div class="catalog-meta">
-                  <span>Topic index</span>
-                  <span>主题：BOC</span>
-                  <span>形式：专题索引</span>
-                </div>
-                <h3>信号体制与 BOC 专题索引</h3>
-                <p>已接入 4.3.2 BOC 信号功率谱密度笔记；后续可以把 BOC 相关实验和生成代码继续整理成“概念 + 仿真 + 图示”的专题页。</p>
-                <div class="catalog-footer">
-                  <div class="chip-row">
-                    <span>BOC</span>
-                    <span>频谱</span>
-                    <span>专题入口</span>
-                  </div>
-                  <a class="text-link" href="signal/">进入信号专题</a>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="knowledge-section" id="practice-block">
-            <div class="knowledge-section-head">
-              <span class="knowledge-section-kicker">04 / Review</span>
+            <div class="chapter-row is-upcoming">
               <div>
-                <h2>公式推导与复习路线</h2>
-                <p>这一块不承载单个章节，而是把章节之间的共同变量、公式和实现流程串起来，适合做考前或工程复现时的路线图。</p>
+                <span>Chapter 4.3.1</span>
+                <strong>BOC 调制的定义</strong>
+                <p>章节 PDF 已拆分，后续整理成同书章节笔记。</p>
               </div>
+              <span class="chapter-state is-upcoming">待整理</span>
             </div>
 
-            <div class="catalog-grid catalog-grid--single">
-              <article class="catalog-card">
-                <div class="catalog-art" aria-hidden="true"></div>
-                <div class="catalog-status is-upcoming">计划整理</div>
-                <div class="catalog-meta">
-                  <span>Bridge note</span>
-                  <span>主题：前后章节衔接</span>
-                  <span>形式：索引型讲义</span>
-                </div>
-                <h3>捕获与跟踪章节的桥接索引</h3>
-                <p>后续建议做一页桥接索引，把 4.1 与 4.2 的知识点按“码相位 / 载波 / 环路 / 实现流程”重新串联，方便复习时跳转。</p>
-                <div class="catalog-footer">
-                  <div class="chip-row">
-                    <span>复习地图</span>
-                    <span>章节桥接</span>
-                    <span>学习路径</span>
-                  </div>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="knowledge-section" id="media-block">
-            <div class="knowledge-section-head">
-              <span class="knowledge-section-kicker">05 / Media</span>
+            <a class="chapter-row" href="signal/chapter-4-3-2-boc-power-spectrum/">
               <div>
-                <h2>视频与实验复盘</h2>
-                <p>视频、公开课和实验录屏不和章节笔记混放，单独进入 Video Notes，再从那里回链到对应讲义。</p>
+                <span>Chapter 4.3.2</span>
+                <strong>BOC 信号的功率谱密度</strong>
+                <p>从方波副载波、单码片积分和功率谱公式推导到零点网格与主瓣旁瓣计数。</p>
               </div>
-            </div>
+              <span class="chapter-state">章节笔记</span>
+            </a>
 
-            <div class="module-bridge">
-              <article class="module-bridge-card">
-                <div>
-                  <div class="eyeline">Linked module</div>
-                  <h2>视频笔记总结模块已经预留</h2>
-                  <p>可以把时间轴摘要、关键截图、讲义跳转和实验链接整理过去，Notes 只保留知识块目录和章节入口。</p>
-                </div>
-                <a class="button-secondary" href="../video-notes/">进入 Video Notes</a>
-              </article>
+            <div class="chapter-row is-upcoming">
+              <div>
+                <span>Later chapters</span>
+                <strong>BOC 相关函数与实验图</strong>
+                <p>等待从脚本、图证卡和补充笔记继续整理。</p>
+              </div>
+              <span class="chapter-state is-upcoming">待整理</span>
             </div>
-          </section>
-        </div>
+          </div>
 
-        <p class="catalog-section-note">后续新增章节时，先判断它属于哪个知识块，再补上标题、摘要、关键公式、主题标签、状态和入口链接。目录先清楚，内容才会慢慢长得稳。</p>
+          <div class="book-topic-links" aria-label="本书补充专题">
+            <a href="tracking/">跟踪环专题索引</a>
+            <a href="signal/">信号体制与 BOC 专题索引</a>
+            <a href="../video-notes/">视频与实验复盘</a>
+          </div>
+        </section>
+
+        <p class="catalog-section-note">后续新增内容时，先确定它属于哪本书，再按章节号挂到对应书卡下面；专题页只作为横向复习入口保留。</p>
       </section>
     </main>
 
