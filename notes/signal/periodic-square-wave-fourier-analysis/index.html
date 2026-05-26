@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>周期方波的傅里叶级数、傅里叶变换与时频域分析 | Signal Notes</title>
+  <meta name="description" content="周期方波学习笔记：从 50% 占空比方波出发，整理傅里叶级数、复指数形式、傅里叶变换、功率谱、吉布斯现象和时频域分析。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css">
+  <style>
+    .square-note .note-intro-copy h1,
+    .square-note .note-prose section.level1 > h1,
+    .square-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .square-visual {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(260px, 0.88fr);
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+
+    .square-visual-card,
+    .summary-card,
+    .note-callout {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .square-visual-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .square-visual-card h2 {
+      margin: 0 0 8px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .square-visual-card p {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .square-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-card {
+      padding: 14px 16px;
+    }
+
+    .summary-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .summary-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    .spectrum-label {
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      fill: #33516a;
+    }
+
+    @media (max-width: 980px) {
+      .square-visual,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .square-visual-card,
+      .summary-card,
+      .note-callout {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .spectrum-label {
+        fill: rgba(231, 248, 255, 0.78);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page square-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>周期方波傅里叶分析</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / Fourier analysis</div>
+          <h1>周期方波的傅里叶级数、傅里叶变换与时频域分析</h1>
+          <p>从最标准的 50% 占空比、零均值、幅值为 ±A 的周期方波出发，整理三角级数、复指数级数、冲激频谱、功率分布、吉布斯现象和实际带宽含义。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>周期信号</span>
+          <span>傅里叶级数</span>
+          <span>冲激频谱</span>
+          <span>时频分析</span>
+          <span>方波谐波</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 书架</a>
+        </div>
+
+        <div class="square-visual" aria-label="周期方波和奇次谐波示意">
+          <article class="square-visual-card">
+            <h2>时域：高低电平周期翻转</h2>
+            <svg viewBox="0 0 620 250" role="img" aria-label="一个周期方波的时域波形">
+              <rect x="0" y="0" width="620" height="250" rx="16" fill="#fffdf8"></rect>
+              <g stroke="rgba(12,36,57,.13)" stroke-width="1">
+                <line x1="50" y1="40" x2="50" y2="210"></line>
+                <line x1="50" y1="125" x2="580" y2="125"></line>
+                <line x1="182.5" y1="40" x2="182.5" y2="210"></line>
+                <line x1="315" y1="40" x2="315" y2="210"></line>
+                <line x1="447.5" y1="40" x2="447.5" y2="210"></line>
+                <line x1="580" y1="40" x2="580" y2="210"></line>
+              </g>
+              <polyline points="50,75 182.5,75 182.5,175 315,175 315,75 447.5,75 447.5,175 580,175" fill="none" stroke="#0d889a" stroke-width="5" stroke-linejoin="round"></polyline>
+              <g class="spectrum-label">
+                <text x="34" y="79">+A</text>
+                <text x="38" y="180">-A</text>
+                <text x="48" y="230">0</text>
+                <text x="301" y="230">T0</text>
+                <text x="555" y="230">2T0</text>
+                <text x="235" y="56">x(t+T0)=x(t)</text>
+              </g>
+            </svg>
+            <p>跳变越陡，说明越需要高频谐波补足边沿。理想方波把上升时间压到 0，因此理论带宽无限。</p>
+          </article>
+
+          <article class="square-visual-card">
+            <h2>频域：只留下奇次谐波</h2>
+            <svg viewBox="0 0 440 250" role="img" aria-label="周期方波的奇次谐波谱线">
+              <rect x="0" y="0" width="440" height="250" rx="16" fill="#fffdf8"></rect>
+              <line x1="38" y1="198" x2="405" y2="198" stroke="rgba(12,36,57,.34)" stroke-width="1.5"></line>
+              <line x1="220" y1="32" x2="220" y2="205" stroke="rgba(12,36,57,.18)" stroke-width="1"></line>
+              <g stroke="#de9b2b" stroke-width="5" stroke-linecap="round">
+                <line x1="160" y1="198" x2="160" y2="72"></line>
+                <line x1="100" y1="198" x2="100" y2="156"></line>
+                <line x1="40" y1="198" x2="40" y2="173"></line>
+                <line x1="280" y1="198" x2="280" y2="72"></line>
+                <line x1="340" y1="198" x2="340" y2="156"></line>
+                <line x1="400" y1="198" x2="400" y2="173"></line>
+              </g>
+              <g fill="#de9b2b">
+                <circle cx="160" cy="72" r="6"></circle>
+                <circle cx="100" cy="156" r="5"></circle>
+                <circle cx="40" cy="173" r="4"></circle>
+                <circle cx="280" cy="72" r="6"></circle>
+                <circle cx="340" cy="156" r="5"></circle>
+                <circle cx="400" cy="173" r="4"></circle>
+              </g>
+              <g class="spectrum-label" text-anchor="middle">
+                <text x="40" y="222">-5f0</text>
+                <text x="100" y="222">-3f0</text>
+                <text x="160" y="222">-f0</text>
+                <text x="220" y="222">0</text>
+                <text x="280" y="222">f0</text>
+                <text x="340" y="222">3f0</text>
+                <text x="400" y="222">5f0</text>
+                <text x="220" y="48">|ck| = 2A/(π|k|)</text>
+              </g>
+            </svg>
+            <p>50% 占空比且零均值的方波具有半波反对称性，所以偶次谐波和直流项都被对称性消掉。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从时域定义一路走到频域冲激谱，再回到工程中的带宽与时频分析。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#model">1. 方波模型</a>
+              <a class="level-2" href="#trig-series">2. 三角形式傅里叶级数</a>
+              <a class="level-2" href="#complex-series">3. 复指数形式</a>
+              <a class="level-2" href="#fourier-transform">4. 周期方波的傅里叶变换</a>
+              <a class="level-2" href="#spectrum">5. 幅度谱、相位谱与功率谱</a>
+              <a class="level-2" href="#parseval">6. 平均功率与帕塞瓦尔定理</a>
+              <a class="level-2" href="#gibbs">7. 有限项近似与吉布斯现象</a>
+              <a class="level-2" href="#time-frequency">8. 时频域分析</a>
+              <a class="level-2" href="#duty-cycle">9. 非 50% 占空比推广</a>
+              <a class="level-2" href="#engineering">10. 工程带宽与测量</a>
+              <a class="level-2" href="#summary">11. 一页总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="periodic-square-wave-fourier-analysis" class="level1">
+              <h1>周期方波的傅里叶级数、傅里叶变换与时频域分析</h1>
+              <blockquote>
+                <p>这份笔记默认讨论最经典的双极性周期方波：幅值为 \(+A\) 和 \(-A\)，占空比为 50%，平均值为 0。它是理解“时域边沿”和“频域谐波”关系的最好例子之一。</p>
+              </blockquote>
+
+              <section id="model" class="level2">
+                <h2>1. 方波模型</h2>
+                <p>定义周期为 \(T_0\)、基频为 \(f_0=1/T_0\)、基角频率为 \(\omega_0=2\pi f_0\) 的周期方波：</p>
+                <p><span class="math display">\[
+x(t)=A\,\operatorname{sgn}(\sin \omega_0 t)
+\tag{1}
+\]</span></p>
+                <p>在一个以原点为中心的周期内，可以写成分段形式：</p>
+                <p><span class="math display">\[
+x(t)=
+\begin{cases}
+A, & 0<t<\dfrac{T_0}{2} \\
+-A, & -\dfrac{T_0}{2}<t<0
+\end{cases}
+\qquad x(t+T_0)=x(t)
+\tag{2}
+\]</span></p>
+                <p>这个方波满足三个重要性质：</p>
+                <ul>
+                  <li>它是周期信号，所以频域一定是离散谱，而不是连续谱。</li>
+                  <li>它是奇函数，所以三角级数中没有直流项和余弦项。</li>
+                  <li>它满足半波反对称 \(x(t+T_0/2)=-x(t)\)，所以偶次谐波为 0。</li>
+                </ul>
+
+                <div class="summary-grid" aria-label="方波基本性质摘要">
+                  <div class="summary-card">
+                    <strong>平均值</strong>
+                    <span>正负半周期面积抵消，直流分量为 0。</span>
+                  </div>
+                  <div class="summary-card">
+                    <strong>对称性</strong>
+                    <span>奇函数加半波反对称，频谱只剩正弦奇谐波。</span>
+                  </div>
+                  <div class="summary-card">
+                    <strong>边沿</strong>
+                    <span>理想突变需要无限高频成分来合成。</span>
+                  </div>
+                </div>
+              </section>
+
+              <section id="trig-series" class="level2">
+                <h2>2. 三角形式傅里叶级数</h2>
+                <p>一般周期信号可以展开为：</p>
+                <p><span class="math display">\[
+x(t)=\frac{a_0}{2}
++\sum_{n=1}^{\infty}\left[
+a_n\cos(n\omega_0 t)+b_n\sin(n\omega_0 t)
+\right]
+\tag{3}
+\]</span></p>
+                <p>系数定义为：</p>
+                <p><span class="math display">\[
+a_n=\frac{2}{T_0}\int_{-T_0/2}^{T_0/2}x(t)\cos(n\omega_0t)\,dt
+\]</span></p>
+                <p><span class="math display">\[
+b_n=\frac{2}{T_0}\int_{-T_0/2}^{T_0/2}x(t)\sin(n\omega_0t)\,dt
+\]</span></p>
+                <p>由于 \(x(t)\) 是奇函数，而 \(\cos(n\omega_0t)\) 是偶函数，奇函数乘偶函数仍是奇函数，关于对称区间积分为 0。因此：</p>
+                <p><span class="math display">\[
+a_0=0,\qquad a_n=0
+\tag{4}
+\]</span></p>
+                <p>只需要计算 \(b_n\)。因为 \(x(t)\sin(n\omega_0t)\) 是偶函数：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+b_n
+&=\frac{4}{T_0}\int_0^{T_0/2}A\sin(n\omega_0t)\,dt \\
+&=\frac{4A}{T_0}\left[
+\frac{1-\cos(n\omega_0T_0/2)}{n\omega_0}
+\right] \\
+&=\frac{2A}{n\pi}\left[1-\cos(n\pi)\right]
+\end{aligned}
+\tag{5}
+\]</span></p>
+                <p>由于 \(\cos(n\pi)=(-1)^n\)，得到：</p>
+                <p><span class="math display">\[
+b_n=
+\begin{cases}
+\dfrac{4A}{n\pi}, & n=1,3,5,\ldots \\
+0, & n=2,4,6,\ldots
+\end{cases}
+\tag{6}
+\]</span></p>
+                <p>于是周期方波的三角傅里叶级数为：</p>
+                <p><span class="math display">\[
+x(t)=\frac{4A}{\pi}
+\left[
+\sin(\omega_0t)+\frac{1}{3}\sin(3\omega_0t)
++\frac{1}{5}\sin(5\omega_0t)+\cdots
+\right]
+\tag{7}
+\]</span></p>
+                <p>或者写成求和形式：</p>
+                <p><span class="math display">\[
+x(t)=\frac{4A}{\pi}
+\sum_{m=0}^{\infty}
+\frac{1}{2m+1}\sin\left[(2m+1)\omega_0t\right]
+\tag{8}
+\]</span></p>
+
+                <div class="note-callout">
+                  <strong>直觉</strong>
+                  <p>基波决定“每个周期整体怎么起伏”，三次、五次、七次谐波逐步把圆滑的正弦波压平、拉陡。谐波越多，方波边沿越接近垂直。</p>
+                </div>
+              </section>
+
+              <section id="complex-series" class="level2">
+                <h2>3. 复指数形式</h2>
+                <p>复指数形式把正负频率写得更对称，也更适合连接傅里叶变换：</p>
+                <p><span class="math display">\[
+x(t)=\sum_{k=-\infty}^{\infty}c_k e^{jk\omega_0t}
+\tag{9}
+\]</span></p>
+                <p>其中：</p>
+                <p><span class="math display">\[
+c_k=\frac{1}{T_0}\int_{T_0}x(t)e^{-jk\omega_0t}\,dt
+\tag{10}
+\]</span></p>
+                <p>由三角形式与欧拉公式可知，正弦项满足：</p>
+                <p><span class="math display">\[
+\sin(k\omega_0t)=\frac{e^{jk\omega_0t}-e^{-jk\omega_0t}}{2j}
+\]</span></p>
+                <p>因此，对于双极性 50% 方波：</p>
+                <p><span class="math display">\[
+c_0=0
+\]</span></p>
+                <p><span class="math display">\[
+c_k=
+\begin{cases}
+\dfrac{2A}{j\pi k}, & k=\pm1,\pm3,\pm5,\ldots \\
+0, & k=0,\pm2,\pm4,\ldots
+\end{cases}
+\tag{11}
+\]</span></p>
+                <p>于是：</p>
+                <p><span class="math display">\[
+x(t)=
+\sum_{\substack{k=-\infty\\ k\ \mathrm{为奇数}}}^{\infty}
+\frac{2A}{j\pi k}e^{jk\omega_0t}
+\tag{12}
+\]</span></p>
+                <p>复系数的幅度和相位分别为：</p>
+                <p><span class="math display">\[
+|c_k|=\frac{2A}{\pi|k|}
+\]</span></p>
+                <p><span class="math display">\[
+\angle c_k=
+\begin{cases}
+-\dfrac{\pi}{2}, & k>0 \\
++\dfrac{\pi}{2}, & k<0
+\end{cases}
+\qquad k=\pm1,\pm3,\ldots
+\]</span></p>
+                <p>这里的幅度是双边谱系数幅度，所以它是三角正弦幅度 \(4A/(\pi k)\) 的一半。原因是一个实正弦可以拆成一对正负频率复指数。</p>
+              </section>
+
+              <section id="fourier-transform" class="level2">
+                <h2>4. 周期方波的傅里叶变换</h2>
+                <p>周期方波不是绝对可积信号，不能把它当作普通能量信号去求连续函数形式的傅里叶变换。它的傅里叶变换应理解为冲激函数序列。</p>
+                <p>如果周期信号的傅里叶级数是：</p>
+                <p><span class="math display">\[
+x(t)=\sum_{k=-\infty}^{\infty}c_k e^{jk\omega_0t}
+\]</span></p>
+                <p>采用角频率形式的傅里叶变换约定：</p>
+                <p><span class="math display">\[
+X(\omega)=\int_{-\infty}^{\infty}x(t)e^{-j\omega t}\,dt
+\]</span></p>
+                <p>则有：</p>
+                <p><span class="math display">\[
+X(\omega)=2\pi\sum_{k=-\infty}^{\infty}c_k\delta(\omega-k\omega_0)
+\tag{13}
+\]</span></p>
+                <p>代入方波系数：</p>
+                <p><span class="math display">\[
+X(\omega)=
+\sum_{\substack{k=-\infty\\ k\ \mathrm{为奇数}}}^{\infty}
+\frac{4A}{jk}\delta(\omega-k\omega_0)
+\tag{14}
+\]</span></p>
+                <p>如果使用频率 \(f\) 而不是角频率 \(\omega\)，傅里叶变换约定常写为：</p>
+                <p><span class="math display">\[
+X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}\,dt
+\]</span></p>
+                <p>对应的冲激谱为：</p>
+                <p><span class="math display">\[
+X(f)=
+\sum_{\substack{k=-\infty\\ k\ \mathrm{为奇数}}}^{\infty}
+\frac{2A}{j\pi k}\delta(f-kf_0)
+\tag{15}
+\]</span></p>
+                <p>注意式 (14) 与式 (15) 的系数看起来不同，是因为 \(\omega=2\pi f\) 下冲激函数尺度变换带来了 \(2\pi\) 因子。</p>
+              </section>
+
+              <section id="spectrum" class="level2">
+                <h2>5. 幅度谱、相位谱与功率谱</h2>
+                <p>用三角形式看，正频率上第 \(n\) 次谐波的正弦幅度为：</p>
+                <p><span class="math display">\[
+B_n=
+\begin{cases}
+\dfrac{4A}{n\pi}, & n=1,3,5,\ldots \\
+0, & n=2,4,6,\ldots
+\end{cases}
+\tag{16}
+\]</span></p>
+                <p>前几项为：</p>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>谐波次数</th>
+                        <th>频率</th>
+                        <th>三角形式幅度</th>
+                        <th>双边复系数幅度</th>
+                        <th>是否存在</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td>\(f_0\)</td>
+                        <td>\(\dfrac{4A}{\pi}\)</td>
+                        <td>\(\dfrac{2A}{\pi}\)</td>
+                        <td>存在</td>
+                      </tr>
+                      <tr>
+                        <td>2</td>
+                        <td>\(2f_0\)</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>被对称性消除</td>
+                      </tr>
+                      <tr>
+                        <td>3</td>
+                        <td>\(3f_0\)</td>
+                        <td>\(\dfrac{4A}{3\pi}\)</td>
+                        <td>\(\dfrac{2A}{3\pi}\)</td>
+                        <td>存在</td>
+                      </tr>
+                      <tr>
+                        <td>5</td>
+                        <td>\(5f_0\)</td>
+                        <td>\(\dfrac{4A}{5\pi}\)</td>
+                        <td>\(\dfrac{2A}{5\pi}\)</td>
+                        <td>存在</td>
+                      </tr>
+                      <tr>
+                        <td>7</td>
+                        <td>\(7f_0\)</td>
+                        <td>\(\dfrac{4A}{7\pi}\)</td>
+                        <td>\(\dfrac{2A}{7\pi}\)</td>
+                        <td>存在</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>幅度按 \(1/n\) 衰减，这是方波边沿不连续的直接后果。若信号越平滑，高频系数通常衰减得越快；若存在跳变，高频系数衰减就比较慢。</p>
+                <p>对于功率谱线，复系数满足每条离散谱线的平均功率贡献为 \(|c_k|^2\)。因此奇次双边谱线的功率权重为：</p>
+                <p><span class="math display">\[
+|c_k|^2=\frac{4A^2}{\pi^2k^2},
+\qquad k=\pm1,\pm3,\ldots
+\tag{17}
+\]</span></p>
+                <p>可以看到功率按 \(1/k^2\) 衰减，比幅度衰减更快。</p>
+              </section>
+
+              <section id="parseval" class="level2">
+                <h2>6. 平均功率与帕塞瓦尔定理</h2>
+                <p>周期方波是功率信号，不是能量信号。它在无限时间上的总能量发散，但每个周期内的平均功率有限。</p>
+                <p>从时域直接计算：</p>
+                <p><span class="math display">\[
+P=\frac{1}{T_0}\int_{T_0}|x(t)|^2\,dt
+\tag{18}
+\]</span></p>
+                <p>由于 \(x(t)\) 的幅值恒为 \(\pm A\)，所以：</p>
+                <p><span class="math display">\[
+P=A^2
+\tag{19}
+\]</span></p>
+                <p>从频域看，帕塞瓦尔定理给出：</p>
+                <p><span class="math display">\[
+P=\sum_{k=-\infty}^{\infty}|c_k|^2
+\tag{20}
+\]</span></p>
+                <p>代入奇次谐波系数：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+P
+&=2\sum_{m=0}^{\infty}
+\left[\frac{2A}{\pi(2m+1)}\right]^2 \\
+&=\frac{8A^2}{\pi^2}
+\sum_{m=0}^{\infty}\frac{1}{(2m+1)^2}
+\end{aligned}
+\tag{21}
+\]</span></p>
+                <p>又因为：</p>
+                <p><span class="math display">\[
+\sum_{m=0}^{\infty}\frac{1}{(2m+1)^2}=\frac{\pi^2}{8}
+\]</span></p>
+                <p>所以仍然得到：</p>
+                <p><span class="math display">\[
+P=A^2
+\tag{22}
+\]</span></p>
+                <p>这说明时域“幅值平方平均”和频域“所有谱线功率相加”是同一件事的两种描述。</p>
+              </section>
+
+              <section id="gibbs" class="level2">
+                <h2>7. 有限项近似与吉布斯现象</h2>
+                <p>实际计算、仿真或带宽受限系统中，不可能真的保留无限多项。若只取前 \(N+1\) 个奇次谐波：</p>
+                <p><span class="math display">\[
+x_N(t)=\frac{4A}{\pi}
+\sum_{m=0}^{N}
+\frac{1}{2m+1}\sin\left[(2m+1)\omega_0t\right]
+\tag{23}
+\]</span></p>
+                <p>随着 \(N\) 增大，平坦部分会越来越接近 \(\pm A\)，跳变区也会越来越窄。但在不连续点附近会出现过冲和振铃，这就是吉布斯现象。</p>
+                <p>吉布斯现象有一个很容易误解的地方：增加谐波项可以让振铃区域变窄，却不会让最大相对过冲完全消失。对于跳变量为 \(\Delta\) 的不连续点，最大过冲约为：</p>
+                <p><span class="math display">\[
+0.08949\,\Delta
+\tag{24}
+\]</span></p>
+                <p>方波从 \(-A\) 跳到 \(+A\)，跳变量是 \(2A\)，所以过冲约为：</p>
+                <p><span class="math display">\[
+0.08949\times2A\approx0.179A
+\]</span></p>
+                <p>也就是有限项近似在边沿附近可能达到约 \(1.18A\)。这不是计算错误，而是用全局正弦基逼近局部突变时必然出现的现象。</p>
+              </section>
+
+              <section id="time-frequency" class="level2">
+                <h2>8. 时频域分析</h2>
+                <p>傅里叶级数和傅里叶变换告诉我们“有哪些频率”，但不直接告诉我们“这些频率什么时候出现”。为了观察局部时间内的频谱，可以使用短时傅里叶变换：</p>
+                <p><span class="math display">\[
+X(t,\omega)=
+\int_{-\infty}^{\infty}
+x(\tau)w(\tau-t)e^{-j\omega\tau}\,d\tau
+\tag{25}
+\]</span></p>
+                <p>其中 \(w(\tau-t)\) 是以 \(t\) 为中心的时间窗。</p>
+                <p>对稳定的理想周期方波来说，它的谐波结构在所有时间都存在，所以理想时频图会表现为一组基本不随时间改变的水平谱线：</p>
+                <p><span class="math display">\[
+f=f_0,\ 3f_0,\ 5f_0,\ 7f_0,\ldots
+\]</span></p>
+                <p>不过在 STFT 中，窗口长度会影响看到的结果：</p>
+                <ul>
+                  <li>长窗口：频率分辨率高，更容易分开 \(f_0,3f_0,5f_0\) 等谱线，但时间定位较差。</li>
+                  <li>短窗口：时间定位好，更容易看出跳变附近的局部变化，但频率分辨率较差。</li>
+                  <li>窗口跨过跳变点时，高频成分的局部贡献会更明显，因为突变需要高频来描述。</li>
+                </ul>
+                <div class="note-callout">
+                  <strong>时频分析的重点</strong>
+                  <p>稳定周期方波的频谱本身不随时间漂移。时频分析真正帮助我们观察的是局部窗口、边沿、有限观测长度和非理想变化对频谱的影响。</p>
+                </div>
+              </section>
+
+              <section id="duty-cycle" class="level2">
+                <h2>9. 非 50% 占空比推广</h2>
+                <p>如果方波不是 \(\pm A\) 的零均值形式，而是在一个周期内前 \(DT_0\) 为 \(A\)、其余为 0：</p>
+                <p><span class="math display">\[
+x(t)=
+\begin{cases}
+A, & 0<t<DT_0 \\
+0, & DT_0<t<T_0
+\end{cases}
+\tag{26}
+\]</span></p>
+                <p>那么直流分量为：</p>
+                <p><span class="math display">\[
+c_0=AD
+\tag{27}
+\]</span></p>
+                <p>对 \(k\ne0\)，复指数傅里叶系数为：</p>
+                <p><span class="math display">\[
+c_k=
+A\frac{\sin(\pi kD)}{\pi k}
+e^{-j\pi kD}
+\tag{28}
+\]</span></p>
+                <p>这个式子非常有用，因为它直接显示占空比如何决定谱线的零点。当 \(D=0.5\) 时：</p>
+                <p><span class="math display">\[
+\sin(\pi kD)=\sin\left(\frac{\pi k}{2}\right)
+\]</span></p>
+                <p>于是偶数 \(k\) 全部为 0，只剩奇次谐波。也就是说，50% 占空比方波只含奇次谐波不是偶然，而是由对称性和占空比共同决定的。</p>
+              </section>
+
+              <section id="engineering" class="level2">
+                <h2>10. 工程带宽与测量</h2>
+                <p>理想方波的跳变时间为 0，因此需要无限带宽。真实电路、采样系统和通信链路都不可能提供无限带宽，方波边沿会被低通效应变圆。</p>
+                <p>一个常见工程近似是上升时间和带宽之间的关系：</p>
+                <p><span class="math display">\[
+BW\approx\frac{0.35}{t_r}
+\tag{29}
+\]</span></p>
+                <p>这里 \(t_r\) 通常指 10% 到 90% 的上升时间。这个经验式适用于近似单极点低通响应，用来估算示波器、探头或系统带宽是否足够。</p>
+                <p>带宽不足时，常见现象包括：</p>
+                <ul>
+                  <li>上升沿和下降沿变慢，波形不再垂直。</li>
+                  <li>高次谐波被衰减，方波变得更像平滑波形。</li>
+                  <li>若系统存在谐振或阻抗不匹配，边沿附近可能出现过冲和振铃。</li>
+                  <li>采样率不足时，高次谐波可能混叠到低频，造成错误的频谱判断。</li>
+                </ul>
+                <p>因此在工程测量中，观察方波不是只看周期和幅值，还要看上升时间、频谱带宽、终端匹配和采样率。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>11. 一页总结</h2>
+                <p>对于标准双极性 50% 占空比周期方波：</p>
+                <p><span class="math display">\[
+x(t)=A\,\operatorname{sgn}(\sin\omega_0t)
+\]</span></p>
+                <p>三角傅里叶级数为：</p>
+                <p><span class="math display">\[
+x(t)=\frac{4A}{\pi}
+\sum_{m=0}^{\infty}
+\frac{1}{2m+1}\sin\left[(2m+1)\omega_0t\right]
+\]</span></p>
+                <p>复指数系数为：</p>
+                <p><span class="math display">\[
+c_k=
+\begin{cases}
+\dfrac{2A}{j\pi k}, & k=\pm1,\pm3,\pm5,\ldots \\
+0, & k=0,\pm2,\pm4,\ldots
+\end{cases}
+\]</span></p>
+                <p>角频率形式的傅里叶变换为：</p>
+                <p><span class="math display">\[
+X(\omega)=
+\sum_{\substack{k=-\infty\\ k\ \mathrm{为奇数}}}^{\infty}
+\frac{4A}{jk}\delta(\omega-k\omega_0)
+\]</span></p>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>观察角度</th>
+                        <th>核心结论</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>时域</td>
+                        <td>方波分段常值，在跳变点不连续，平均值为 0。</td>
+                      </tr>
+                      <tr>
+                        <td>频域</td>
+                        <td>只含奇次谐波，幅度按 \(1/n\) 衰减，功率按 \(1/n^2\) 衰减。</td>
+                      </tr>
+                      <tr>
+                        <td>傅里叶变换</td>
+                        <td>周期信号的变换是冲激谱线，不是普通连续函数。</td>
+                      </tr>
+                      <tr>
+                        <td>功率</td>
+                        <td>总平均功率为 \(A^2\)，等于所有双边谱线功率之和。</td>
+                      </tr>
+                      <tr>
+                        <td>工程意义</td>
+                        <td>边沿越陡，需要越高带宽；带宽受限会削弱高次谐波并圆滑方波。</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
