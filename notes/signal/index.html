@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Signal Notes | SHENAO1 的学习主页</title>
-  <meta name="description" content="信号专题笔记索引：整理周期方波傅里叶分析、BOC 功率谱密度与卫星导航信号体制相关推导。">
+  <meta name="description" content="信号专题笔记索引：整理周期方波傅里叶分析、FFT 互相关、BOC 功率谱密度与卫星导航信号体制相关推导。">
   <link rel="stylesheet" href="../../assets/styles/site.css">
 </head>
 <body class="page-topic">
@@ -39,17 +39,18 @@
         <div class="index-header">
           <div class="index-copy">
             <div class="eyeline">Signal structure collection</div>
-            <h1>把方波、谐波、BOC 频谱和相关函数单独从跟踪环里拆出来。</h1>
-            <p>这一块用于整理信号与频谱专题。既放《新一代卫星导航系统信号设计原理与实现技术》里的扩频调制章节，也放傅里叶分析、方波谐波和时频域直觉这类基础补充。</p>
+            <h1>把方波、谐波、FFT 相关和 BOC 频谱单独从跟踪环里拆出来。</h1>
+            <p>这一块用于整理信号与频谱专题。既放《新一代卫星导航系统信号设计原理与实现技术》里的扩频调制章节，也放傅里叶分析、方波谐波、FFT 互相关和时频域直觉这类基础补充。</p>
           </div>
 
           <article class="index-feature">
             <div class="eyeline">Current focus</div>
-            <h2>从方波傅里叶到 BOC 功率谱</h2>
-            <p>新增周期方波傅里叶基础笔记，先把“只含奇次谐波、冲激谱线、带宽与边沿”的直觉讲清，再接到 BOC 方波副载波的功率谱推导。</p>
+            <h2>从方波傅里叶到 FFT 相关和 BOC 功率谱</h2>
+            <p>新增 FFT 互相关基础笔记，把“先共轭再 FFT”和“先 FFT 再共轭”的差别讲清；方波与 BOC 内容继续保留在同一组信号专题里。</p>
             <div class="chip-row">
               <span>Square wave</span>
               <span>Fourier series</span>
+              <span>FFT correlation</span>
               <span>BOC</span>
               <span>Power spectral density</span>
             </div>
@@ -80,6 +81,29 @@
             </div>
           </article>
 
+          <article class="catalog-card">
+            <div class="catalog-status">基础补充笔记</div>
+            <div class="catalog-meta">
+              <span>FFT correlation</span>
+              <span>复共轭</span>
+              <span>形式：公式推导 + MATLAB / NumPy</span>
+            </div>
+            <h3>用 FFT 计算互相关：共轭、频域乘法和反向索引的区别</h3>
+            <p>从 <code>r_ab[m] = sum_n conj(a[n]) b[n+m]</code> 出发，解释为什么相关要写成频谱共轭相乘，而不是先把时域序列共轭后再 FFT。</p>
+            <ul>
+              <li>区分 <code>conj(fft(a))</code> 与 <code>fft(conj(a))</code> 的频率反向差异。</li>
+              <li>整理 <code>r_ba[m] = conj(r_ab[-m])</code>、循环相关和线性相关零填充。</li>
+            </ul>
+            <div class="catalog-footer">
+              <div class="chip-row">
+                <span>conj(FFT)</span>
+                <span>IFFT</span>
+                <span>zero padding</span>
+              </div>
+              <a class="text-link" href="fft-correlation-conjugate-order/">阅读基础笔记</a>
+            </div>
+          </article>
+
           <article class="catalog-card catalog-card--feature">
             <img src="chapter-4-3-2-boc-power-spectrum/assets/figures/boc-lobe-grid.png" alt="BOC 频谱零点网格与主瓣旁瓣示意">
             <div class="catalog-card-body">
@@ -107,7 +131,7 @@
           </article>
         </div>
 
-        <p class="catalog-section-note">后续 4.3.1、4.3.3 和 BOC 相关函数可以继续放在这个专题下，保持同一本书的信号体制内容独立成组。</p>
+        <p class="catalog-section-note">后续 4.3.1、4.3.3、BOC 相关函数和 FFT 相关实现细节可以继续放在这个专题下，保持信号体制与基础推导独立成组。</p>
       </section>
     </main>
 

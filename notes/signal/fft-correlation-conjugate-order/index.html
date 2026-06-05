@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用 FFT 计算互相关：共轭、频域乘法和反向索引的区别 | Signal Notes</title>
+  <meta name="description" content="FFT 互相关学习笔记：解释 conj(fft(a)) 与 fft(conj(a)) 的区别、互相关方向、循环相关、线性相关零填充，以及 MATLAB / NumPy 实现。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css">
+  <style>
+    .fft-note .note-intro-copy h1,
+    .fft-note .note-prose section.level1 > h1,
+    .fft-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .fft-visual {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 0.9fr);
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+
+    .fft-visual-card,
+    .logic-card,
+    .note-callout {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .fft-visual-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .fft-visual-card h2 {
+      margin: 0 0 8px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .fft-visual-card p {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .fft-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .logic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .logic-card {
+      padding: 14px 16px;
+    }
+
+    .logic-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .logic-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    .code-pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .code-pair h3 {
+      margin-bottom: 8px;
+      font-size: 17px;
+    }
+
+    .fft-label {
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      fill: #33516a;
+    }
+
+    @media (max-width: 980px) {
+      .fft-visual,
+      .logic-grid,
+      .code-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .fft-visual-card,
+      .logic-card,
+      .note-callout {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .fft-label {
+        fill: rgba(231, 248, 255, 0.78);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page fft-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>FFT 互相关</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / FFT correlation</div>
+          <h1>用 FFT 计算互相关：共轭、频域乘法和反向索引的区别</h1>
+          <p>把“先共轭再 FFT”和“先 FFT 再共轭”分清楚：前者通常变成卷积问题，后者才是频域互相关公式里需要的共轭。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>FFT</span>
+          <span>互相关</span>
+          <span>复共轭</span>
+          <span>循环相关</span>
+          <span>零填充</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 书架</a>
+        </div>
+
+        <div class="fft-visual" aria-label="FFT 互相关中共轭位置与时延方向示意">
+          <article class="fft-visual-card">
+            <h2>正确链路：先 FFT，再对频谱共轭</h2>
+            <svg viewBox="0 0 660 250" role="img" aria-label="互相关 FFT 计算链路">
+              <rect x="0" y="0" width="660" height="250" rx="16" fill="#fffdf8"></rect>
+              <g fill="#ffffff" stroke="rgba(12,36,57,.16)" stroke-width="1.4">
+                <rect x="34" y="48" width="112" height="54" rx="14"></rect>
+                <rect x="34" y="148" width="112" height="54" rx="14"></rect>
+                <rect x="196" y="48" width="112" height="54" rx="14"></rect>
+                <rect x="196" y="148" width="112" height="54" rx="14"></rect>
+                <rect x="356" y="48" width="112" height="54" rx="14"></rect>
+                <rect x="356" y="148" width="112" height="54" rx="14"></rect>
+                <rect x="520" y="98" width="104" height="54" rx="14"></rect>
+              </g>
+              <g stroke="#0d889a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M146 75 H196"></path>
+                <path d="M146 175 H196"></path>
+                <path d="M308 75 H356"></path>
+                <path d="M308 175 H356"></path>
+                <path d="M468 75 C496 75 492 125 520 125"></path>
+                <path d="M468 175 C496 175 492 125 520 125"></path>
+                <path d="M187 67 l9 8 -9 8"></path>
+                <path d="M187 167 l9 8 -9 8"></path>
+                <path d="M347 67 l9 8 -9 8"></path>
+                <path d="M347 167 l9 8 -9 8"></path>
+              </g>
+              <g class="fft-label" text-anchor="middle">
+                <text x="90" y="80">a[n]</text>
+                <text x="90" y="180">b[n]</text>
+                <text x="252" y="80">A[k]=FFT(a)</text>
+                <text x="252" y="180">B[k]=FFT(b)</text>
+                <text x="412" y="80">conj(A[k])</text>
+                <text x="412" y="180">B[k]</text>
+                <text x="572" y="130">IFFT</text>
+                <text x="330" y="224">r_ab[m] = ifft(conj(fft(a)) .* fft(b))</text>
+              </g>
+            </svg>
+            <p>相关的频域乘法需要的是 \(A[k]\) 的复共轭，不是 \(a[n]\) 先在时域共轭之后再变换。</p>
+          </article>
+
+          <article class="fft-visual-card">
+            <h2>方向关系：交换输入会共轭反向</h2>
+            <svg viewBox="0 0 440 250" role="img" aria-label="互相关交换输入后的共轭反向关系">
+              <rect x="0" y="0" width="440" height="250" rx="16" fill="#fffdf8"></rect>
+              <line x1="44" y1="126" x2="398" y2="126" stroke="rgba(12,36,57,.28)" stroke-width="1.4"></line>
+              <line x1="221" y1="44" x2="221" y2="202" stroke="rgba(12,36,57,.18)" stroke-width="1"></line>
+              <g stroke="#de9b2b" stroke-width="5" stroke-linecap="round">
+                <line x1="86" y1="126" x2="86" y2="155"></line>
+                <line x1="144" y1="126" x2="144" y2="82"></line>
+                <line x1="221" y1="126" x2="221" y2="58"></line>
+                <line x1="298" y1="126" x2="298" y2="92"></line>
+                <line x1="356" y1="126" x2="356" y2="168"></line>
+              </g>
+              <g fill="#de9b2b">
+                <circle cx="86" cy="155" r="5"></circle>
+                <circle cx="144" cy="82" r="5"></circle>
+                <circle cx="221" cy="58" r="6"></circle>
+                <circle cx="298" cy="92" r="5"></circle>
+                <circle cx="356" cy="168" r="5"></circle>
+              </g>
+              <g class="fft-label" text-anchor="middle">
+                <text x="86" y="220">-2</text>
+                <text x="144" y="220">-1</text>
+                <text x="221" y="220">0</text>
+                <text x="298" y="220">1</text>
+                <text x="356" y="220">2</text>
+                <text x="220" y="32">r_ba[m] = conj(r_ab[-m])</text>
+              </g>
+            </svg>
+            <p>所以 \(a\) 对 \(b\) 的相关和 \(b\) 对 \(a\) 的相关不是完全一样，只是可以通过共轭和延迟反向互相得到。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从互相关定义开始，拆开共轭顺序、交换方向、循环与线性相关。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#definition">1. 先定互相关方向</a>
+              <a class="level-2" href="#fft-formula">2. 标准 FFT 写法</a>
+              <a class="level-2" href="#wrong-conjugate">3. 为什么 fft(conj(a)) 不等价</a>
+              <a class="level-2" href="#swap-order">4. 交换 a 和 b 的关系</a>
+              <a class="level-2" href="#fft-again">5. 积再取 FFT 是什么</a>
+              <a class="level-2" href="#linear-circular">6. 循环相关与线性相关</a>
+              <a class="level-2" href="#code">7. MATLAB / NumPy 对照</a>
+              <a class="level-2" href="#summary">8. 一页总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="fft-correlation-conjugate-order" class="level1">
+              <h1>用 FFT 计算互相关：共轭、频域乘法和反向索引的区别</h1>
+              <blockquote>
+                <p>这份笔记默认讨论复数离散序列。实数序列只是它的特例；一旦序列带 I/Q 分量、复基带或相位信息，复共轭放在哪里就会直接改变结果。</p>
+              </blockquote>
+
+              <section id="definition" class="level2">
+                <h2>1. 先定互相关方向</h2>
+                <p>这里采用下面这个方向定义：</p>
+                <p><span class="math display">\[
+r_{ab}[m]=\sum_n \overline{a[n]}\,b[n+m]
+\tag{1}
+\]</span></p>
+                <p>这个式子的读法是：把 \(a\) 当作参考模板，在 \(b\) 里面向右移动 \(m\) 个采样去匹配。若 \(b\) 是 \(a\) 的延迟版本，相关峰通常出现在对应的正延迟附近。</p>
+                <p>不同软件库可能把输入顺序、lag 符号或输出排列定义得不一样，所以先写清楚公式，比记某个函数名更可靠。</p>
+                <div class="logic-grid">
+                  <article class="logic-card">
+                    <strong>参考序列</strong>
+                    <span>\(a[n]\) 被共轭，表示拿它作为匹配模板。</span>
+                  </article>
+                  <article class="logic-card">
+                    <strong>被搜索序列</strong>
+                    <span>\(b[n+m]\) 带延迟，表示在 \(b\) 中寻找相似位置。</span>
+                  </article>
+                  <article class="logic-card">
+                    <strong>峰值位置</strong>
+                    <span>lag 的正负由定义决定，不能脱离公式单独判断。</span>
+                  </article>
+                </div>
+              </section>
+
+              <section id="fft-formula" class="level2">
+                <h2>2. 标准 FFT 写法</h2>
+                <p>对长度为 \(N\) 的循环相关，设：</p>
+                <p><span class="math display">\[
+A[k]=\operatorname{FFT}\{a[n]\},\qquad
+B[k]=\operatorname{FFT}\{b[n]\}
+\tag{2}
+\]</span></p>
+                <p>那么式 (1) 对应的循环互相关可以写成：</p>
+                <p><span class="math display">\[
+r_{ab}[m]
+=
+\operatorname{IFFT}\left\{
+\overline{A[k]}\,B[k]
+\right\}
+\tag{3}
+\]</span></p>
+                <p>代码里就是：</p>
+                <pre><code>r_ab = ifft(conj(fft(a)) .* fft(b));</code></pre>
+                <p>关键点是：先把 \(a\) 做 FFT 得到 \(A[k]\)，再对频谱 \(A[k]\) 取共轭。这个共轭来自相关定理，而不是把 \(a[n]\) 先改成 \(\overline{a[n]}\)。</p>
+              </section>
+
+              <section id="wrong-conjugate" class="level2">
+                <h2>3. 为什么 fft(conj(a)) 不等价</h2>
+                <p>很多错误就藏在这一行：</p>
+                <pre><code>ifft(fft(conj(a)) .* fft(b))</code></pre>
+                <p>它看起来像“也对 \(a\) 做了共轭”，但频域上并不等于式 (3)。DFT 有一个重要性质：</p>
+                <p><span class="math display">\[
+\operatorname{FFT}\{\overline{a[n]}\}[k]
+=
+\overline{A[(-k)\bmod N]}
+\tag{4}
+\]</span></p>
+                <p>也就是说，时域先共轭，会让频谱不只是共轭，还会把频率索引反向。于是：</p>
+                <p><span class="math display">\[
+\operatorname{IFFT}\left\{
+\operatorname{FFT}(\overline{a})\operatorname{FFT}(b)
+\right\}
+=
+\overline{a[n]} \circledast b[n]
+\tag{5}
+\]</span></p>
+                <p>这里 \(\circledast\) 表示循环卷积。它算的是“\(\overline{a}\) 与 \(b\) 的卷积”，不是式 (1) 的互相关。</p>
+                <div class="note-callout">
+                  <strong>一句话区分</strong>
+                  <p>互相关需要“共轭频谱相乘”；卷积需要“两个频谱直接相乘”。如果你写的是 <code>fft(conj(a)) .* fft(b)</code>，它更像卷积路径。</p>
+                </div>
+              </section>
+
+              <section id="swap-order" class="level2">
+                <h2>4. 交换 a 和 b 的关系</h2>
+                <p>如果换成 \(b\) 对 \(a\) 的相关：</p>
+                <p><span class="math display">\[
+r_{ba}[m]
+=
+\sum_n \overline{b[n]}\,a[n+m]
+=
+\operatorname{IFFT}\left\{
+\overline{B[k]}\,A[k]
+\right\}
+\tag{6}
+\]</span></p>
+                <p>它和 \(r_{ab}\) 的关系是：</p>
+                <p><span class="math display">\[
+r_{ba}[m]=\overline{r_{ab}[-m]}
+\tag{7}
+\]</span></p>
+                <p>所以两者不是完全相同的数组。若序列是复数，交换输入会同时带来两个变化：lag 方向反过来，结果还要取复共轭。</p>
+                <p>如果只关心相关峰的幅度，\(|r_{ab}[m]|\) 和 \(|r_{ba}[-m]|\) 对应相等；但如果还要看相位，二者不能随意混用。</p>
+              </section>
+
+              <section id="fft-again" class="level2">
+                <h2>5. 积再取 FFT 是什么</h2>
+                <p>如果真的写成：</p>
+                <pre><code>fft(fft(conj(b)) .* fft(a))</code></pre>
+                <p>那最后一步不是互相关公式所需的 IFFT。按照 DFT 乘积定理，中间乘积仍对应某个循环卷积；最后再做一次 FFT，只会得到这个卷积结果的缩放和索引重排版本，而不是把它变回相关。</p>
+                <p>因此，常规相关的最后一步应是：</p>
+                <pre><code>ifft(conj(fft(reference)) .* fft(signal))</code></pre>
+                <p>如果你看到“乘完再 FFT”，通常要先判断是不是笔误；除非整个推导明确在频域里又定义了一次新的变换，否则它不属于普通相关计算链路。</p>
+              </section>
+
+              <section id="linear-circular" class="level2">
+                <h2>6. 循环相关与线性相关</h2>
+                <p>直接用长度为 \(N\) 的 FFT，会得到循环相关：</p>
+                <p><span class="math display">\[
+r_{ab}^{(c)}[m]
+=
+\sum_{n=0}^{N-1}\overline{a[n]}\,
+b[(n+m)\bmod N]
+\tag{8}
+\]</span></p>
+                <p>这里的 \(\bmod N\) 会让尾部绕回头部。如果你要普通线性相关，就需要把 FFT 长度扩到：</p>
+                <p><span class="math display">\[
+L\ge N_a+N_b-1
+\tag{9}
+\]</span></p>
+                <p>然后使用：</p>
+                <p><span class="math display">\[
+r_{ab}^{(lin)}
+=
+\operatorname{IFFT}\left\{
+\overline{\operatorname{FFT}(a,L)}\,
+\operatorname{FFT}(b,L)
+\right\}
+\tag{10}
+\]</span></p>
+                <p>需要注意输出排列：IFFT 结果前半段通常是非负 lag，末尾一段是负 lag。若要按 lag 从负到正显示，需要把末尾的负 lag 部分搬到前面。</p>
+              </section>
+
+              <section id="code" class="level2">
+                <h2>7. MATLAB / NumPy 对照</h2>
+                <p>下面的代码按式 (1) 的定义输出线性相关，并把 lag 排列成从负到正：</p>
+                <div class="code-pair">
+                  <section class="level3">
+                    <h3>MATLAB</h3>
+                    <pre><code>a = [1+2j, 2-1j, -1+0.5j];
+b = [2-1j, -0.5+1j, 3+0j, 1-2j];
+
+na = numel(a);
+nb = numel(b);
+L = na + nb - 1;
+
+rab_circ = ifft(conj(fft(a, L)) .* fft(b, L));
+lags = [-(na-1):-1, 0:(nb-1)];
+rab = [rab_circ(end-na+2:end), rab_circ(1:nb)];
+
+rba_circ = ifft(conj(fft(b, L)) .* fft(a, L));
+rba = [rba_circ(end-nb+2:end), rba_circ(1:na)];</code></pre>
+                  </section>
+
+                  <section class="level3">
+                    <h3>NumPy</h3>
+                    <pre><code>import numpy as np
+
+a = np.array([1+2j, 2-1j, -1+0.5j])
+b = np.array([2-1j, -0.5+1j, 3+0j, 1-2j])
+
+L = len(a) + len(b) - 1
+rab_circ = np.fft.ifft(np.conj(np.fft.fft(a, L)) *
+                       np.fft.fft(b, L))
+
+neg = rab_circ[-(len(a)-1):] if len(a) > 1 else np.array([])
+rab = np.concatenate([neg, rab_circ[:len(b)]])
+lags = np.arange(-(len(a)-1), len(b))</code></pre>
+                  </section>
+                </div>
+                <p>如果只想做循环相关，把 FFT 长度固定为周期长度即可；如果要线性相关，就必须用 \(L\ge N_a+N_b-1\) 的零填充长度。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>8. 一页总结</h2>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>写法</th>
+                        <th>含义</th>
+                        <th>是否是本文定义的 \(r_{ab}\)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><code>ifft(conj(fft(a)) .* fft(b))</code></td>
+                        <td>\(a\) 作参考、\(b\) 作被搜索序列的互相关。</td>
+                        <td>是</td>
+                      </tr>
+                      <tr>
+                        <td><code>ifft(conj(fft(b)) .* fft(a))</code></td>
+                        <td>\(b\) 作参考、\(a\) 作被搜索序列的互相关。</td>
+                        <td>不是同一个方向，结果共轭反向</td>
+                      </tr>
+                      <tr>
+                        <td><code>ifft(fft(conj(a)) .* fft(b))</code></td>
+                        <td>\(\overline{a}\) 与 \(b\) 的循环卷积。</td>
+                        <td>不是</td>
+                      </tr>
+                      <tr>
+                        <td><code>fft(fft(conj(b)) .* fft(a))</code></td>
+                        <td>乘积后又做 DFT，属于额外变换。</td>
+                        <td>不是常规相关</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>最稳的记法是：相关等于“参考信号频谱取共轭，再乘被搜索信号频谱，最后 IFFT”。若要交换参考和被搜索对象，就同时准备好接受共轭和 lag 反向。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
