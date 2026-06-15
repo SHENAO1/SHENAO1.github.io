@@ -1552,23 +1552,139 @@
           BPSK-R 频谱搬移过来的位置，其中最显著的是 <span
           class="math inline">\(\pm f_s\)</span> 两个主瓣。</p>
           <blockquote>
-          <p><strong>证明（分子在分母零点处为何同时趋零）：</strong></p>
+          <p><strong>证明（分子在分母零点处为何同时趋零，并且极限有限）：</strong></p>
           <p>设分母零点位置满足 <span class="math inline">\(\cos(\pi f T_s) = 0\)</span>，即 <span class="math inline">\(\pi f T_s = \frac{2r+1}{2}\pi\)</span>（其中 <span class="math inline">\(r \in \mathbb{Z}\)</span>）。</p>
           <p>根据 <span class="math inline">\(T_c = M T_s\)</span>，有：</p>
-          <p><span class="math display">\[\pi f T_c = M (\pi f T_s) = M \cdot \frac{2r+1}{2}\pi\]</span></p>
+          <p><span class="math display">\[
+          \pi f T_c = M(\pi f T_s)=M\cdot \frac{2r+1}{2}\pi
+          \]</span></p>
           <p>此时分子的行为取决于 <span class="math inline">\(M\)</span> 的奇偶性：</p>
           <ol>
           <li><strong>当 <span class="math inline">\(M\)</span> 为偶数时</strong>（对应<a href="#eq-415">式 (4.15)</a> 和 <a href="#eq-417">式 (4.17)</a>），设 <span class="math inline">\(M = 2k\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
-          <p><span class="math display">\[\pi f T_c = 2k \cdot \frac{2r+1}{2}\pi = k(2r+1)\pi\]</span></p>
+          <p><span class="math display">\[
+          \pi f T_c = 2k \cdot \frac{2r+1}{2}\pi = k(2r+1)\pi
+          \]</span></p>
           因为 <span class="math inline">\(k(2r+1)\)</span> 为整数，所以分子中的码片窗口项为：
-          <p><span class="math display">\[\sin^2(\pi f T_c) = \sin^2(n\pi) = 0 \quad (n \in \mathbb{Z})\]</span></p>
+          <p><span class="math display">\[
+          \sin^2(\pi f T_c)=\sin^2(n\pi)=0
+          \qquad n\in\mathbb{Z}
+          \]</span></p>
           </li>
           <li><strong>当 <span class="math inline">\(M\)</span> 为奇数时</strong>（对应<a href="#eq-416">式 (4.16)</a> 和 <a href="#eq-418">式 (4.18)</a>），设 <span class="math inline">\(M = 2k+1\)</span>（<span class="math inline">\(k \in \mathbb{Z}\)</span>），则：
-          <p><span class="math display">\[\pi f T_c = (2k+1) \cdot \frac{2r+1}{2}\pi = \frac{(2k+1)(2r+1)}{2}\pi\]</span></p>
+          <p><span class="math display">\[
+          \pi f T_c
+          =
+          (2k+1)\cdot \frac{2r+1}{2}\pi
+          =
+          \frac{(2k+1)(2r+1)}{2}\pi
+          \]</span></p>
           因为两个奇数之积仍为奇数，可设 <span class="math inline">\((2k+1)(2r+1) = 2n+1\)</span>（<span class="math inline">\(n \in \mathbb{Z}\)</span>），所以分子中的码片窗口项为：
-          <p><span class="math display">\[\cos^2(\pi f T_c) = \cos^2\left(\frac{2n+1}{2}\pi\right) = 0 \quad (n \in \mathbb{Z})\]</span></p>
+          <p><span class="math display">\[
+          \cos^2(\pi f T_c)
+          =
+          \cos^2\left(\frac{2n+1}{2}\pi\right)
+          =
+          0
+          \qquad n\in\mathbb{Z}
+          \]</span></p>
           </li>
           </ol>
+          <p>这说明分子中的码片窗口项确实会与分母同时趋零。下面再把“不会发散”的极限算出来。</p>
+          <p>令</p>
+          <p><span class="math display">\[
+          x=\pi fT_s,
+          \qquad
+          x_0=\frac{2r+1}{2}\pi
+          \]</span></p>
+          <p>则 <span class="math inline">\(f\to f_0\)</span> 等价于 <span class="math inline">\(x\to x_0\)</span>，且</p>
+          <p><span class="math display">\[
+          \pi fT_c=M\pi fT_s=Mx
+          \]</span></p>
+          <p>在这些点上，副载波分子项是有限且非零的：</p>
+          <p><span class="math display">\[
+          \sin^2 x_0=1,
+          \qquad
+          [1-\cos x_0]^2=1
+          \]</span></p>
+          <p>所以真正需要处理的是码片窗口项与分母 <span class="math inline">\(\cos^2x\)</span> 的比值。</p>
+          <p><strong>当 <span class="math inline">\(M\)</span> 为偶数时</strong>，需要计算</p>
+          <p><span class="math display">\[
+          L_e=
+          \lim_{x\to x_0}
+          \frac{\sin^2(Mx)}{\cos^2x}
+          =
+          \left[
+          \lim_{x\to x_0}
+          \frac{\sin(Mx)}{\cos x}
+          \right]^2
+          \]</span></p>
+          <p>括号内是 <span class="math inline">\(0/0\)</span> 型，对 <span class="math inline">\(x\)</span> 用洛必达法则：</p>
+          <p><span class="math display">\[
+          \lim_{x\to x_0}
+          \frac{\sin(Mx)}{\cos x}
+          =
+          \lim_{x\to x_0}
+          \frac{M\cos(Mx)}{-\sin x}
+          =
+          -M\frac{\cos(Mx_0)}{\sin x_0}
+          \]</span></p>
+          <p>因为 <span class="math inline">\(M\)</span> 为偶数时 <span class="math inline">\(\cos(Mx_0)=\pm1\)</span>，并且 <span class="math inline">\(\sin x_0=\pm1\)</span>，所以</p>
+          <p><span class="math display">\[
+          L_e
+          =
+          M^2
+          \]</span></p>
+          <p>即</p>
+          <p><span class="math display">\[
+          \lim_{x\to x_0}
+          \frac{\sin^2(Mx)}{\cos^2x}
+          =
+          M^2
+          \]</span></p>
+          <p><strong>当 <span class="math inline">\(M\)</span> 为奇数时</strong>，需要计算</p>
+          <p><span class="math display">\[
+          L_o=
+          \lim_{x\to x_0}
+          \frac{\cos^2(Mx)}{\cos^2x}
+          =
+          \left[
+          \lim_{x\to x_0}
+          \frac{\cos(Mx)}{\cos x}
+          \right]^2
+          \]</span></p>
+          <p>括号内同样是 <span class="math inline">\(0/0\)</span> 型，用洛必达法则：</p>
+          <p><span class="math display">\[
+          \lim_{x\to x_0}
+          \frac{\cos(Mx)}{\cos x}
+          =
+          \lim_{x\to x_0}
+          \frac{-M\sin(Mx)}{-\sin x}
+          =
+          M\frac{\sin(Mx_0)}{\sin x_0}
+          \]</span></p>
+          <p>因为 <span class="math inline">\(M\)</span> 为奇数时 <span class="math inline">\(\sin(Mx_0)=\pm1\)</span>，并且 <span class="math inline">\(\sin x_0=\pm1\)</span>，所以</p>
+          <p><span class="math display">\[
+          L_o
+          =
+          M^2
+          \]</span></p>
+          <p>即</p>
+          <p><span class="math display">\[
+          \lim_{x\to x_0}
+          \frac{\cos^2(Mx)}{\cos^2x}
+          =
+          M^2
+          \]</span></p>
+          <p>因此，无论 <span class="math inline">\(M\)</span> 是奇数还是偶数，分母零点处的可去奇点极限都是有限的。若记</p>
+          <p><span class="math display">\[
+          f_0=(2r+1)f_s
+          \]</span></p>
+          <p>则四个 BOC 功率谱公式在该点的统一极限为</p>
+          <p><span class="math display">\[
+          \lim_{f\to f_0}G(f)
+          =
+          \frac{M^2}{T_c(\pi f_0)^2}
+          \]</span></p>
           <p>综上所述，无论 <span class="math inline">\(M\)</span> 是奇数还是偶数，当分母趋近于零时，分子中的码片窗口项都精确为零。通过洛必达法则求极限，在此处得到的是有限大的功率谱密度峰值，而不会发生发散。</p>
           </blockquote>
           <p>这也解释了所谓“特殊照顾”到底特殊在哪里。</p>
