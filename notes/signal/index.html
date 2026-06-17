@@ -86,6 +86,30 @@
           </article>
 
           <article class="catalog-card">
+            <div class="catalog-status">仿真实践笔记</div>
+            <div class="catalog-meta">
+              <span>BPSK-R</span>
+              <span>FFT spectrum</span>
+              <span>形式：代码理解 + 公式推导</span>
+            </div>
+            <h3>BPSK-R 扩频信号仿真：采样、频谱、窗函数与周期零点</h3>
+            <p>整理一次 GPS L1 C/A BPSK-R 基带仿真实验中的关键问题：floor+1 采样索引、C/A 码周期取模、sinc² 理论包络、矩形窗卷积涂抹、周期 FFT 深零点和 MATLAB 图例交互。</p>
+            <ul>
+              <li>解释为什么码片索引用 <code>floor(t*codeRate)+1</code>，以及为什么超过 1023 chip 后要取模循环。</li>
+              <li>区分复数 FFT、幅度谱、功率谱和归一化 dB 功率谱，说明负值和深零点的来源。</li>
+              <li>推导 \( \sum_{\ell=0}^{L-1} e^{-j2\pi k\ell/L} \) 为什么只在 \(k\) 为 \(L\) 的整数倍时不相消。</li>
+            </ul>
+            <div class="catalog-footer">
+              <div class="chip-row">
+                <span>floor + 1</span>
+                <span>rect window</span>
+                <span>Dirichlet zeros</span>
+              </div>
+              <a class="text-link" href="bpsk-r-sampling-spectrum-windowing/">阅读 BPSK-R 仿真笔记</a>
+            </div>
+          </article>
+
+          <article class="catalog-card">
             <div class="catalog-status">基础补充笔记</div>
             <div class="catalog-meta">
               <span>Fourier analysis</span>

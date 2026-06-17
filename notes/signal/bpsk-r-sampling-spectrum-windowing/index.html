@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BPSK-R 扩频信号仿真：采样、频谱、窗函数与周期零点 | Signal Notes</title>
+  <meta name="description" content="整理 BPSK-R / GPS C/A 码扩频基带信号仿真中的采样索引、floor+1、C/A 码周期重复、sinc^2 理论功率谱、窗函数卷积、频谱泄漏、周期 FFT 深零点和 MATLAB 绘图实践。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260617-bpskr-spectrum">
+  <style>
+    .bpskr-note .note-intro-copy h1,
+    .bpskr-note .note-prose section.level1 > h1,
+    .bpskr-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .bpskr-note .note-intro-copy h1 {
+      max-width: 16ch;
+    }
+
+    .note-callout,
+    .summary-card,
+    .step-card {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .summary-grid,
+    .step-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .summary-card,
+    .step-card {
+      padding: 14px 16px;
+    }
+
+    .summary-card strong,
+    .step-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .summary-card span,
+    .step-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    @media (max-width: 1040px) {
+      .summary-grid,
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .note-callout,
+      .summary-card,
+      .step-card {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page bpskr-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>BPSK-R 频谱仿真</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">GPS C/A / BPSK-R / FFT spectrum</div>
+          <h1>BPSK-R 扩频信号仿真：采样、频谱、窗函数与周期零点</h1>
+          <p>这篇笔记整理一次 GPS L1 C/A BPSK-R 基带仿真实验中的关键问题：为什么采样索引用 floor+1，为什么 C/A 码下标要取模，如何画时域和功率谱，理论 sinc² 包络与实际 FFT 结果有什么区别，以及不加窗时深零点从哪里来。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>BPSK-R(1)</span>
+          <span>GPS C/A</span>
+          <span>floor + 1</span>
+          <span>sinc²</span>
+          <span>窗函数卷积</span>
+          <span>周期 FFT 零点</span>
+          <span>MATLAB</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../ca-code-data-bit-sampling-spectrum/">C/A 码频谱笔记</a>
+        </div>
+
+        <div class="summary-grid" aria-label="文章摘要">
+          <article class="summary-card">
+            <strong>信号模型</strong>
+            <span>\(s(t)=D(t)C(t)\)，其中 \(D(t)\) 为 50 bps 导航数据，\(C(t)\) 为 1.023 Mcps C/A 码。</span>
+          </article>
+          <article class="summary-card">
+            <strong>采样索引</strong>
+            <span>用左闭右开区间：\([kT_c,(k+1)T_c)\)，所以离散实现自然是 floor+1。</span>
+          </article>
+          <article class="summary-card">
+            <strong>理论包络</strong>
+            <span>矩形码片给出 \(T_c^2\operatorname{sinc}^2(fT_c)\) 功率谱包络。</span>
+          </article>
+          <article class="summary-card">
+            <strong>实际 FFT</strong>
+            <span>有限观测、周期重复和窗函数会产生谱线、泄漏、旁瓣和深零点。</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>目录</h2>
+            <p>从代码实现到频谱推导。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#model">1. BPSK-R 基带模型</a>
+              <a class="level-2" href="#sampling">2. 采样索引：floor+1 和取模</a>
+              <a class="level-2" href="#time-domain">3. 时域图应先看什么</a>
+              <a class="level-2" href="#spectrum-basic">4. FFT 频谱与功率谱</a>
+              <a class="level-2" href="#theory">5. 理论 sinc² 包络</a>
+              <a class="level-2" href="#window">6. 窗函数、卷积与“涂抹”</a>
+              <a class="level-2" href="#periodic-zeros">7. 周期结构与深零点</a>
+              <a class="level-2" href="#matlab-practice">8. MATLAB 绘图实践</a>
+              <a class="level-2" href="#summary">9. 一页总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="bpsk-r-sampling-spectrum-windowing" class="level1">
+              <h1>BPSK-R 扩频信号仿真笔记</h1>
+
+              <section id="model" class="level2">
+                <h2>1. BPSK-R 基带模型</h2>
+                <p>GPS L1 C/A 的基础扩频基带可以先写成：</p>
+                <p><span class="math display">\[
+s(t)=D(t)C(t)
+\tag{1}
+\]</span></p>
+                <p>其中 \(D(t)\) 是导航数据 bit，典型速率为 50 bps；\(C(t)\) 是 PRN C/A 码，码长为 1023 chip，码速率为 1.023 Mcps。由于 \(1023/1.023\times10^6=1\,\text{ms}\)，C/A 码每 1 ms 重复一次。</p>
+                <p>BPSK-R 中的 R 指 rectangular chips，即矩形码片。这里没有 BOC 副载波，不需要再乘方波子载波。若仿真时长取 40 ms，就包含 40 个 C/A 码周期和 2 个导航 bit。</p>
+
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>量</th>
+                        <th>典型值</th>
+                        <th>含义</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>\(R_c\)</td>
+                        <td>1.023 MHz</td>
+                        <td>C/A 码片速率。</td>
+                      </tr>
+                      <tr>
+                        <td>\(T_c\)</td>
+                        <td>\(1/R_c\)</td>
+                        <td>单个码片持续时间，约 0.977 us。</td>
+                      </tr>
+                      <tr>
+                        <td>\(N_c\)</td>
+                        <td>1023</td>
+                        <td>一个 C/A 周期内的码片数。</td>
+                      </tr>
+                      <tr>
+                        <td>\(T_{\text{code}}\)</td>
+                        <td>1 ms</td>
+                        <td>一个 C/A 码周期。</td>
+                      </tr>
+                      <tr>
+                        <td>\(R_d\)</td>
+                        <td>50 bps</td>
+                        <td>导航 bit 速率。</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section id="sampling" class="level2">
+                <h2>2. 采样索引：floor+1 和取模</h2>
+                <p>在离散仿真中，时间轴通常写成：</p>
+                <pre><code class="language-matlab">cfg.t = (0:cfg.sampleCount - 1).' / cfg.fs;</code></pre>
+                <p>第 \(n\) 个采样点属于哪个码片，可以先看 \(t_nR_c\)。它表示“从仿真开始已经经过多少个码片周期”。采用左闭右开区间：</p>
+                <p><span class="math display">\[
+[0,T_c)\to 1,\quad [T_c,2T_c)\to 2,\quad [2T_c,3T_c)\to 3
+\tag{2}
+\]</span></p>
+                <p>于是 MATLAB 索引自然写成：</p>
+                <pre><code class="language-matlab">chipIndex = floor(cfg.t * cfg.codeRate) + 1;</code></pre>
+                <p><code>floor</code> 给出从 0 开始的累计码片编号，<code>+1</code> 把它转换成 MATLAB 从 1 开始的数组下标。若每个 chip 有 16 个采样点，前 17 个采样点的下标关系就是：</p>
+                <pre><code>0/16, 1/16, ..., 15/16  -> floor 后都是 0 -> +1 后是第 1 个 chip
+16/16                  -> floor 后是 1 -> +1 后是第 2 个 chip</code></pre>
+                <p><code>ceil</code> 不适合这里，因为 \(t=0\) 时会得到 0，并且在边界 \(t=T_c\) 处仍会归到前一个 chip，相当于边界滞后一拍。</p>
+
+                <h3>C/A 码为什么还要取模</h3>
+                <p>第一行得到的是累计码片下标：</p>
+                <pre><code>1, 2, ..., 1023, 1024, 1025, ...</code></pre>
+                <p>但 C/A 码数组只有 1023 个元素。第 1024 个累计码片应回到下一个 C/A 周期的第 1 个码片。因此需要：</p>
+                <pre><code class="language-matlab">chipIndex = mod(chipIndex - 1, cfg.codeLength) + 1;</code></pre>
+                <p>这里先减 1，是把 MATLAB 的 1 基下标临时转成 0 基编号；取模后再加 1，是转回 \(1,\ldots,1023\)。它实现的是：</p>
+                <pre><code>1, 2, ..., 1023, 1024, 1025
+变成
+1, 2, ..., 1023, 1,    2</code></pre>
+                <p>导航 bit 的索引类似：</p>
+                <pre><code class="language-matlab">navBitIndex = floor(cfg.t * cfg.navBitRate) + 1;
+navBitIndex = min(navBitIndex, cfg.navBitCount);</code></pre>
+                <p><code>min</code> 这里是数组和标量逐元素比较，用于防止末尾浮点误差导致索引越界。</p>
+              </section>
+
+              <section id="time-domain" class="level2">
+                <h2>3. 时域图应先看什么</h2>
+                <p>生成基带信号后：</p>
+                <pre><code class="language-matlab">baseband = navSampled .* caSampled;</code></pre>
+                <p>不要直接画完整 40 ms。完整数据点太多，码片跳变会挤成一团。更适合先画 20 us 到 100 us 的局部波形，并用 <code>stairs</code> 而不是 <code>plot</code>，因为矩形码片在一个 chip 内保持不变，到边界才跳变。</p>
+                <pre><code class="language-matlab">plotDuration = 100e-6;
+plotSampleCount = round(plotDuration * cfg.fs);
+plotIndex = 1:plotSampleCount;
+timeUs = cfg.t(plotIndex) * 1e6;
+
+figure;
+subplot(3,1,1); stairs(timeUs, navSampled(plotIndex));
+subplot(3,1,2); stairs(timeUs, caSampled(plotIndex));
+subplot(3,1,3); stairs(timeUs, baseband(plotIndex));</code></pre>
+                <p>在 100 us 内，\(D(t)\) 基本不变，因为导航 bit 周期是 20 ms；\(C(t)\) 快速跳变；\(D(t)C(t)\) 等于对 \(C(t)\) 做整体同相或反相。</p>
+              </section>
+
+              <section id="spectrum-basic" class="level2">
+                <h2>4. FFT 频谱与功率谱</h2>
+                <p>FFT 输出是复数：</p>
+                <p><span class="math display">\[
+X[k]=\operatorname{Re}\{X[k]\}+j\operatorname{Im}\{X[k]\}
+\tag{3}
+\]</span></p>
+                <p>因此直接画 <code>plot(freqAxis, spectrum)</code> 时，图上出现负值是正常的：那不是“功率为负”，而是在画复数频谱的实部或复数投影。若要看幅度谱，应画：</p>
+                <pre><code class="language-matlab">magnitudeSpectrum = abs(spectrum);</code></pre>
+                <p>若要看功率谱，应画：</p>
+                <pre><code class="language-matlab">powerSpectrum = abs(spectrum).^2;</code></pre>
+                <p>归一化 dB 功率谱通常写成：</p>
+                <pre><code class="language-matlab">powerSpectrumDBnorm = 10 * log10(powerSpectrum / max(powerSpectrum) + eps);</code></pre>
+                <p>dB 图中出现负值也正常。最大功率归一化为 0 dB，其他频点比最大值小，所以是负 dB。例如 \(10\log_{10}(0.01)=-20\,\text{dB}\)。</p>
+                <p>频率轴若用 Hz 构造：</p>
+                <pre><code class="language-matlab">freqAxis = (-nfft/2:nfft/2-1) * (cfg.fs/nfft);</code></pre>
+                <p>画成 MHz 只需要除以 \(10^6\)：</p>
+                <pre><code class="language-matlab">plot(freqAxis / 1e6, powerSpectrumDBnorm);
+xlabel('Frequency (MHz)');</code></pre>
+              </section>
+
+              <section id="theory" class="level2">
+                <h2>5. 理论 sinc² 包络</h2>
+                <p>单个矩形码片脉冲可写成：</p>
+                <p><span class="math display">\[
+p(t)=
+\begin{cases}
+1, & 0\le t<T_c\\
+0, & \text{otherwise}
+\end{cases}
+\tag{4}
+\]</span></p>
+                <p>它的傅里叶变换为：</p>
+                <p><span class="math display">\[
+P(f)=T_c e^{-j\pi fT_c}\operatorname{sinc}(fT_c)
+\tag{5}
+\]</span></p>
+                <p>因此矩形码片的功率谱包络为：</p>
+                <p><span class="math display">\[
+|P(f)|^2=T_c^2\operatorname{sinc}^2(fT_c)
+\tag{6}
+\]</span></p>
+                <p>MATLAB 的 <code>sinc(x)</code> 定义是 \(\sin(\pi x)/(\pi x)\)。由于 \(T_c=1/R_c\)，所以：</p>
+                <pre><code class="language-matlab">Tc = 1 / cfg.codeRate;
+theorySpectrum = Tc^2 * sinc(freqAxis * Tc).^2;</code></pre>
+                <p>如果后面又做了最大值归一化，\(T_c^2\) 会被约掉，因此只画形状时也常写成：</p>
+                <pre><code class="language-matlab">theorySpectrum = sinc(freqAxis / cfg.codeRate).^2;</code></pre>
+                <p>它的形状是对的，只是少了绝对幅度常数。理论第一零点在 \(\pm R_c=\pm1.023\,\text{MHz}\)。GNSS-matlab 的 <a href="https://github.com/danipascual/GNSS-matlab/blob/master/source/GNSSspectrumgen.m">GNSSspectrumgen.m</a> 中，GPS L1 C/A 也调用 <code>spectrum_BPSK(1.023e6,F)</code>，其核心就是归一化的 sinc² 谱形。</p>
+              </section>
+
+              <section id="window" class="level2">
+                <h2>6. 窗函数、卷积与“涂抹”</h2>
+                <p>“不加窗”并不是没有窗，而是用了矩形窗。FFT 只能截取有限长度信号，等价于：</p>
+                <p><span class="math display">\[
+x_{\text{obs}}(t)=x(t)w_T(t)
+\tag{7}
+\]</span></p>
+                <p>时域相乘，对应频域卷积：</p>
+                <p><span class="math display">\[
+X_{\text{obs}}(f)=X(f)*W_T(f)
+\tag{8}
+\]</span></p>
+                <p>矩形窗的频谱是 sinc 形状。于是原始频谱中的每个频率成分，都会被窗函数频谱的形状向周围扩散。</p>
+
+                <h3>“用一个函数的形状去替换每一个点”如何从公式理解</h3>
+                <p>卷积定义为：</p>
+                <p><span class="math display">\[
+Y(f)=(X*W)(f)=\int_{-\infty}^{\infty}X(\nu)W(f-\nu)\,d\nu
+\tag{9}
+\]</span></p>
+                <p>其中 \(W(f-\nu)\) 表示把 \(W\) 平移到 \(\nu\) 附近，\(X(\nu)\) 决定这份平移后的形状权重有多大。积分就是把所有频率位置的平移副本叠加起来。</p>
+                <p>若原始频谱只有一根理想谱线：</p>
+                <p><span class="math display">\[
+X(f)=\delta(f-f_0)
+\tag{10}
+\]</span></p>
+                <p>利用冲激卷积性质：</p>
+                <p><span class="math display">\[
+\delta(f-f_0)*W(f)=W(f-f_0)
+\tag{11}
+\]</span></p>
+                <p>所以位于 \(f_0\) 的一根无限细谱线，经过有限时间观察后，会变成一个以 \(f_0\) 为中心的窗函数频谱形状。若窗是矩形窗，这个形状就是 sinc。这就是“被 sinc 涂抹开”的精确定义。</p>
+
+                <div class="note-callout">
+                  <strong>为什么不加窗会有尖锐起伏</strong>
+                  <p>矩形窗的 sinc 旁瓣较高且振荡明显。很多谱线的 sinc 副本叠加后，有些频点相加变大，有些频点相互抵消接近 0；转成 dB 后，近零点就表现为很深的竖线。</p>
+                </div>
+              </section>
+
+              <section id="periodic-zeros" class="level2">
+                <h2>7. 周期结构与深零点</h2>
+                <p>C/A 码严格按 1 ms 周期重复时，它不是连续平滑谱，而是以 1 kHz 为间隔的离散谱线。若总采样点数为：</p>
+                <p><span class="math display">\[
+N=LN_0
+\tag{12}
+\]</span></p>
+                <p>其中 \(N_0\) 是一个周期的采样点数，\(L\) 是截取的周期数，则 DFT 的第 \(k\) 个频点为：</p>
+                <p><span class="math display">\[
+X[k]=\sum_{n=0}^{N-1}x[n]e^{-j2\pi kn/N}
+\tag{13}
+\]</span></p>
+                <p>把样点下标写成 \(n=\ell N_0+r\)，其中 \(\ell\) 表示第几个周期，\(r\) 表示周期内第几个点：</p>
+                <p><span class="math display">\[
+X[k]=
+\sum_{\ell=0}^{L-1}\sum_{r=0}^{N_0-1}
+x[r]e^{-j2\pi k(\ell N_0+r)/N}
+\tag{14}
+\]</span></p>
+                <p>拆开后得到：</p>
+                <p><span class="math display">\[
+X[k]=
+\left(\sum_{r=0}^{N_0-1}x[r]e^{-j2\pi kr/N}\right)
+\left(\sum_{\ell=0}^{L-1}e^{-j2\pi k\ell/L}\right)
+\tag{15}
+\]</span></p>
+
+                <h3>等比级数为什么只在部分频点不为零</h3>
+                <p>令：</p>
+                <p><span class="math display">\[
+q=e^{-j2\pi k/L}
+\tag{16}
+\]</span></p>
+                <p>则第二项是：</p>
+                <p><span class="math display">\[
+S=1+q+q^2+\cdots+q^{L-1}
+\tag{17}
+\]</span></p>
+                <p>若 \(q\ne1\)，等比级数为：</p>
+                <p><span class="math display">\[
+S=\frac{1-q^L}{1-q}
+\tag{18}
+\]</span></p>
+                <p>而：</p>
+                <p><span class="math display">\[
+q^L=e^{-j2\pi k}=1
+\tag{19}
+\]</span></p>
+                <p>所以 \(S=0\)。只有当 \(q=1\)，也就是 \(k\) 是 \(L\) 的整数倍时，每一项都等于 1，和为 \(L\)：</p>
+                <p><span class="math display">\[
+\sum_{\ell=0}^{L-1}e^{-j2\pi k\ell/L}
+=
+\begin{cases}
+L,& k\equiv0\pmod L\\
+0,& \text{otherwise}
+\end{cases}
+\tag{20}
+\]</span></p>
+
+                <h3>\(k\) 和 \(L\) 的意义</h3>
+                <div class="step-grid" aria-label="k 和 L 的含义">
+                  <article class="step-card">
+                    <strong>\(N_0\)</strong>
+                    <span>一个周期包含的采样点数。C/A 码中，一个周期是 1 ms。</span>
+                  </article>
+                  <article class="step-card">
+                    <strong>\(L\)</strong>
+                    <span>总共截取了多少个周期。40 ms 仿真对应 \(L=40\)。</span>
+                  </article>
+                  <article class="step-card">
+                    <strong>\(k\)</strong>
+                    <span>FFT 的频点编号。第 \(k\) 个频点对应 \(f_k=kF_s/N\)。</span>
+                  </article>
+                </div>
+                <p>频点和周期结构匹配，不是说“频点是周期的整数倍”，而是说该频率是否是周期重复基频 \(f_0=1/T_0\) 的整数倍：</p>
+                <p><span class="math display">\[
+f_k=m f_0
+\tag{21}
+\]</span></p>
+                <p>代入 \(f_k=kF_s/N\)、\(f_0=F_s/N_0\)、\(N=LN_0\)，得到：</p>
+                <p><span class="math display">\[
+k=mL
+\tag{22}
+\]</span></p>
+                <p>也就是 \(k\) 必须是 \(L\) 的整数倍。不匹配时，不同周期之间的复指数相位不对齐，向量相加会相互抵消，FFT 值就会很小甚至为零。</p>
+
+                <h3>为什么 0.5115 MHz 附近会很小</h3>
+                <p>0.5115 MHz 等于 \(1.023\,\text{MHz}/2\)，也是 \(511.5\,\text{kHz}\)。C/A 码周期基频为：</p>
+                <p><span class="math display">\[
+f_0=\frac{1}{1\,\text{ms}}=1\,\text{kHz}
+\tag{23}
+\]</span></p>
+                <p>因此 511.5 kHz 正好落在 511 kHz 和 512 kHz 两条周期线谱中间，不是 \(1\,\text{kHz}\) 的整数倍。相邻 C/A 周期在这个频率上的相位差为：</p>
+                <p><span class="math display">\[
+e^{-j2\pi fT_0}
+=e^{-j2\pi\cdot511.5}
+=-1
+\tag{24}
+\]</span></p>
+                <p>40 个周期相加时，正负相消非常强，于是该频率附近功率极低。它不是矩形码片 sinc² 的零点，因为 sinc² 的第一零点在 \(\pm1.023\,\text{MHz}\)；它来自周期重复结构和有限长 FFT 的相消。</p>
+              </section>
+
+              <section id="matlab-practice" class="level2">
+                <h2>8. MATLAB 绘图实践</h2>
+                <h3>8.1 加窗和不加窗应该如何比较</h3>
+                <p>Hann 窗会降低旁瓣、平滑谱形，但也会加宽主瓣并改变峰值幅度。不加窗保留了更强的周期相消和深零点，图上会更尖锐。比较时最好同时画归一化功率谱，而不是直接画复数 FFT。</p>
+                <pre><code class="language-matlab">sig = double(baseband(:));
+nfft = 2 ^ nextpow2(numel(sig));
+freqAxis = (-nfft/2:nfft/2-1) * (cfg.fs/nfft);
+
+window = hann(numel(sig));
+spectrumWindowed = fftshift(fft(sig .* window, nfft));
+spectrumRaw = fftshift(fft(sig, nfft));
+
+psdWindowedDb = 10 * log10(abs(spectrumWindowed).^2 / max(abs(spectrumWindowed).^2) + eps);
+psdRawDb = 10 * log10(abs(spectrumRaw).^2 / max(abs(spectrumRaw).^2) + eps);</code></pre>
+
+                <h3>8.2 叠加理论包络</h3>
+                <pre><code class="language-matlab">Tc = 1 / cfg.codeRate;
+theorySpectrum = Tc^2 * sinc(freqAxis * Tc).^2;
+theorySpectrumDb = 10 * log10(theorySpectrum / max(theorySpectrum) + eps);
+
+figure;
+plot(freqAxis / 1e6, psdWindowedDb, 'LineWidth', 1);
+hold on;
+plot(freqAxis / 1e6, psdRawDb, 'LineWidth', 1);
+plot(freqAxis / 1e6, theorySpectrumDb, 'LineWidth', 1.2);
+grid on;
+xlabel('Frequency (MHz)');
+ylabel('Normalized Power Spectrum (dB)');
+title('Simulation vs Theory');
+legend('Windowed Simulation', 'No Window Simulation', 'Theory');</code></pre>
+
+                <h3>8.3 点击图例隐藏和显示曲线</h3>
+                <p>普通 <code>legend(...)</code> 只显示图例，不会自动支持点击隐藏曲线。若项目里已有 <code>plots.enableLegendToggle</code>，可以保存图例句柄并绑定回调：</p>
+                <pre><code class="language-matlab">lgd = legend('Windowed Simulation', 'No Window Simulation', 'Theory');
+plots.enableLegendToggle(lgd);</code></pre>
+                <p>其核心逻辑是给 legend 设置 <code>ItemHitFcn</code>，在点击图例项时切换对应绘图对象的 <code>Visible</code> 属性。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>9. 一页总结</h2>
+                <p>采样索引：</p>
+                <p><span class="math display">\[
+\text{chipIndex}=\left\lfloor tR_c\right\rfloor+1,\qquad
+\text{chipIndex}=\bmod(\text{chipIndex}-1,1023)+1
+\]</span></p>
+                <p>基带扩频：</p>
+                <p><span class="math display">\[
+s(t)=D(t)C(t)
+\]</span></p>
+                <p>矩形码片功率谱包络：</p>
+                <p><span class="math display">\[
+|P(f)|^2=T_c^2\operatorname{sinc}^2(fT_c)
+\]</span></p>
+                <p>有限观测：</p>
+                <p><span class="math display">\[
+X_{\text{obs}}(f)=X(f)*W_T(f)
+\]</span></p>
+                <p>周期重复导致的频点选择：</p>
+                <p><span class="math display">\[
+\sum_{\ell=0}^{L-1}e^{-j2\pi k\ell/L}
+=
+\begin{cases}
+L,& k\equiv0\pmod L\\
+0,& \text{otherwise}
+\end{cases}
+\]</span></p>
+                <p>最重要的直觉是：理论 sinc² 给出矩形码片的外层包络；真实 FFT 图还叠加了 C/A 码周期线谱、有限观测窗、零填充频率采样和导航 bit 翻转。看到很深的竖线时，先判断它是 sinc² 包络零点，还是周期重复和有限窗口相消造成的近零点。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
