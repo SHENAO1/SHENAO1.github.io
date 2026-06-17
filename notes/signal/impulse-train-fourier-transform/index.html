@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>冲激串的傅里叶变换 | Signal Notes</title>
+  <meta name="description" content="冲激串傅里叶变换学习笔记：从周期冲激串定义、傅里叶级数推导、Hz 与角频率两种约定、采样导致的频谱复制和常见误区出发，整理 Dirac comb 的核心公式。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260605-small-copy">
+  <style>
+    .impulse-note .note-intro-copy h1,
+    .impulse-note .note-prose section.level1 > h1,
+    .impulse-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .comb-visual {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+
+    .comb-visual-card,
+    .summary-card,
+    .note-callout {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .comb-visual-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .comb-visual-card h2 {
+      margin: 0 0 8px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .comb-visual-card p {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .comb-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-card {
+      padding: 14px 16px;
+    }
+
+    .summary-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .summary-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    .comb-label {
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      fill: #33516a;
+    }
+
+    .comb-axis {
+      stroke: rgba(12, 36, 57, 0.24);
+      stroke-width: 1.5;
+    }
+
+    .comb-stem {
+      stroke: #0d889a;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .comb-stem.secondary {
+      stroke: #de9b2b;
+    }
+
+    @media (max-width: 980px) {
+      .comb-visual,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .comb-visual-card,
+      .summary-card,
+      .note-callout {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .comb-label {
+        fill: rgba(231, 248, 255, 0.78);
+      }
+
+      .comb-axis {
+        stroke: rgba(231, 248, 255, 0.22);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page impulse-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>冲激串傅里叶变换</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / Fourier transform</div>
+          <h1>冲激串的傅里叶变换</h1>
+          <p>冲激串，也叫 Dirac comb，是“时域等间隔采样”和“频域等间隔谱线”之间最核心的桥。它的傅里叶变换仍然是冲激串，只是间隔倒数化，并带上一个尺度因子。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>Dirac comb</span>
+          <span>冲激串</span>
+          <span>傅里叶变换</span>
+          <span>采样定理</span>
+          <span>频谱复制</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 书架</a>
+        </div>
+
+        <div class="comb-visual" aria-label="冲激串傅里叶变换示意">
+          <article class="comb-visual-card">
+            <h2>时域：间隔为 \(T\) 的冲激串</h2>
+            <svg viewBox="0 0 620 260" role="img" aria-label="时域周期冲激串">
+              <rect x="0" y="0" width="620" height="260" rx="16" fill="#fffdf8"></rect>
+              <line class="comb-axis" x1="52" y1="180" x2="580" y2="180"></line>
+              <line class="comb-axis" x1="316" y1="42" x2="316" y2="205"></line>
+              <g>
+                <line class="comb-stem" x1="96" y1="180" x2="96" y2="82"></line>
+                <line class="comb-stem" x1="206" y1="180" x2="206" y2="82"></line>
+                <line class="comb-stem" x1="316" y1="180" x2="316" y2="82"></line>
+                <line class="comb-stem" x1="426" y1="180" x2="426" y2="82"></line>
+                <line class="comb-stem" x1="536" y1="180" x2="536" y2="82"></line>
+              </g>
+              <g fill="#0d889a">
+                <path d="M96 70 L88 86 L104 86 Z"></path>
+                <path d="M206 70 L198 86 L214 86 Z"></path>
+                <path d="M316 70 L308 86 L324 86 Z"></path>
+                <path d="M426 70 L418 86 L434 86 Z"></path>
+                <path d="M536 70 L528 86 L544 86 Z"></path>
+              </g>
+              <g class="comb-label">
+                <text x="302" y="226">0</text>
+                <text x="86" y="210">-2T</text>
+                <text x="198" y="210">-T</text>
+                <text x="418" y="210">T</text>
+                <text x="526" y="210">2T</text>
+                <text x="554" y="172">t</text>
+                <text x="342" y="68">p_T(t)</text>
+              </g>
+            </svg>
+            <p>每个冲激的面积为 1，整个信号以 \(T\) 为周期重复。</p>
+          </article>
+
+          <article class="comb-visual-card">
+            <h2>频域：间隔为 \(f_s=1/T\) 的冲激串</h2>
+            <svg viewBox="0 0 620 260" role="img" aria-label="频域冲激串">
+              <rect x="0" y="0" width="620" height="260" rx="16" fill="#fffdf8"></rect>
+              <line class="comb-axis" x1="52" y1="180" x2="580" y2="180"></line>
+              <line class="comb-axis" x1="316" y1="42" x2="316" y2="205"></line>
+              <g>
+                <line class="comb-stem secondary" x1="96" y1="180" x2="96" y2="92"></line>
+                <line class="comb-stem secondary" x1="206" y1="180" x2="206" y2="92"></line>
+                <line class="comb-stem secondary" x1="316" y1="180" x2="316" y2="92"></line>
+                <line class="comb-stem secondary" x1="426" y1="180" x2="426" y2="92"></line>
+                <line class="comb-stem secondary" x1="536" y1="180" x2="536" y2="92"></line>
+              </g>
+              <g fill="#de9b2b">
+                <path d="M96 80 L88 96 L104 96 Z"></path>
+                <path d="M206 80 L198 96 L214 96 Z"></path>
+                <path d="M316 80 L308 96 L324 96 Z"></path>
+                <path d="M426 80 L418 96 L434 96 Z"></path>
+                <path d="M536 80 L528 96 L544 96 Z"></path>
+              </g>
+              <g class="comb-label">
+                <text x="302" y="226">0</text>
+                <text x="78" y="210">-2f_s</text>
+                <text x="192" y="210">-f_s</text>
+                <text x="416" y="210">f_s</text>
+                <text x="520" y="210">2f_s</text>
+                <text x="554" y="172">f</text>
+                <text x="344" y="76">P_T(f)</text>
+                <text x="340" y="104">area = 1/T</text>
+              </g>
+            </svg>
+            <p>时域间隔 \(T\) 变成频域间隔 \(1/T\)，每条谱线的面积为 \(1/T\)。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从定义、推导、约定换算到采样谱复制。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#definition">1. 定义与变换约定</a>
+              <a class="level-2" href="#main-result">2. 核心结论</a>
+              <a class="level-2" href="#derivation">3. 用傅里叶级数推导</a>
+              <a class="level-2" href="#angular-frequency">4. 角频率形式</a>
+              <a class="level-2" href="#intuition">5. 为什么有 1/T</a>
+              <a class="level-2" href="#shifted-comb">6. 平移冲激串</a>
+              <a class="level-2" href="#sampling">7. 与采样定理的关系</a>
+              <a class="level-2" href="#finite-train">8. 有限冲激串不是冲激谱</a>
+              <a class="level-2" href="#summary">9. 一页总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="impulse-train-fourier-transform" class="level1">
+              <h1>冲激串的傅里叶变换</h1>
+              <blockquote>
+                <p>这份笔记默认讨论连续时间傅里叶变换中的理想冲激串。严格地说，它不是普通函数，而是广义函数/分布，所以“等式”应理解为在冲激意义下成立。</p>
+              </blockquote>
+
+              <section id="definition" class="level2">
+                <h2>1. 定义与变换约定</h2>
+                <p>令周期冲激串为：</p>
+                <p><span class="math display">\[
+p_T(t)=\sum_{n=-\infty}^{\infty}\delta(t-nT),\qquad T>0
+\tag{1}
+\]</span></p>
+                <p>这里每个冲激的面积为 1，冲激之间相隔 \(T\)。采样频率记为：</p>
+                <p><span class="math display">\[
+f_s=\frac{1}{T}
+\tag{2}
+\]</span></p>
+                <p>本文先使用 Hz 频率约定：</p>
+                <p><span class="math display">\[
+X(f)=\int_{-\infty}^{\infty}x(t)e^{-j2\pi ft}\,dt,\qquad
+x(t)=\int_{-\infty}^{\infty}X(f)e^{j2\pi ft}\,df
+\tag{3}
+\]</span></p>
+                <p>这个约定最适合解释采样，因为频域冲激间隔会直接写成 \(f_s=1/T\)。</p>
+              </section>
+
+              <section id="main-result" class="level2">
+                <h2>2. 核心结论</h2>
+                <p>周期冲激串的傅里叶变换仍然是周期冲激串：</p>
+                <p><span class="math display">\[
+\boxed{
+\mathcal{F}\left\{\sum_{n=-\infty}^{\infty}\delta(t-nT)\right\}
+=
+\frac{1}{T}\sum_{k=-\infty}^{\infty}\delta\left(f-\frac{k}{T}\right)
+}
+\tag{4}
+\]</span></p>
+                <p>也可以写成：</p>
+                <p><span class="math display">\[
+p_T(t)\ \xleftrightarrow{\mathcal{F}}\ \frac{1}{T}p_{1/T}(f)
+\tag{5}
+\]</span></p>
+                <div class="summary-grid" aria-label="冲激串傅里叶变换三个要点">
+                  <article class="summary-card">
+                    <strong>形式不变</strong>
+                    <span>时域是冲激串，频域还是冲激串。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>间隔取倒数</strong>
+                    <span>时域间隔 \(T\)，频域间隔 \(1/T\)。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>幅度带尺度</strong>
+                    <span>每条频域谱线的面积为 \(1/T\)。</span>
+                  </article>
+                </div>
+              </section>
+
+              <section id="derivation" class="level2">
+                <h2>3. 用傅里叶级数推导</h2>
+                <p>冲激串是周期信号，周期为 \(T\)，基频为 \(f_0=1/T\)。任何周期信号若有复指数傅里叶级数：</p>
+                <p><span class="math display">\[
+x(t)=\sum_{k=-\infty}^{\infty}c_k e^{j2\pi kf_0t}
+\tag{6}
+\]</span></p>
+                <p>则它的傅里叶变换是离散谱线：</p>
+                <p><span class="math display">\[
+X(f)=\sum_{k=-\infty}^{\infty}c_k\delta(f-kf_0)
+\tag{7}
+\]</span></p>
+                <p>现在计算 \(p_T(t)\) 的傅里叶级数系数：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+c_k
+&=\frac{1}{T}\int_{-T/2}^{T/2}p_T(t)e^{-j2\pi kf_0t}\,dt\\
+&=\frac{1}{T}\int_{-T/2}^{T/2}\delta(t)e^{-j2\pi kf_0t}\,dt\\
+&=\frac{1}{T}
+\end{aligned}
+\tag{8}
+\]</span></p>
+                <p>关键点是：一个周期内只有位于 \(t=0\) 的那一个冲激，冲激筛选出指数函数在 0 点的值，也就是 1。因此所有谐波系数都相同，均为 \(1/T\)。</p>
+                <p>代入式 (7)，得到：</p>
+                <p><span class="math display">\[
+P_T(f)=\sum_{k=-\infty}^{\infty}\frac{1}{T}\delta(f-kf_0)
+=\frac{1}{T}\sum_{k=-\infty}^{\infty}\delta\left(f-\frac{k}{T}\right)
+\tag{9}
+\]</span></p>
+              </section>
+
+              <section id="angular-frequency" class="level2">
+                <h2>4. 角频率形式</h2>
+                <p>很多教材使用角频率 \(\omega\) 约定：</p>
+                <p><span class="math display">\[
+X(\omega)=\int_{-\infty}^{\infty}x(t)e^{-j\omega t}\,dt,\qquad
+x(t)=\frac{1}{2\pi}\int_{-\infty}^{\infty}X(\omega)e^{j\omega t}\,d\omega
+\tag{10}
+\]</span></p>
+                <p>此时基角频率为：</p>
+                <p><span class="math display">\[
+\Omega_s=\frac{2\pi}{T}
+\tag{11}
+\]</span></p>
+                <p>周期信号的变换规则变成：</p>
+                <p><span class="math display">\[
+x(t)=\sum_{k=-\infty}^{\infty}c_ke^{jk\Omega_s t}
+\quad\Longrightarrow\quad
+X(\omega)=2\pi\sum_{k=-\infty}^{\infty}c_k\delta(\omega-k\Omega_s)
+\tag{12}
+\]</span></p>
+                <p>仍然有 \(c_k=1/T\)，所以：</p>
+                <p><span class="math display">\[
+\boxed{
+P_T(\omega)=\frac{2\pi}{T}\sum_{k=-\infty}^{\infty}\delta(\omega-k\Omega_s)
+=\Omega_s\sum_{k=-\infty}^{\infty}\delta(\omega-k\Omega_s)
+}
+\tag{13}
+\]</span></p>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>频率变量</th>
+                        <th>正变换</th>
+                        <th>冲激串变换结果</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Hz 频率 \(f\)</td>
+                        <td>\(\int x(t)e^{-j2\pi ft}dt\)</td>
+                        <td>\(\frac{1}{T}\sum_k\delta(f-k/T)\)</td>
+                      </tr>
+                      <tr>
+                        <td>角频率 \(\omega\)</td>
+                        <td>\(\int x(t)e^{-j\omega t}dt\)</td>
+                        <td>\(\frac{2\pi}{T}\sum_k\delta(\omega-k2\pi/T)\)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>两种结果不是矛盾，而是因为 \(\omega=2\pi f\) 且冲激函数满足尺度关系 \(\delta(\omega-\omega_0)=\delta(2\pi(f-f_0))=\frac{1}{2\pi}\delta(f-f_0)\)。</p>
+              </section>
+
+              <section id="intuition" class="level2">
+                <h2>5. 为什么有 1/T</h2>
+                <p>最直观的解释来自直流分量。冲激串每个周期内的总面积为 1，所以它的周期平均值为：</p>
+                <p><span class="math display">\[
+c_0=\frac{1}{T}\int_{-T/2}^{T/2}p_T(t)\,dt=\frac{1}{T}
+\tag{14}
+\]</span></p>
+                <p>频域中 \(f=0\) 处的那条谱线面积就是 \(c_0\)，因此至少直流谱线必须带有 \(1/T\)。由于冲激位于周期边界时对所有复指数谐波的取样值都为 1，所以每个 \(c_k\) 都等于 \(1/T\)。</p>
+                <div class="note-callout">
+                  <strong>尺度因子的物理含义</strong>
+                  <p>\(T\) 越小，单位时间内冲激越密，平均面积密度越大，所以频域谱线面积按 \(1/T\) 增大；同时频域间隔 \(1/T\) 也变大。</p>
+                </div>
+              </section>
+
+              <section id="shifted-comb" class="level2">
+                <h2>6. 平移冲激串</h2>
+                <p>如果冲激串整体右移 \(t_0\)：</p>
+                <p><span class="math display">\[
+p_T(t-t_0)=\sum_{n=-\infty}^{\infty}\delta(t-t_0-nT)
+\tag{15}
+\]</span></p>
+                <p>傅里叶级数系数变成：</p>
+                <p><span class="math display">\[
+c_k=\frac{1}{T}e^{-j2\pi kf_s t_0}
+\tag{16}
+\]</span></p>
+                <p>因此 Hz 形式的傅里叶变换为：</p>
+                <p><span class="math display">\[
+\mathcal{F}\{p_T(t-t_0)\}
+=\frac{1}{T}\sum_{k=-\infty}^{\infty}
+e^{-j2\pi kf_s t_0}\delta(f-kf_s)
+\tag{17}
+\]</span></p>
+                <p>结论是：平移不会改变谱线位置和面积，只会给第 \(k\) 条谱线增加线性相位。</p>
+              </section>
+
+              <section id="sampling" class="level2">
+                <h2>7. 与采样定理的关系</h2>
+                <p>用冲激串对连续信号 \(x(t)\) 采样，可以写成：</p>
+                <p><span class="math display">\[
+x_s(t)=x(t)p_T(t)=\sum_{n=-\infty}^{\infty}x(nT)\delta(t-nT)
+\tag{18}
+\]</span></p>
+                <p>时间域相乘，对应频域卷积。在 Hz 频率约定下：</p>
+                <p><span class="math display">\[
+X_s(f)=X(f)*P_T(f)
+\tag{19}
+\]</span></p>
+                <p>代入冲激串的频域表达式：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+X_s(f)
+&=X(f)*\left[\frac{1}{T}\sum_{k=-\infty}^{\infty}\delta(f-kf_s)\right]\\
+&=\frac{1}{T}\sum_{k=-\infty}^{\infty}X(f-kf_s)
+\end{aligned}
+\tag{20}
+\]</span></p>
+                <p>这就是采样后频谱复制的来源：原来的连续频谱 \(X(f)\) 会以 \(f_s\) 为间隔，在频域重复出现，并且整体带有 \(1/T=f_s\) 的尺度因子。</p>
+                <div class="note-callout">
+                  <strong>奈奎斯特条件的直观来源</strong>
+                  <p>若原信号最高频率为 \(B\)，为了让相邻频谱副本不重叠，需要 \(f_s>2B\)。一旦副本重叠，重叠部分无法仅靠理想低通滤波还原，这就是混叠。</p>
+                </div>
+              </section>
+
+              <section id="finite-train" class="level2">
+                <h2>8. 有限冲激串不是冲激谱</h2>
+                <p>式 (4) 只适用于无限长、严格周期的冲激串。如果只有有限个冲激：</p>
+                <p><span class="math display">\[
+x_N(t)=\sum_{n=0}^{N-1}\delta(t-nT)
+\tag{21}
+\]</span></p>
+                <p>它的傅里叶变换是有限个指数项相加：</p>
+                <p><span class="math display">\[
+X_N(f)=\sum_{n=0}^{N-1}e^{-j2\pi fnT}
+=e^{-j\pi fT(N-1)}
+\frac{\sin(\pi NfT)}{\sin(\pi fT)}
+\tag{22}
+\]</span></p>
+                <p>这个结果是连续频率函数，形状类似 Dirichlet kernel，而不是一串真正的冲激。只有当观测长度趋于无穷并形成严格周期延拓时，谱线才收缩成理想冲激。</p>
+                <p>工程上用 FFT 看有限长度采样数据时，看到的是“有限窗口下的谱线主瓣和旁瓣”，不是数学上无限周期冲激串的理想线谱。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>9. 一页总结</h2>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>问题</th>
+                        <th>结论</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>时域冲激串定义</td>
+                        <td>\(p_T(t)=\sum_n\delta(t-nT)\)</td>
+                      </tr>
+                      <tr>
+                        <td>Hz 形式傅里叶变换</td>
+                        <td>\(P_T(f)=\frac{1}{T}\sum_k\delta(f-k/T)\)</td>
+                      </tr>
+                      <tr>
+                        <td>角频率形式傅里叶变换</td>
+                        <td>\(P_T(\omega)=\frac{2\pi}{T}\sum_k\delta(\omega-k2\pi/T)\)</td>
+                      </tr>
+                      <tr>
+                        <td>时域平移</td>
+                        <td>频域谱线位置不变，每条谱线乘上线性相位 \(e^{-j2\pi kf_s t_0}\)。</td>
+                      </tr>
+                      <tr>
+                        <td>采样频谱</td>
+                        <td>\(x(t)p_T(t)\ \xleftrightarrow{\mathcal{F}}\ \frac{1}{T}\sum_kX(f-kf_s)\)</td>
+                      </tr>
+                      <tr>
+                        <td>常见误区</td>
+                        <td>有限冲激串的频谱是连续函数，不是理想冲激串。</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>最需要记住的一句话是：理想周期冲激串在傅里叶变换下仍然是周期冲激串，时域间隔和频域间隔互为倒数，尺度因子由变换约定决定。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
