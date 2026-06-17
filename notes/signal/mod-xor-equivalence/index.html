@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mod(·,2) 与 xor 的等价性 | Signal Notes</title>
+  <meta name="description" content="从有限域 F2 视角证明 mod(·,2) 与异或的等价关系，并说明它在 GPS BOC 码反馈方程中的适用条件。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260616-mod-xor">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>mod 与 XOR 等价性</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / Finite-field arithmetic</div>
+          <h1>为什么 BOC 码反馈里常用 <code>mod(·,2)</code> 而不是显式 xor</h1>
+          <p>问题出在两个层面：第一，工程上输入值都是 \(0/1\)；第二，\(\operatorname{mod}\big(\sum b_i, 2\big)\) 与连续异或在逻辑上是同一件事。这个页面把等价关系完整证明清楚。 </p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>BOC</span>
+          <span>LFSR</span>
+          <span>模 2 加和</span>
+          <span>异或</span>
+          <span>GF(2)</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 书架</a>
+        </div>
+      </section>
+
+      <section class="panel note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从真值表到归纳证明，再到 GPS BOC 反馈项的工程语义，逐层拆开看。 </p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#why-this-question">1. 提问背景</a>
+              <a class="level-2" href="#binary-equivalence">2. 两比特情形的等价性</a>
+              <a class="level-2" href="#induction">3. 多比特归纳证明</a>
+              <a class="level-2" href="#f2-model">4. 代数层面：GF(2) 的等价写法</a>
+              <a class="level-2" href="#boc-code">5. 回到 BOC 生成器反馈式</a>
+              <a class="level-2" href="#pitfall">6. 注意事项：何时不等价</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="why-this-question" class="level1">
+              <h1>1. 为什么会这样问</h1>
+              <p>在 MATLAB/Verilog 等代码里，GPS/北斗常见的 LFSR 反馈会写成类似：</p>
+              <pre><code class="language-matlab">g2Feedback = mod(g2(2) + g2(3) + g2(6) + g2(8) + g2(9) + g2(10), 2);</code></pre>
+              <p>直觉上它看起来像“求和再取模”，但因为 \(g2(k)\) 都是码寄存器位（\(\in\{0,1\}\)），它等价于“这些比特的异或”。核心条件就是：<strong>每个操作数必须是二值比特</strong>。</p>
+            </section>
+
+            <section id="binary-equivalence" class="level1">
+              <h1>2. 两比特情形：直接对照真值表</h1>
+              <blockquote>
+                <p>对于任意 \(x,y\in\{0,1\}\)，都有
+                \(x\oplus y=\bmod(x+y,2)\)。</p>
+              </blockquote>
+              <table>
+                <thead>
+                  <tr>
+                    <th>\(x\)</th>
+                    <th>\(y\)</th>
+                    <th>\(x\oplus y\)</th>
+                    <th>\(x+y\)</th>
+                    <th>\(\bmod(x+y,2)\)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                  </tr>
+                  <tr>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                  </tr>
+                  <tr>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>1</td>
+                  </tr>
+                  <tr>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>2</td>
+                    <td>0</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>这一步已经给出“二者等价”的基础事实。它的语义是“奇偶性”：1 的个数为奇数则为 1，为偶数则为 0。</p>
+            </section>
+
+            <section id="induction" class="level1">
+              <h1>3. 多比特情形：用归纳法扩展</h1>
+              <p>定义
+              \[
+              S_n = x_1\oplus x_2\oplus\cdots\oplus x_n,\quad
+              P_n = \bmod\Big(\sum_{i=1}^{n}x_i,2\Big),
+              \]
+              其中 \(x_i\in\{0,1\}\)。</p>
+              <p>已知 \(S_2=P_2\)。设 \(S_k=P_k\) 成立，考虑 \(S_{k+1}\)：
+              \[
+              S_{k+1}=S_k\oplus x_{k+1}=P_k\oplus x_{k+1}
+              =\bmod(P_k+x_{k+1},2)
+              =\bmod\!\left(\sum_{i=1}^{k+1}x_i,2\right)=P_{k+1}.
+              \]</p>
+              <p>归纳成立，故对任意个二值比特都成立：</p>
+              <p>
+              \[
+              x_1\oplus x_2\oplus\cdots\oplus x_n=
+              \bmod\!\left(x_1+x_2+\cdots+x_n,2\right).
+              \]
+              </p>
+            </section>
+
+            <section id="f2-model" class="level1">
+              <h1>4. 代数层面：和 GF(2) 的关系</h1>
+              <p>在有限域 \(\mathrm{GF}(2)\) 里，运算有两条关键等价：</p>
+              <ul>
+                <li>\(1+1=0\)</li>
+                <li>每个元素仅有 0、1</li>
+              </ul>
+              <p>所以“加法”天然就是异或行为，\(+\) 与 \(\oplus\) 在二值域里描述的是同一个加法结构。</p>
+            </section>
+
+            <section id="boc-code" class="level1">
+              <h1>5. 回到 BOC 码反馈式</h1>
+              <p>你给到的行在语义上可读成：</p>
+              <p><span class="math display">\[
+              g2Feedback = g2(2)\oplus g2(3)\oplus g2(6)\oplus g2(8)\oplus g2(9)\oplus g2(10)
+              \]</span></p>
+              <p>这类写法在 LFSR 里有两个工程优点：</p>
+              <ul>
+                <li>和码序列实现的数学定义一致（模 2 反馈多项式）</li>
+                <li>某些工具链里更自然使用加和后取模实现，便于与文献式子一一对应</li>
+              </ul>
+              <p>所以你看到的不是“错”，而是“更偏数学表达”；结果与 xor 是一致的。</p>
+            </section>
+
+            <section id="pitfall" class="level1">
+              <h1>6. 注意事项：哪些情况不能直接替换</h1>
+              <p>只要输入不是严格二值，就不能直接用该等价关系：</p>
+              <ul>
+                <li>若有软判决值（如 \(-1,1\)、实数 LLR）</li>
+                <li>若参与的是向量幅度加权和</li>
+                <li>若模型要求的是普通整数求和而非模 2 运算</li>
+              </ul>
+              <div class="note-callout">
+                <strong>一句话总结</strong>
+                <p>\(\bmod(\sum,2)\) 与连续异或不是“代码风格差异”，而是输入在 \(\{0,1\}\) 时的同构映射；一旦离开二值域，必须明确运算定义。 </p>
+              </div>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

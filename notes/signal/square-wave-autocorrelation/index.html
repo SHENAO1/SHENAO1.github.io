@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>50% 占空比双极性方波的周期自相关函数 | Signal Notes</title>
+  <meta name="description" content="推导 50% 占空比双极性方波的周期自相关函数：从同号/异号重叠长度、最短错位距离、功率谱密度与傅里叶反变换两条路线得到周期三角波。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260605-square-autocorr">
+  <style>
+    .autocorr-note .note-intro-copy h1,
+    .autocorr-note .note-prose section.level1 > h1,
+    .autocorr-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .autocorr-note .note-intro-copy h1 {
+      max-width: 13ch;
+    }
+
+    .autocorr-demo {
+      display: grid;
+      gap: 16px;
+      margin-top: 4px;
+      padding: 18px;
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .autocorr-demo-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .autocorr-demo-head h2 {
+      margin: 0;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .autocorr-demo-head p {
+      margin: 6px 0 0;
+      color: var(--ink-soft);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .demo-value-badge {
+      flex: none;
+      min-width: 128px;
+      padding: 10px 12px;
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--cyan-deep);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .autocorr-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 116px;
+      gap: 12px;
+      align-items: center;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .autocorr-controls label {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .autocorr-controls input[type="range"] {
+      width: 100%;
+      accent-color: var(--cyan-deep);
+    }
+
+    .autocorr-controls input[type="number"] {
+      width: 100%;
+      min-height: 40px;
+      padding: 0 10px;
+      border: 1px solid rgba(12, 36, 57, 0.12);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .preset-row button {
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid rgba(12, 36, 57, 0.1);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+    }
+
+    .preset-row button:hover,
+    .preset-row button.is-active {
+      border-color: rgba(13, 136, 154, 0.34);
+      background: rgba(32, 193, 207, 0.1);
+      color: var(--ink);
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.75fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .wave-panel,
+    .metric-panel {
+      min-width: 0;
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 14px;
+      background: rgba(255, 253, 248, 0.84);
+      overflow: hidden;
+    }
+
+    .wave-panel {
+      padding: 10px;
+    }
+
+    .wave-panel svg,
+    .corr-panel svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .metric-panel {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .metric-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .metric-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: rgba(12, 36, 57, 0.04);
+    }
+
+    .metric-row span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric-row strong {
+      color: var(--ink);
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .corr-panel {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 10px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    .note-callout,
+    .step-card {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .step-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .step-card {
+      padding: 14px 16px;
+    }
+
+    .step-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .step-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .svg-label {
+      fill: #33516a;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .svg-mono {
+      fill: #33516a;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+    }
+
+    @media (max-width: 980px) {
+      .demo-grid,
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .autocorr-demo-head {
+        display: grid;
+      }
+
+      .demo-value-badge {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .autocorr-demo {
+        padding: 14px;
+      }
+
+      .autocorr-controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .autocorr-demo,
+      .note-callout,
+      .step-card {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .demo-value-badge,
+      .wave-panel,
+      .metric-panel,
+      .corr-panel,
+      .autocorr-controls input[type="number"],
+      .preset-row button {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .preset-row button:hover,
+      .preset-row button.is-active {
+        background: rgba(77, 214, 220, 0.12);
+        border-color: rgba(77, 214, 220, 0.3);
+      }
+
+      .metric-row {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .svg-label,
+      .svg-mono {
+        fill: rgba(231, 248, 255, 0.78);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page autocorr-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>方波自相关</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / Autocorrelation</div>
+          <h1>50% 占空比双极性方波的周期自相关函数</h1>
+          <p>把时域重叠长度、最短错位距离、有符号等效延迟，以及功率谱密度和自相关函数的傅里叶变换关系放在同一页里看。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>周期自相关</span>
+          <span>双极性方波</span>
+          <span>Wiener-Khinchin</span>
+          <span>功率谱密度</span>
+          <span>最短错位距离</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../periodic-square-wave-fourier-analysis/">方波傅里叶笔记</a>
+        </div>
+
+        <section class="autocorr-demo" aria-labelledby="autocorr-demo-heading">
+          <div class="autocorr-demo-head">
+            <div>
+              <h2 id="autocorr-demo-heading">错位对比：\(\tau=0.9T\) 与 \(\delta=-0.1T\)</h2>
+              <p>周期信号里 \(x(t+0.9T)=x(t-0.1T)\)。图中第三行用有符号等效延迟 \(\delta\)，而自相关公式使用非负距离 \(d=|\delta|\)。</p>
+            </div>
+            <div class="demo-value-badge" id="demoBadge">R/A² = 0.60</div>
+          </div>
+
+          <div class="autocorr-controls" aria-label="延迟调节">
+            <label>
+              <span>\(\tau/T\)</span>
+              <input id="tauSlider" type="range" min="0" max="1" step="0.01" value="0.90">
+            </label>
+            <label>
+              <span>数值</span>
+              <input id="tauInput" type="number" min="0" max="1" step="0.01" value="0.90" inputmode="decimal">
+            </label>
+          </div>
+
+          <div class="preset-row" aria-label="常用延迟">
+            <button type="button" data-tau="0">τ=0</button>
+            <button type="button" data-tau="0.25">τ=T/4</button>
+            <button type="button" data-tau="0.5">τ=T/2</button>
+            <button type="button" data-tau="0.9" class="is-active">τ=0.9T</button>
+          </div>
+
+          <div class="demo-grid">
+            <div class="wave-panel" aria-label="方波错位可视化">
+              <svg id="waveSvg" viewBox="0 0 760 430" role="img" aria-label="原方波、正向延迟方波、有符号等效延迟方波和乘积波形">
+                <rect x="0" y="0" width="760" height="430" rx="12" fill="transparent"></rect>
+                <g id="mismatchBands"></g>
+                <g stroke="rgba(12,36,57,.12)" stroke-width="1">
+                  <line x1="68" y1="48" x2="68" y2="380"></line>
+                  <line x1="344" y1="48" x2="344" y2="380"></line>
+                  <line x1="620" y1="48" x2="620" y2="380"></line>
+                </g>
+                <g class="svg-mono" text-anchor="middle">
+                  <text x="68" y="405">0</text>
+                  <text x="344" y="405">T/2</text>
+                  <text x="620" y="405">T</text>
+                </g>
+                <g id="transitionMarks"></g>
+                <g id="waveBaselines" stroke="rgba(12,36,57,.16)" stroke-width="1">
+                  <line x1="68" y1="82" x2="620" y2="82"></line>
+                  <line x1="68" y1="162" x2="620" y2="162"></line>
+                  <line x1="68" y1="242" x2="620" y2="242"></line>
+                  <line x1="68" y1="322" x2="620" y2="322"></line>
+                </g>
+                <g class="svg-label">
+                  <text x="28" y="87">x(t)</text>
+                  <text x="28" y="167" id="forwardLabel">x(t+0.90T)</text>
+                  <text x="28" y="247" id="signedLabel">x(t-0.10T)</text>
+                  <text x="28" y="327">乘积</text>
+                </g>
+                <path id="basePath" fill="none" stroke="#0d889a" stroke-width="4" stroke-linejoin="round"></path>
+                <path id="forwardPath" fill="none" stroke="#de9b2b" stroke-width="4" stroke-linejoin="round"></path>
+                <path id="signedPath" fill="none" stroke="#d46c58" stroke-width="4" stroke-linejoin="round" stroke-dasharray="8 6"></path>
+                <path id="productPath" fill="none" stroke="#58794c" stroke-width="4" stroke-linejoin="round"></path>
+                <g class="svg-mono">
+                  <text x="646" y="70">+A</text>
+                  <text x="646" y="104">-A</text>
+                  <text x="646" y="310">+A²</text>
+                  <text x="646" y="344">-A²</text>
+                </g>
+                <text id="bandLabel" x="68" y="28" class="svg-label">异号区间总长度 = 0.20T</text>
+              </svg>
+            </div>
+
+            <aside class="metric-panel" aria-label="当前延迟计算结果">
+              <div class="metric-list">
+                <div class="metric-row">
+                  <span>\(\tau\bmod T\)</span>
+                  <strong id="tauModValue">0.90T</strong>
+                </div>
+                <div class="metric-row">
+                  <span>有符号等效延迟 \(\delta\)</span>
+                  <strong id="deltaValue">-0.10T</strong>
+                </div>
+                <div class="metric-row">
+                  <span>最短错位距离 \(d\)</span>
+                  <strong id="distanceValue">0.10T</strong>
+                </div>
+                <div class="metric-row">
+                  <span>异号长度</span>
+                  <strong id="oppositeValue">0.20T</strong>
+                </div>
+                <div class="metric-row">
+                  <span>同号长度</span>
+                  <strong id="sameValue">0.80T</strong>
+                </div>
+                <div class="metric-row">
+                  <span>\(R_x(\tau)/A^2\)</span>
+                  <strong id="corrValue">0.60</strong>
+                </div>
+              </div>
+
+              <div class="corr-panel" aria-label="归一化自相关三角波">
+                <svg id="corrSvg" viewBox="0 0 330 190" role="img" aria-label="归一化自相关函数随延迟变化的三角波">
+                  <g stroke="rgba(12,36,57,.16)" stroke-width="1">
+                    <line x1="34" y1="24" x2="34" y2="154"></line>
+                    <line x1="34" y1="89" x2="300" y2="89"></line>
+                    <line x1="167" y1="24" x2="167" y2="154"></line>
+                    <line x1="300" y1="24" x2="300" y2="154"></line>
+                  </g>
+                  <polyline points="34,24 167,154 300,24" fill="none" stroke="#0d889a" stroke-width="4" stroke-linejoin="round"></polyline>
+                  <circle id="corrDot" cx="273.4" cy="50" r="6" fill="#de9b2b" stroke="#fff" stroke-width="2"></circle>
+                  <g class="svg-mono" text-anchor="middle">
+                    <text x="34" y="176">0</text>
+                    <text x="167" y="176">T/2</text>
+                    <text x="300" y="176">T</text>
+                  </g>
+                  <g class="svg-mono">
+                    <text x="7" y="29">1</text>
+                    <text x="3" y="158">-1</text>
+                  </g>
+                </svg>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>先从重叠长度得到三角形，再用 PSD 反变换验证同一个结果。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#model">1. 方波模型与自相关定义</a>
+              <a class="level-2" href="#geometry">2. 从同号和异号长度推导</a>
+              <a class="level-2" href="#signed-delay">3. \(0.9T\) 为什么等效于 \(-0.1T\)</a>
+              <a class="level-2" href="#psd">4. 从功率谱密度反推自相关</a>
+              <a class="level-2" href="#piecewise">5. 分段式与关键点</a>
+              <a class="level-2" href="#unipolar">6. 单极性方波会怎样</a>
+              <a class="level-2" href="#summary">7. 一句话总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="square-wave-autocorrelation" class="level1">
+              <h1>50% 占空比双极性方波的周期自相关函数</h1>
+              <blockquote>
+                <p>本文讨论的是周期为 \(T\)、幅度为 \(\pm A\)、占空比为 50% 的双极性方波。周期自相关函数最后是周期三角波：整数周期处最大，半周期处最小。</p>
+              </blockquote>
+
+              <section id="model" class="level2">
+                <h2>1. 方波模型与自相关定义</h2>
+                <p>在一个周期内定义方波为：</p>
+                <p><span class="math display">\[
+x(t)=
+\begin{cases}
+A, & 0\le t<T/2 \\
+-A, & T/2\le t<T
+\end{cases}
+\qquad x(t+T)=x(t)
+\tag{1}
+\]</span></p>
+                <p>周期信号的自相关函数取一个周期上的平均：</p>
+                <p><span class="math display">\[
+R_x(\tau)=\frac{1}{T}\int_0^T x(t)x(t+\tau)\,dt
+\tag{2}
+\]</span></p>
+                <p>因为 \(x(t+\tau)\) 也按周期折回，所以 \(\tau\) 与 \(\tau+T\) 的效果完全相同。</p>
+
+                <div class="step-grid" aria-label="推导核心">
+                  <div class="step-card">
+                    <strong>同号</strong>
+                    <span>\(A\cdot A=(-A)(-A)=A^2\)，对积分贡献为正。</span>
+                  </div>
+                  <div class="step-card">
+                    <strong>异号</strong>
+                    <span>\(A(-A)=(-A)A=-A^2\)，对积分贡献为负。</span>
+                  </div>
+                  <div class="step-card">
+                    <strong>平均</strong>
+                    <span>自相关就是把这些 \(+A^2\) 和 \(-A^2\) 在一个周期内求平均。</span>
+                  </div>
+                </div>
+              </section>
+
+              <section id="geometry" class="level2">
+                <h2>2. 从同号和异号长度推导</h2>
+                <p>先把延迟折回到一个周期内：</p>
+                <p><span class="math display">\[
+u=\tau\bmod T,\qquad 0\le u<T
+\tag{3}
+\]</span></p>
+                <p>真正决定重叠关系的不是带方向的 \(u\)，而是两个方波边界之间的最短错位距离：</p>
+                <p><span class="math display">\[
+d=\min(u,\ T-u)
+\tag{4}
+\]</span></p>
+                <p>所以：</p>
+                <p><span class="math display">\[
+0\le d\le \frac{T}{2}
+\tag{5}
+\]</span></p>
+                <p>50% 占空比方波在一个周期内有两个跳变边界。两个同周期方波错开距离 \(d\) 后，每个跳变边界附近都会出现一段长度为 \(d\) 的异号区间。因此：</p>
+                <p><span class="math display">\[
+\text{异号长度}=2d
+\tag{6}
+\]</span></p>
+                <p>一个周期总长度为 \(T\)，所以：</p>
+                <p><span class="math display">\[
+\text{同号长度}=T-2d
+\tag{7}
+\]</span></p>
+                <p>把同号和异号贡献代入式 (2)：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+R_x(\tau)
+&=\frac{1}{T}\left[A^2(T-2d)+(-A^2)(2d)\right] \\
+&=\frac{A^2}{T}(T-4d)
+\end{aligned}
+\tag{8}
+\]</span></p>
+                <p>于是得到：</p>
+                <p><span class="math display">\[
+\boxed{
+R_x(\tau)=A^2\left(1-\frac{4d}{T}\right)
+}
+\tag{9}
+\]</span></p>
+                <p>其中：</p>
+                <p><span class="math display">\[
+\boxed{
+d=\min(\tau\bmod T,\ T-(\tau\bmod T))
+}
+\tag{10}
+\]</span></p>
+
+                <div class="note-callout">
+                  <strong>为什么是三角波</strong>
+                  <p>随着错位距离 \(d\) 从 0 增加到 \(T/2\)，异号区间长度从 0 线性增加到 \(T\)，所以自相关从 \(A^2\) 线性下降到 \(-A^2\)。再继续延迟时，由于周期折回，它又线性升回来。</p>
+                </div>
+              </section>
+
+              <section id="signed-delay" class="level2">
+                <h2>3. \(0.9T\) 为什么等效于 \(-0.1T\)</h2>
+                <p>从有符号等效延迟的角度看：</p>
+                <p><span class="math display">\[
+x(t+0.9T)=x(t-0.1T+T)=x(t-0.1T)
+\tag{11}
+\]</span></p>
+                <p>所以：</p>
+                <p><span class="math display">\[
+0.9T\equiv -0.1T\pmod T
+\tag{12}
+\]</span></p>
+                <p>如果需要显式写出有符号的最短延迟，可以定义：</p>
+                <p><span class="math display">\[
+\delta=
+\begin{cases}
+u, & 0\le u\le T/2 \\
+u-T, & T/2<u<T
+\end{cases}
+\qquad u=\tau\bmod T
+\tag{13}
+\]</span></p>
+                <p>对于 \(\tau=0.9T\)，有 \(u=0.9T>T/2\)，因此：</p>
+                <p><span class="math display">\[
+\delta=0.9T-T=-0.1T
+\tag{14}
+\]</span></p>
+                <p>但自相关公式中的 \(d\) 不是有符号延迟，而是非负距离：</p>
+                <p><span class="math display">\[
+d=|\delta|
+\tag{15}
+\]</span></p>
+                <p>所以：</p>
+                <p><span class="math display">\[
+\tau=0.9T:\qquad \delta=-0.1T,\qquad d=0.1T
+\tag{16}
+\]</span></p>
+                <p>代入式 (9)：</p>
+                <p><span class="math display">\[
+R_x(0.9T)
+=A^2\left(1-\frac{4(0.1T)}{T}\right)
+=0.6A^2
+\tag{17}
+\]</span></p>
+                <p>不能把 \(d\) 写成 \(-0.1T\)。因为 \(2d\) 表示异号区间总长度，长度不能为负；若错误代入 \(-0.1T\)，会得到 \(1.4A^2\)，超过自相关最大值 \(A^2\)。</p>
+              </section>
+
+              <section id="psd" class="level2">
+                <h2>4. 从功率谱密度反推自相关</h2>
+                <p>也可以从频域推导同一个结果。周期方波的三角傅里叶级数是：</p>
+                <p><span class="math display">\[
+x(t)=\frac{4A}{\pi}
+\left[
+\sin \omega_0 t
++\frac{1}{3}\sin 3\omega_0 t
++\frac{1}{5}\sin 5\omega_0 t+\cdots
+\right]
+\tag{18}
+\]</span></p>
+                <p>其中 \(\omega_0=2\pi/T\)。写成复指数形式：</p>
+                <p><span class="math display">\[
+x(t)=\sum_{n=-\infty}^{\infty}c_n e^{jn\omega_0t}
+\tag{19}
+\]</span></p>
+                <p>复系数为：</p>
+                <p><span class="math display">\[
+c_n=
+\begin{cases}
+\dfrac{2A}{j\pi n}, & n\ \text{为奇数} \\
+0, & n\ \text{为偶数}
+\end{cases}
+\tag{20}
+\]</span></p>
+                <p>所以：</p>
+                <p><span class="math display">\[
+|c_n|^2=
+\begin{cases}
+\dfrac{4A^2}{\pi^2n^2}, & n\ \text{为奇数} \\
+0, & n\ \text{为偶数}
+\end{cases}
+\tag{21}
+\]</span></p>
+                <p>周期功率信号的功率谱密度是离散谱线：</p>
+                <p><span class="math display">\[
+S_x(\omega)=2\pi\sum_{n=-\infty}^{\infty}
+|c_n|^2\delta(\omega-n\omega_0)
+\tag{22}
+\]</span></p>
+                <p>由自相关函数和功率谱密度的傅里叶变换关系：</p>
+                <p><span class="math display">\[
+R_x(\tau)=\frac{1}{2\pi}
+\int_{-\infty}^{\infty}S_x(\omega)e^{j\omega\tau}\,d\omega
+\tag{23}
+\]</span></p>
+                <p>代入式 (22)：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+R_x(\tau)
+&=\frac{1}{2\pi}
+\int_{-\infty}^{\infty}
+2\pi\sum_{n=-\infty}^{\infty}|c_n|^2
+\delta(\omega-n\omega_0)e^{j\omega\tau}\,d\omega \\
+&=\sum_{n=-\infty}^{\infty}|c_n|^2 e^{jn\omega_0\tau}
+\end{aligned}
+\tag{24}
+\]</span></p>
+                <p>只保留奇次谐波：</p>
+                <p><span class="math display">\[
+R_x(\tau)=
+\sum_{\substack{n=-\infty\\ n\ \text{为奇数}}}^{\infty}
+\frac{4A^2}{\pi^2n^2}e^{jn\omega_0\tau}
+\tag{25}
+\]</span></p>
+                <p>合并正负频率后得到实偶函数：</p>
+                <p><span class="math display">\[
+\boxed{
+R_x(\tau)=
+\frac{8A^2}{\pi^2}
+\sum_{k=0}^{\infty}
+\frac{\cos[(2k+1)\omega_0\tau]}{(2k+1)^2}
+}
+\tag{26}
+\]</span></p>
+                <p>这个余弦级数就是周期三角波的傅里叶级数。也就是说：</p>
+                <p><span class="math display">\[
+\frac{8}{\pi^2}
+\sum_{k=0}^{\infty}
+\frac{\cos[(2k+1)\omega_0\tau]}{(2k+1)^2}
+=1-\frac{4d}{T}
+\tag{27}
+\]</span></p>
+                <p>其中 \(d\) 仍然是式 (10) 的最短错位距离。</p>
+
+                <div class="note-callout">
+                  <strong>频域直觉</strong>
+                  <p>方波本身的谐波幅度按 \(1/n\) 衰减；自相关对应功率谱反变换，所以每条谱线权重变成 \(|c_n|^2\)，按 \(1/n^2\) 衰减。这正好生成边沿为线性的三角波。</p>
+                </div>
+              </section>
+
+              <section id="piecewise" class="level2">
+                <h2>5. 分段式与关键点</h2>
+                <p>若只看一个周期 \(0\le \tau<T\)，可以写成分段形式：</p>
+                <p><span class="math display">\[
+R_x(\tau)=
+\begin{cases}
+A^2\left(1-\dfrac{4\tau}{T}\right),
+& 0\le \tau\le T/2 \\[8pt]
+A^2\left(\dfrac{4\tau}{T}-3\right),
+& T/2\le \tau<T
+\end{cases}
+\tag{28}
+\]</span></p>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>延迟</th>
+                        <th>错位距离 \(d\)</th>
+                        <th>同号与异号关系</th>
+                        <th>自相关结果</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>\(\tau=0\)</td>
+                        <td>\(0\)</td>
+                        <td>完全同号</td>
+                        <td>\(R_x(0)=A^2\)</td>
+                      </tr>
+                      <tr>
+                        <td>\(\tau=T/4\)</td>
+                        <td>\(T/4\)</td>
+                        <td>同号长度和异号长度相等</td>
+                        <td>\(R_x(T/4)=0\)</td>
+                      </tr>
+                      <tr>
+                        <td>\(\tau=T/2\)</td>
+                        <td>\(T/2\)</td>
+                        <td>完全异号</td>
+                        <td>\(R_x(T/2)=-A^2\)</td>
+                      </tr>
+                      <tr>
+                        <td>\(\tau=0.9T\)</td>
+                        <td>\(0.1T\)</td>
+                        <td>等效于 \(-0.1T\) 的短错位</td>
+                        <td>\(R_x(0.9T)=0.6A^2\)</td>
+                      </tr>
+                      <tr>
+                        <td>\(\tau=T\)</td>
+                        <td>\(0\)</td>
+                        <td>重新完全同号</td>
+                        <td>\(R_x(T)=A^2\)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section id="unipolar" class="level2">
+                <h2>6. 单极性方波会怎样</h2>
+                <p>上面的结论针对双极性方波 \(x(t)=\pm A\)。如果改成单极性 50% 占空比方波：</p>
+                <p><span class="math display">\[
+y(t)=
+\begin{cases}
+A, & 0\le t<T/2 \\
+0, & T/2\le t<T
+\end{cases}
+\tag{29}
+\]</span></p>
+                <p>它的乘积不会出现负值，所以自相关不会下降到负数。它仍然有三角形的重叠长度变化，但整体带有正的直流偏置。也可以写成：</p>
+                <p><span class="math display">\[
+y(t)=\frac{x(t)+A}{2}
+\tag{30}
+\]</span></p>
+                <p>因此单极性方波的自相关包含双极性方波自相关的一部分，再叠加直流项贡献。直观上，双极性方波的半周期错位是完全反相，所以最小值为 \(-A^2\)；单极性方波的半周期错位只是完全没有重叠，所以不会为负。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>7. 一句话总结</h2>
+                <p>50% 占空比双极性方波的周期自相关是周期三角波：</p>
+                <p><span class="math display">\[
+\boxed{
+R_x(\tau)=A^2\left(1-\frac{4d}{T}\right),
+\qquad
+d=\min(\tau\bmod T,\ T-(\tau\bmod T))
+}
+\]</span></p>
+                <p>\(\tau=0.9T\) 可以看成有符号等效延迟 \(-0.1T\)，但公式里的 \(d\) 是非负长度，所以 \(d=0.1T\)，最终 \(R_x(0.9T)=0.6A^2\)。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+  <script>
+    (() => {
+      const slider = document.getElementById("tauSlider");
+      const input = document.getElementById("tauInput");
+      const buttons = [...document.querySelectorAll("[data-tau]")];
+      const demoBadge = document.getElementById("demoBadge");
+      const tauModValue = document.getElementById("tauModValue");
+      const deltaValue = document.getElementById("deltaValue");
+      const distanceValue = document.getElementById("distanceValue");
+      const oppositeValue = document.getElementById("oppositeValue");
+      const sameValue = document.getElementById("sameValue");
+      const corrValue = document.getElementById("corrValue");
+      const bandLabel = document.getElementById("bandLabel");
+      const forwardLabel = document.getElementById("forwardLabel");
+      const signedLabel = document.getElementById("signedLabel");
+      const mismatchBands = document.getElementById("mismatchBands");
+      const transitionMarks = document.getElementById("transitionMarks");
+      const basePath = document.getElementById("basePath");
+      const forwardPath = document.getElementById("forwardPath");
+      const signedPath = document.getElementById("signedPath");
+      const productPath = document.getElementById("productPath");
+      const corrDot = document.getElementById("corrDot");
+
+      const x0 = 68;
+      const width = 552;
+      const amp = 24;
+      const rows = {
+        base: 82,
+        forward: 162,
+        signed: 242,
+        product: 322
+      };
+
+      const mod1 = (value) => ((value % 1) + 1) % 1;
+      const square = (t) => (mod1(t) < 0.5 ? 1 : -1);
+      const fmt = (value, digits = 2) => {
+        if (Math.abs(value) < 0.0005) return "0.00";
+        return value.toFixed(digits);
+      };
+      const fmtT = (value) => `${fmt(value)}T`;
+      const xScale = (t) => x0 + t * width;
+      const yScale = (center, value) => center - amp * value;
+
+      const breakpointsForShift = (shift) => {
+        const points = [0, 1];
+        [0, 0.5].forEach((boundary) => {
+          const point = mod1(boundary - shift);
+          if (point > 0.000001 && point < 0.999999) points.push(point);
+        });
+        return [...new Set(points.map((point) => Number(point.toFixed(6))))].sort((a, b) => a - b);
+      };
+
+      const pathForWave = (center, shift, product = false) => {
+        const points = product
+          ? [...new Set([...breakpointsForShift(0), ...breakpointsForShift(shift)])].sort((a, b) => a - b)
+          : breakpointsForShift(shift);
+        let d = "";
+
+        for (let i = 0; i < points.length - 1; i += 1) {
+          const start = points[i];
+          const end = points[i + 1];
+          const mid = (start + end) / 2;
+          const value = product ? square(mid) * square(mid + shift) : square(mid + shift);
+          const y = yScale(center, value);
+
+          if (!d) {
+            d = `M ${xScale(start).toFixed(2)} ${y.toFixed(2)}`;
+          }
+
+          d += ` H ${xScale(end).toFixed(2)}`;
+
+          if (i < points.length - 2) {
+            const nextMid = (points[i + 1] + points[i + 2]) / 2;
+            const nextValue = product ? square(nextMid) * square(nextMid + shift) : square(nextMid + shift);
+            d += ` V ${yScale(center, nextValue).toFixed(2)}`;
+          }
+        }
+
+        return d;
+      };
+
+      const mismatchIntervals = (shift) => {
+        const points = [...new Set([...breakpointsForShift(0), ...breakpointsForShift(shift)])].sort((a, b) => a - b);
+        const intervals = [];
+
+        for (let i = 0; i < points.length - 1; i += 1) {
+          const start = points[i];
+          const end = points[i + 1];
+          const mid = (start + end) / 2;
+          if (square(mid) !== square(mid + shift)) intervals.push([start, end]);
+        }
+
+        return intervals;
+      };
+
+      const transitionLines = (shift) => {
+        const positions = [...breakpointsForShift(0), ...breakpointsForShift(shift)]
+          .filter((point) => point > 0.000001 && point < 0.999999)
+          .sort((a, b) => a - b);
+
+        transitionMarks.innerHTML = positions
+          .map((point) => {
+            const x = xScale(point).toFixed(2);
+            return `<line x1="${x}" y1="48" x2="${x}" y2="380" stroke="rgba(12,36,57,.16)" stroke-width="1" stroke-dasharray="5 7"></line>`;
+          })
+          .join("");
+      };
+
+      const updateDemo = (rawTau) => {
+        const tau = Math.min(1, Math.max(0, Number(rawTau) || 0));
+        const u = mod1(tau);
+        const delta = u <= 0.5 ? u : u - 1;
+        const distance = Math.abs(delta);
+        const corr = 1 - 4 * distance;
+        const opposite = 2 * distance;
+        const same = 1 - opposite;
+
+        slider.value = tau.toFixed(2);
+        input.value = tau.toFixed(2);
+
+        buttons.forEach((button) => {
+          const value = Number(button.dataset.tau);
+          button.classList.toggle("is-active", Math.abs(value - tau) < 0.005);
+        });
+
+        basePath.setAttribute("d", pathForWave(rows.base, 0));
+        forwardPath.setAttribute("d", pathForWave(rows.forward, tau));
+        signedPath.setAttribute("d", pathForWave(rows.signed, delta));
+        productPath.setAttribute("d", pathForWave(rows.product, tau, true));
+
+        const bands = mismatchIntervals(tau);
+        mismatchBands.innerHTML = bands
+          .map(([start, end]) => {
+            const x = xScale(start);
+            const w = xScale(end) - x;
+            return `<rect x="${x.toFixed(2)}" y="52" width="${w.toFixed(2)}" height="316" fill="rgba(212,108,88,.12)"></rect>`;
+          })
+          .join("");
+
+        transitionLines(tau);
+
+        const dotX = 34 + u * 266;
+        const dotY = 89 - corr * 65;
+        corrDot.setAttribute("cx", dotX.toFixed(2));
+        corrDot.setAttribute("cy", dotY.toFixed(2));
+
+        const signedLabelText = delta < 0 ? `x(t${fmtT(delta)})` : `x(t+${fmtT(delta)})`;
+        forwardLabel.textContent = `x(t+${fmtT(u)})`;
+        signedLabel.textContent = signedLabelText;
+
+        tauModValue.textContent = fmtT(u);
+        deltaValue.textContent = delta < 0 ? fmtT(delta) : `+${fmtT(delta)}`;
+        distanceValue.textContent = fmtT(distance);
+        oppositeValue.textContent = fmtT(opposite);
+        sameValue.textContent = fmtT(same);
+        corrValue.textContent = fmt(corr);
+        demoBadge.textContent = `R/A² = ${fmt(corr)}`;
+        bandLabel.textContent = `异号区间总长度 = ${fmtT(opposite)}`;
+      };
+
+      slider.addEventListener("input", (event) => updateDemo(event.target.value));
+      input.addEventListener("input", (event) => updateDemo(event.target.value));
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => updateDemo(button.dataset.tau));
+      });
+
+      updateDemo(0.9);
+    })();
+  </script>
+</body>
+</html>

@@ -45,11 +45,12 @@
 
           <article class="index-feature">
             <div class="eyeline">Current focus</div>
-            <h2>从方波傅里叶到 FFT 相关和 BOC 功率谱</h2>
-            <p>新增 FFT 互相关基础笔记，把“先共轭再 FFT”和“先 FFT 再共轭”的差别讲清；方波与 BOC 内容继续保留在同一组信号专题里。</p>
+            <h2>从方波傅里叶、自相关到 FFT 相关和 BOC 功率谱</h2>
+            <p>新增方波自相关基础笔记，把 τ=0.9T 与 δ=-0.1T 的周期等效关系做成可交互对比；方波、FFT 和 BOC 内容继续保留在同一组信号专题里。</p>
             <div class="chip-row">
               <span>Square wave</span>
               <span>Fourier series</span>
+              <span>Autocorrelation</span>
               <span>FFT correlation</span>
               <span>BOC</span>
               <span>Power spectral density</span>
@@ -78,6 +79,53 @@
                 <span>STFT</span>
               </div>
               <a class="text-link" href="periodic-square-wave-fourier-analysis/">阅读基础笔记</a>
+            </div>
+          </article>
+
+          <article class="catalog-card">
+            <div class="catalog-status">基础补充笔记</div>
+            <div class="catalog-meta">
+              <span>Autocorrelation</span>
+              <span>周期方波</span>
+              <span>形式：公式推导 + 交互演示</span>
+            </div>
+            <h3>50% 占空比双极性方波的周期自相关函数</h3>
+            <p>从同号/异号重叠长度推导周期三角波自相关，再用功率谱密度反傅里叶变换验证同一个结果，并区分有符号延迟 δ 和非负错位距离 d。</p>
+            <ul>
+              <li>解释 τ=0.9T 为什么等效于 -0.1T，但公式里必须代入 d=0.1T。</li>
+              <li>提供可调节前端，对比 x(t+τ)、x(t+δ)、乘积波形和三角形自相关曲线。</li>
+            </ul>
+            <div class="catalog-footer">
+              <div class="chip-row">
+                <span>周期三角波</span>
+                <span>PSD</span>
+                <span>τ=0.9T</span>
+              </div>
+              <a class="text-link" href="square-wave-autocorrelation/">阅读自相关笔记</a>
+            </div>
+          </article>
+
+          <article class="catalog-card">
+            <div class="catalog-status">基础补充笔记</div>
+            <div class="catalog-meta">
+              <span>BOC</span>
+              <span>LFSR</span>
+              <span>形式：逻辑等价性证明</span>
+            </div>
+            <h3>mod(·,2) 与 xor 的等价性</h3>
+            <p>说明 GPS/北斗 BOC 码反馈中常见的 <code>mod(...,2)</code> 为什么和异或是同义写法，并给出两比特真值表、归纳证明和适用边界。</p>
+            <ul>
+              <li>证明 \(x_1\oplus\cdots\oplus x_n = \bmod(x_1+\cdots+x_n,2)\) 的完整过程。</li>
+              <li>从 GF(2) 和 LFSR 的反馈多项式语义解释实现差异只是记法。</li>
+              <li>强调非二值输入下不能直接使用该等价关系。</li>
+            </ul>
+            <div class="catalog-footer">
+              <div class="chip-row">
+                <span>奇偶性</span>
+                <span>模 2 加法</span>
+                <span>g2Feedback</span>
+              </div>
+              <a class="text-link" href="mod-xor-equivalence/">阅读模 2 等价性笔记</a>
             </div>
           </article>
 
