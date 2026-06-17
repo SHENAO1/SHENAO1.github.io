@@ -1,0 +1,878 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C/A 码扩频基带信号：数据 bit 采样、频谱与功率谱 | Signal Notes</title>
+  <meta name="description" content="GPS C/A 码扩频基带信号学习笔记：从数据 bit 采样索引、码片矩形脉冲、周期 C/A 码离散谱线、sinc 包络、DFT 起伏、导航数据和有限观测对频谱的影响出发，整理频谱与功率谱推导。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260617-ca-spectrum">
+  <style>
+    .ca-spectrum-note .note-intro-copy h1,
+    .ca-spectrum-note .note-prose section.level1 > h1,
+    .ca-spectrum-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .ca-spectrum-note .note-intro-copy h1 {
+      max-width: 14ch;
+    }
+
+    .signal-visual {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+
+    .signal-visual-card,
+    .summary-card,
+    .note-callout,
+    .step-card {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .signal-visual-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .signal-visual-card h2 {
+      margin: 0 0 8px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .signal-visual-card p {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .signal-visual svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .summary-grid,
+    .step-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .summary-card,
+    .step-card {
+      padding: 14px 16px;
+    }
+
+    .summary-card strong,
+    .step-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .summary-card span,
+    .step-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    .svg-label {
+      fill: #33516a;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .svg-mono {
+      fill: #33516a;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .svg-axis {
+      stroke: rgba(12, 36, 57, 0.22);
+      stroke-width: 1.3;
+    }
+
+    .svg-grid {
+      stroke: rgba(12, 36, 57, 0.1);
+      stroke-width: 1;
+    }
+
+    @media (max-width: 1040px) {
+      .signal-visual,
+      .summary-grid,
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .signal-visual-card,
+      .summary-card,
+      .note-callout,
+      .step-card {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .svg-label,
+      .svg-mono {
+        fill: rgba(231, 248, 255, 0.78);
+      }
+
+      .svg-axis {
+        stroke: rgba(231, 248, 255, 0.22);
+      }
+
+      .svg-grid {
+        stroke: rgba(231, 248, 255, 0.1);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ca-spectrum-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>C/A 码频谱</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">GNSS signal / DSSS spectrum</div>
+          <h1>C/A 码扩频基带信号：数据 bit 采样、频谱与功率谱</h1>
+          <p>从采样时刻如何落到导航数据 bit 开始，接着把 C/A 码看成“加权冲激串卷积矩形码片”，最后解释为什么理想周期码给出 1 kHz 间隔的离散谱线，而实际谱线高度会围绕 sinc 包络起伏。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>GPS C/A code</span>
+          <span>数据 bit 采样</span>
+          <span>矩形码片</span>
+          <span>sinc 包络</span>
+          <span>DFT 谱线起伏</span>
+          <span>功率谱密度</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../impulse-train-fourier-transform/">冲激串傅里叶变换</a>
+        </div>
+
+        <div class="signal-visual" aria-label="数据 bit、C/A 码和频谱结构示意">
+          <article class="signal-visual-card">
+            <h2>时域：数据 bit 乘上 C/A 码片</h2>
+            <svg viewBox="0 0 660 330" role="img" aria-label="导航数据 bit 和 C/A 码片相乘示意">
+              <rect x="0" y="0" width="660" height="330" rx="16" fill="#fffdf8"></rect>
+              <g class="svg-grid">
+                <line x1="62" y1="52" x2="62" y2="274"></line>
+                <line x1="202" y1="52" x2="202" y2="274"></line>
+                <line x1="342" y1="52" x2="342" y2="274"></line>
+                <line x1="482" y1="52" x2="482" y2="274"></line>
+                <line x1="622" y1="52" x2="622" y2="274"></line>
+              </g>
+              <g class="svg-axis">
+                <line x1="46" y1="92" x2="628" y2="92"></line>
+                <line x1="46" y1="172" x2="628" y2="172"></line>
+                <line x1="46" y1="252" x2="628" y2="252"></line>
+              </g>
+              <polyline points="62,68 202,68 202,116 342,116 342,116 482,116 482,68 622,68" fill="none" stroke="#0d889a" stroke-width="5" stroke-linejoin="round"></polyline>
+              <polyline points="62,148 88,148 88,196 118,196 118,148 146,148 146,196 174,196 174,148 202,148 202,196 230,196 230,196 258,196 258,148 286,148 286,196 314,196 314,148 342,148 342,196 370,196 370,148 398,148 398,148 426,148 426,196 454,196 454,148 482,148 482,148 510,148 510,196 538,196 538,148 566,148 566,196 594,196 594,148 622,148" fill="none" stroke="#de9b2b" stroke-width="4" stroke-linejoin="round"></polyline>
+              <polyline points="62,228 88,228 88,276 118,276 118,228 146,228 146,276 174,276 174,228 202,228 202,276 230,276 230,276 258,276 258,228 286,228 286,276 314,276 314,228 342,228 342,276 370,276 370,228 398,228 398,228 426,228 426,276 454,276 454,228 482,228 482,228 510,228 510,276 538,276 538,228 566,228 566,276 594,276 594,228 622,228" fill="none" stroke="#58794c" stroke-width="4" stroke-linejoin="round"></polyline>
+              <g class="svg-label">
+                <text x="24" y="96">D(t)</text>
+                <text x="24" y="176">C(t)</text>
+                <text x="24" y="256">S(t)</text>
+              </g>
+              <g class="svg-mono" text-anchor="middle">
+                <text x="62" y="306">0</text>
+                <text x="202" y="306">Td</text>
+                <text x="342" y="306">2Td</text>
+                <text x="482" y="306">3Td</text>
+                <text x="622" y="306">4Td</text>
+              </g>
+              <g class="svg-mono">
+                <text x="438" y="42">S(t)=D(t)C(t)</text>
+                <text x="80" y="140">Tc</text>
+              </g>
+            </svg>
+            <p>在一个导航数据 bit 内，\(D(t)\) 只是常数符号；真正快速翻转的是 1.023 Mcps 的 C/A 码片。</p>
+          </article>
+
+          <article class="signal-visual-card">
+            <h2>频域：离散谱线乘上 sinc 包络</h2>
+            <svg viewBox="0 0 660 330" role="img" aria-label="C/A 码离散谱线与 sinc 包络示意">
+              <rect x="0" y="0" width="660" height="330" rx="16" fill="#fffdf8"></rect>
+              <g class="svg-grid">
+                <line x1="78" y1="52" x2="78" y2="260"></line>
+                <line x1="194" y1="52" x2="194" y2="260"></line>
+                <line x1="310" y1="52" x2="310" y2="260"></line>
+                <line x1="426" y1="52" x2="426" y2="260"></line>
+                <line x1="542" y1="52" x2="542" y2="260"></line>
+              </g>
+              <line class="svg-axis" x1="58" y1="260" x2="602" y2="260"></line>
+              <line class="svg-axis" x1="310" y1="54" x2="310" y2="270"></line>
+              <path d="M78,260 C126,142 176,78 226,104 C266,124 286,174 310,74 C334,174 354,124 394,104 C444,78 494,142 542,260" fill="none" stroke="#0d889a" stroke-width="4" stroke-linecap="round"></path>
+              <g stroke="#de9b2b" stroke-width="3" stroke-linecap="round">
+                <line x1="94" y1="260" x2="94" y2="224"></line>
+                <line x1="110" y1="260" x2="110" y2="206"></line>
+                <line x1="126" y1="260" x2="126" y2="188"></line>
+                <line x1="142" y1="260" x2="142" y2="174"></line>
+                <line x1="158" y1="260" x2="158" y2="160"></line>
+                <line x1="174" y1="260" x2="174" y2="132"></line>
+                <line x1="190" y1="260" x2="190" y2="148"></line>
+                <line x1="206" y1="260" x2="206" y2="116"></line>
+                <line x1="222" y1="260" x2="222" y2="138"></line>
+                <line x1="238" y1="260" x2="238" y2="126"></line>
+                <line x1="254" y1="260" x2="254" y2="154"></line>
+                <line x1="270" y1="260" x2="270" y2="134"></line>
+                <line x1="286" y1="260" x2="286" y2="112"></line>
+                <line x1="302" y1="260" x2="302" y2="84"></line>
+                <line x1="318" y1="260" x2="318" y2="92"></line>
+                <line x1="334" y1="260" x2="334" y2="124"></line>
+                <line x1="350" y1="260" x2="350" y2="140"></line>
+                <line x1="366" y1="260" x2="366" y2="116"></line>
+                <line x1="382" y1="260" x2="382" y2="152"></line>
+                <line x1="398" y1="260" x2="398" y2="118"></line>
+                <line x1="414" y1="260" x2="414" y2="150"></line>
+                <line x1="430" y1="260" x2="430" y2="166"></line>
+                <line x1="446" y1="260" x2="446" y2="144"></line>
+                <line x1="462" y1="260" x2="462" y2="178"></line>
+                <line x1="478" y1="260" x2="478" y2="190"></line>
+                <line x1="494" y1="260" x2="494" y2="202"></line>
+                <line x1="510" y1="260" x2="510" y2="218"></line>
+                <line x1="526" y1="260" x2="526" y2="238"></line>
+              </g>
+              <g class="svg-mono" text-anchor="middle">
+                <text x="78" y="286">-Rc</text>
+                <text x="310" y="286">0</text>
+                <text x="542" y="286">Rc</text>
+              </g>
+              <g class="svg-label">
+                <text x="392" y="70">|P(f)| envelope</text>
+                <text x="396" y="92">line height: |A_m||P(mf0)|</text>
+                <text x="420" y="246">spacing f0=1 kHz</text>
+              </g>
+            </svg>
+            <p>矩形码片决定外层 \(\operatorname{sinc}\) 包络；每条谱线的具体高度还要乘上一个周期内 C/A 码序列的 DFT 系数。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从采样索引到连续时间模型，再到离散谱线和工程观察。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#bit-sampling">1. 数据 bit 的采样索引</a>
+              <a class="level-2" href="#signal-model">2. C/A 码扩频基带模型</a>
+              <a class="level-2" href="#pulse-spectrum">3. 矩形码片给出的 sinc 包络</a>
+              <a class="level-2" href="#periodic-code">4. 周期 C/A 码的离散谱线</a>
+              <a class="level-2" href="#power-spectrum">5. 功率谱线与 sinc² 包络</a>
+              <a class="level-2" href="#not-smooth-sinc">6. 为什么实际频谱不是光滑 sinc</a>
+              <a class="level-2" href="#data-and-window">7. 导航数据和有限观测的影响</a>
+              <a class="level-2" href="#implementation">8. 仿真采样时的实现细节</a>
+              <a class="level-2" href="#summary">9. 一页总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ca-code-data-bit-sampling-spectrum" class="level1">
+              <h1>C/A 码扩频基带信号：数据 bit 采样、频谱与功率谱</h1>
+              <blockquote>
+                <p>这份笔记默认使用连续时间傅里叶变换的 Hz 频率约定：\(X(f)=\int x(t)e^{-j2\pi ft}dt\)。如果只看理想周期重复的 C/A 码，频域是间隔 1 kHz 的离散谱线；如果再乘上随机导航数据或截取有限长度观测，频谱会从理想线谱变成更接近工程仪器上看到的谱线展宽和起伏。</p>
+              </blockquote>
+
+              <section id="bit-sampling" class="level2">
+                <h2>1. 数据 bit 的采样索引</h2>
+                <p>设导航数据 bit 序列为：</p>
+                <p><span class="math display">\[
+d[0],\ d[1],\ d[2],\ldots,\qquad d[m]\in\{+1,-1\}
+\tag{1}
+\]</span></p>
+                <p>数据位周期为 \(T_d\)。若从 \(t=0\) 开始计时，并且采用左闭右开的时间区间，则：</p>
+                <p><span class="math display">\[
+D(t)=d[0],\quad 0\le t<T_d
+\]</span></p>
+                <p><span class="math display">\[
+D(t)=d[1],\quad T_d\le t<2T_d
+\]</span></p>
+                <p><span class="math display">\[
+D(t)=d[2],\quad 2T_d\le t<3T_d
+\tag{2}
+\]</span></p>
+                <p>因此，采样时刻 \(\tau_n\) 对应的数据位索引为：</p>
+                <p><span class="math display">\[
+\boxed{
+m_n=\left\lfloor\frac{\tau_n}{T_d}\right\rfloor
+}
+\tag{3}
+\]</span></p>
+                <p>采样时刻的数据值就是：</p>
+                <p><span class="math display">\[
+\boxed{
+D(\tau_n)=d[m_n]
+=d\left[\left\lfloor\frac{\tau_n}{T_d}\right\rfloor\right]
+}
+\tag{4}
+\]</span></p>
+                <p>如果接收机的本地时间不是从数据 bit 边界开始，而是存在数据起始时刻 \(t_{d,0}\)，则应写成：</p>
+                <p><span class="math display">\[
+m_n=\left\lfloor\frac{\tau_n-t_{d,0}}{T_d}\right\rfloor
+\tag{5}
+\]</span></p>
+                <p>实际 ADC 采样常写成 \(\tau_n=t_{\text{start}}+nT_s\)，于是：</p>
+                <p><span class="math display">\[
+m_n=
+\left\lfloor
+\frac{t_{\text{start}}+nT_s-t_{d,0}}{T_d}
+\right\rfloor
+\tag{6}
+\]</span></p>
+
+                <div class="summary-grid" aria-label="GPS L1 C/A 常用时间尺度">
+                  <article class="summary-card">
+                    <strong>码片速率</strong>
+                    <span>\(R_c=1.023\,\text{MHz}\)，所以 \(T_c=1/R_c\)。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>码长</strong>
+                    <span>C/A 码一个周期 \(N=1023\) 个码片。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>码周期</strong>
+                    <span>\(T_{\text{code}}=NT_c=1\,\text{ms}\)。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>数据位</strong>
+                    <span>GPS L1 C/A 导航数据通常为 50 bps，即 \(T_d=20\,\text{ms}=20T_{\text{code}}\)。</span>
+                  </article>
+                </div>
+
+                <div class="note-callout">
+                  <strong>边界约定很重要</strong>
+                  <p>用左闭右开区间时，刚好落在 \(\tau_n=kT_d\) 的样点属于第 \(k\) 个 bit，而不是第 \(k-1\) 个 bit。仿真中若用浮点数计算时间，最好对边界误差做统一处理，避免同一个 bit 边界在不同模块里被分到不同索引。</p>
+                </div>
+              </section>
+
+              <section id="signal-model" class="level2">
+                <h2>2. C/A 码扩频基带模型</h2>
+                <p>定义码片矩形脉冲：</p>
+                <p><span class="math display">\[
+p(t)=
+\begin{cases}
+1, & 0\le t<T_c \\
+0, & \text{otherwise}
+\end{cases}
+\tag{7}
+\]</span></p>
+                <p>设 C/A 码片为 \(c_k\in\{+1,-1\}\)。如果先讨论无导航数据、只看周期重复的 C/A 码，则令：</p>
+                <p><span class="math display">\[
+c_{k+N}=c_k,\qquad N=1023
+\tag{8}
+\]</span></p>
+                <p>连续时间 C/A 码波形可以写成：</p>
+                <p><span class="math display">\[
+C(t)=\sum_{k=-\infty}^{\infty}c_k p(t-kT_c)
+\tag{9}
+\]</span></p>
+                <p>把码片值放到加权冲激串上：</p>
+                <p><span class="math display">\[
+a(t)=\sum_{k=-\infty}^{\infty}c_k\delta(t-kT_c)
+\tag{10}
+\]</span></p>
+                <p>利用冲激的平移筛选性质：</p>
+                <p><span class="math display">\[
+\delta(t-kT_c)*p(t)=p(t-kT_c)
+\tag{11}
+\]</span></p>
+                <p>所以：</p>
+                <p><span class="math display">\[
+\boxed{
+C(t)=a(t)*p(t)
+}
+\tag{12}
+\]</span></p>
+                <p>乘上导航数据 bit 后，BPSK 扩频基带信号可以写成：</p>
+                <p><span class="math display">\[
+s(t)=D(t)C(t)
+\tag{13}
+\]</span></p>
+                <p>如果接收机只在一个数据 bit 内做短时间相干积分，\(D(t)\) 在该窗口内近似是常数 \(+1\) 或 \(-1\)，因此它只改变整体符号，不改变局部 C/A 码频谱形状。若积分窗口跨过数据 bit 翻转点，符号变化会造成相干积分抵消。</p>
+              </section>
+
+              <section id="pulse-spectrum" class="level2">
+                <h2>3. 矩形码片给出的 sinc 包络</h2>
+                <p>由卷积定理：</p>
+                <p><span class="math display">\[
+C(f)=A(f)P(f)
+\tag{14}
+\]</span></p>
+                <p>其中矩形码片脉冲的傅里叶变换为：</p>
+                <p><span class="math display">\[
+P(f)=\int_0^{T_c}e^{-j2\pi ft}\,dt
+\tag{15}
+\]</span></p>
+                <p>计算得：</p>
+                <p><span class="math display">\[
+\begin{aligned}
+P(f)
+&=\left.\frac{e^{-j2\pi ft}}{-j2\pi f}\right|_0^{T_c}\\
+&=T_c e^{-j\pi fT_c}\operatorname{sinc}(fT_c)
+\end{aligned}
+\tag{16}
+\]</span></p>
+                <p>这里采用归一化 sinc 定义：</p>
+                <p><span class="math display">\[
+\operatorname{sinc}(x)=\frac{\sin(\pi x)}{\pi x}
+\tag{17}
+\]</span></p>
+                <p>所以码片脉冲带来的幅度包络是：</p>
+                <p><span class="math display">\[
+|P(f)|=T_c|\operatorname{sinc}(fT_c)|
+\tag{18}
+\]</span></p>
+                <p>功率包络是：</p>
+                <p><span class="math display">\[
+|P(f)|^2=T_c^2\operatorname{sinc}^2(fT_c)
+\tag{19}
+\]</span></p>
+                <p>sinc 零点由 \(\operatorname{sinc}(fT_c)=0\) 决定，即：</p>
+                <p><span class="math display">\[
+fT_c=\pm1,\pm2,\pm3,\ldots
+\tag{20}
+\]</span></p>
+                <p>因此：</p>
+                <p><span class="math display">\[
+\boxed{
+f=\pm\frac{n}{T_c}=\pm nR_c
+}
+\tag{21}
+\]</span></p>
+                <p>对 GPS L1 C/A 码，\(R_c=1.023\,\text{MHz}\)，所以主包络零点位于：</p>
+                <p><span class="math display">\[
+\pm1.023\,\text{MHz},\quad
+\pm2.046\,\text{MHz},\quad
+\pm3.069\,\text{MHz},\ldots
+\tag{22}
+\]</span></p>
+                <p>第一对零点之间的零到零带宽是 \(2.046\,\text{MHz}\)。这就是常说 C/A 码主瓣大约占据 \(\pm1.023\,\text{MHz}\) 的原因。</p>
+              </section>
+
+              <section id="periodic-code" class="level2">
+                <h2>4. 周期 C/A 码的离散谱线</h2>
+                <p>若 C/A 码严格周期重复，一个周期包含 \(N=1023\) 个码片：</p>
+                <p><span class="math display">\[
+T_{\text{code}}=NT_c=1\,\text{ms}
+\tag{23}
+\]</span></p>
+                <p>对应基频为：</p>
+                <p><span class="math display">\[
+\boxed{
+f_0=\frac{1}{T_{\text{code}}}=1\,\text{kHz}
+}
+\tag{24}
+\]</span></p>
+                <p>因为 \(a(t)\) 是周期信号，所以它的频谱是离散谱线：</p>
+                <p><span class="math display">\[
+A(f)=\sum_{m=-\infty}^{\infty}A_m\delta(f-mf_0)
+\tag{25}
+\]</span></p>
+                <p>系数 \(A_m\) 由一个周期内 C/A 码序列的 DFT 决定。更严格地写，在 Hz 频率约定下：</p>
+                <p><span class="math display">\[
+\boxed{
+A_m=\frac{1}{T_{\text{code}}}
+\sum_{k=0}^{N-1}c_k e^{-j2\pi mk/N}
+}
+\tag{26}
+\]</span></p>
+                <p>如果只关心谱线相对形状，也常写成比例关系：</p>
+                <p><span class="math display">\[
+A_m\propto
+\sum_{k=0}^{N-1}c_k e^{-j2\pi mk/N}
+\tag{27}
+\]</span></p>
+                <p>代入 \(C(f)=A(f)P(f)\)，得到：</p>
+                <p><span class="math display">\[
+\boxed{
+C(f)=
+\sum_{m=-\infty}^{\infty}
+A_mP(mf_0)\delta(f-mf_0)
+}
+\tag{28}
+\]</span></p>
+                <p>因此理想周期 C/A 码的频谱有两个层次：</p>
+                <ul>
+                  <li>谱线位置固定在 \(f=mf_0\)，间隔为 \(f_0=1\,\text{kHz}\)。</li>
+                  <li>谱线复幅度为 \(A_mP(mf_0)\)，既包含码序列 DFT，也包含码片矩形脉冲的 sinc 包络。</li>
+                </ul>
+
+                <div class="note-callout">
+                  <strong>为什么零点刚好对齐</strong>
+                  <p>\(R_c=1.023\,\text{MHz}=1023\,\text{kHz}=1023f_0\)。因此 sinc 包络的第一零点对应第 \(m=\pm1023\) 条谱线，第二零点对应第 \(m=\pm2046\) 条谱线。矩形码片脉冲会把这些位置上的谱线压到零。</p>
+                </div>
+              </section>
+
+              <section id="power-spectrum" class="level2">
+                <h2>5. 功率谱线与 sinc² 包络</h2>
+                <p>周期信号是功率信号。对周期信号来说，功率谱密度不是普通连续函数，而是一组带权重的冲激谱线。若：</p>
+                <p><span class="math display">\[
+C(t)=\sum_{m=-\infty}^{\infty}C_m e^{j2\pi mf_0t}
+\tag{29}
+\]</span></p>
+                <p>则功率谱密度可以写成：</p>
+                <p><span class="math display">\[
+S_C(f)=\sum_{m=-\infty}^{\infty}|C_m|^2\delta(f-mf_0)
+\tag{30}
+\]</span></p>
+                <p>由式 (28) 可知：</p>
+                <p><span class="math display">\[
+C_m=A_mP(mf_0)
+\tag{31}
+\]</span></p>
+                <p>所以：</p>
+                <p><span class="math display">\[
+\boxed{
+S_C(f)=
+\sum_{m=-\infty}^{\infty}
+|A_m|^2|P(mf_0)|^2\delta(f-mf_0)
+}
+\tag{32}
+\]</span></p>
+                <p>再代入矩形脉冲的功率包络：</p>
+                <p><span class="math display">\[
+\boxed{
+|C_m|^2=
+|A_m|^2T_c^2\operatorname{sinc}^2(mf_0T_c)
+}
+\tag{33}
+\]</span></p>
+                <p>这条式子是理解 C/A 码功率谱的核心：\(\operatorname{sinc}^2\) 只给出外层趋势，\(|A_m|^2\) 决定每一根谱线在趋势线上下的具体起伏。</p>
+              </section>
+
+              <section id="not-smooth-sinc" class="level2">
+                <h2>6. 为什么实际频谱不是光滑 sinc</h2>
+                <p>如果只画 \(|P(f)|\) 或 \(|P(f)|^2\)，会得到一条光滑的 sinc 或 sinc² 曲线。但真正的周期 C/A 码频谱不是这条曲线本身，而是离散谱线：</p>
+                <p><span class="math display">\[
+C(f)=
+\sum_m A_mP(mf_0)\delta(f-mf_0)
+\tag{34}
+\]</span></p>
+                <p>每根谱线在 \(f=mf_0\) 处的复幅度是：</p>
+                <p><span class="math display">\[
+C_m=A_mP(mf_0)
+\tag{35}
+\]</span></p>
+                <p>幅度为：</p>
+                <p><span class="math display">\[
+|C_m|=|A_m|T_c|\operatorname{sinc}(mf_0T_c)|
+\tag{36}
+\]</span></p>
+                <p>功率为：</p>
+                <p><span class="math display">\[
+|C_m|^2
+=|A_m|^2T_c^2\operatorname{sinc}^2(mf_0T_c)
+\tag{37}
+\]</span></p>
+                <p>因此需要把两个因素分开：</p>
+                <div class="step-grid" aria-label="C/A 码频谱两个因素">
+                  <article class="step-card">
+                    <strong>矩形码片脉冲 \(P(f)\)</strong>
+                    <span>决定外层 sinc 包络，零点在 \(\pm nR_c\)。</span>
+                  </article>
+                  <article class="step-card">
+                    <strong>码序列 DFT \(A_m\)</strong>
+                    <span>决定不同 1 kHz 谱线之间的起伏，是具体 PRN 序列造成的。</span>
+                  </article>
+                  <article class="step-card">
+                    <strong>实际线谱 \(C_m\)</strong>
+                    <span>是二者相乘：\(C_m=A_mP(mf_0)\)。</span>
+                  </article>
+                </div>
+                <p>对于伪随机码，\(|A_m|^2\) 在很多频点上会表现出类似随机的细碎起伏，因此单根谱线不会严格落在一条光滑的 sinc² 曲线上。只有从平均趋势、包络或频率平滑后的结果看，才会明显呈现 sinc² 控制的主瓣和旁瓣结构。</p>
+
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>观察对象</th>
+                        <th>数学形式</th>
+                        <th>物理含义</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>码片脉冲</td>
+                        <td>\(P(f)=T_ce^{-j\pi fT_c}\operatorname{sinc}(fT_c)\)</td>
+                        <td>一个矩形码片自身的频谱。</td>
+                      </tr>
+                      <tr>
+                        <td>周期码序列</td>
+                        <td>\(A_m\propto\sum_{k=0}^{N-1}c_ke^{-j2\pi mk/N}\)</td>
+                        <td>一个周期内 C/A 码值的 DFT。</td>
+                      </tr>
+                      <tr>
+                        <td>频谱线幅度</td>
+                        <td>\(|C_m|=|A_m||P(mf_0)|\)</td>
+                        <td>DFT 起伏乘上 sinc 外层包络。</td>
+                      </tr>
+                      <tr>
+                        <td>功率谱线</td>
+                        <td>\(|C_m|^2=|A_m|^2T_c^2\operatorname{sinc}^2(mf_0T_c)\)</td>
+                        <td>线谱功率围绕 sinc² 包络起伏。</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section id="data-and-window" class="level2">
+                <h2>7. 导航数据和有限观测的影响</h2>
+                <p>上面的离散线谱结论有一个重要前提：C/A 码无限长、严格周期重复，而且没有随机导航数据改变符号。工程频谱通常还会受到以下因素影响。</p>
+
+                <h3>7.1 导航数据 bit 会破坏严格 1 ms 周期性</h3>
+                <p>完整基带信号是：</p>
+                <p><span class="math display">\[
+s(t)=D(t)C(t)
+\tag{38}
+\]</span></p>
+                <p>频域中，时域相乘对应频域卷积：</p>
+                <p><span class="math display">\[
+S(f)=D(f)*C(f)
+\tag{39}
+\]</span></p>
+                <p>如果 \(D(t)\) 在观测时间内恒定为 \(+1\) 或 \(-1\)，则它只改变整体符号；如果 \(D(t)\) 是 50 bps 导航数据，并且在长时间内随机翻转，那么它会把原来理想的周期码线谱进行调制和展宽。直观上，数据 bit 让每 20 ms 可能发生一次整体符号翻转，严格的 1 ms 周期重复不再对无限时间成立。</p>
+
+                <h3>7.2 有限观测窗口会造成谱线展宽和泄漏</h3>
+                <p>频谱仪或 FFT 只能观察有限长度信号。设观察窗口为 \(w_T(t)\)，实际拿去变换的是：</p>
+                <p><span class="math display">\[
+x_T(t)=x(t)w_T(t)
+\tag{40}
+\]</span></p>
+                <p>因此频域为：</p>
+                <p><span class="math display">\[
+X_T(f)=X(f)*W_T(f)
+\tag{41}
+\]</span></p>
+                <p>理想冲激谱线会被窗口频谱 \(W_T(f)\) 展宽成主瓣和旁瓣。如果 FFT 频率栅格没有刚好对齐 1 kHz 谱线，或者观察长度不是码周期的整数倍，还会出现更明显的频谱泄漏。</p>
+
+                <h3>7.3 前端滤波、采样和非理想码片形状也会改变包络</h3>
+                <p>真实接收链路还包含射频/中频滤波器、ADC 采样、量化、自动增益控制、载波 Doppler 和本地码相位误差。这些因素会继续改变观测到的谱线高度。特别是前端带宽较窄时，sinc 外层包络还会再乘上接收机滤波器响应。</p>
+
+                <div class="note-callout">
+                  <strong>一句话区分</strong>
+                  <p>理想数学模型说明“C/A 周期码的线谱在哪里、外层包络是什么”；工程观测结果则是这个线谱再经过导航数据调制、有限窗口卷积、前端滤波和离散采样后的结果。</p>
+                </div>
+              </section>
+
+              <section id="implementation" class="level2">
+                <h2>8. 仿真采样时的实现细节</h2>
+                <p>在离散仿真中，若采样率为 \(F_s\)，采样间隔 \(T_s=1/F_s\)，第 \(n\) 个样点时间为：</p>
+                <p><span class="math display">\[
+\tau_n=t_{\text{start}}+nT_s
+\tag{42}
+\]</span></p>
+                <p>则数据 bit 索引可写成：</p>
+                <p><span class="math display">\[
+m_n=\left\lfloor\frac{\tau_n-t_{d,0}}{T_d}\right\rfloor
+\tag{43}
+\]</span></p>
+                <p>码片索引可写成：</p>
+                <p><span class="math display">\[
+k_n=
+\left\lfloor
+\frac{(\tau_n-t_{c,0})\bmod T_{\text{code}}}{T_c}
+\right\rfloor
+\tag{44}
+\]</span></p>
+                <p>于是基带扩频序列样点为：</p>
+                <p><span class="math display">\[
+s[n]=d[m_n]c[k_n]
+\tag{45}
+\]</span></p>
+                <p>若还要加入载波 Doppler、初始相位和噪声，可以在此基础上继续乘上复载波并加噪：</p>
+                <p><span class="math display">\[
+r[n]=A\,d[m_n]c[k_n]e^{j(2\pi f_D\tau_n+\phi_0)}+w[n]
+\tag{46}
+\]</span></p>
+
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>实现点</th>
+                        <th>建议</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>bit 边界</td>
+                        <td>明确使用左闭右开区间，并统一处理浮点边界误差。</td>
+                      </tr>
+                      <tr>
+                        <td>码片索引</td>
+                        <td>先对 \(T_{\text{code}}\) 取模，再除以 \(T_c\) 取 floor，最后限制在 \(0,\ldots,1022\)。</td>
+                      </tr>
+                      <tr>
+                        <td>符号表示</td>
+                        <td>频谱推导中用 \(\{+1,-1\}\) 最方便；若原始码是 \(\{0,1\}\)，需要先映射为双极性码。</td>
+                      </tr>
+                      <tr>
+                        <td>相干积分</td>
+                        <td>积分窗口跨越未知数据 bit 翻转时会损失相干增益，捕获和跟踪中常需要数据擦除或限制积分长度。</td>
+                      </tr>
+                      <tr>
+                        <td>FFT 观察频谱</td>
+                        <td>选择码周期整数倍的观测长度可以减少泄漏；加窗会降低旁瓣但也会加宽主瓣。</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>9. 一页总结</h2>
+                <p>数据 bit 采样索引：</p>
+                <p><span class="math display">\[
+m_n=\left\lfloor\frac{\tau_n}{T_d}\right\rfloor,\qquad
+D(\tau_n)=d[m_n]
+\]</span></p>
+                <p>码片矩形脉冲：</p>
+                <p><span class="math display">\[
+P(f)=T_ce^{-j\pi fT_c}\operatorname{sinc}(fT_c)
+\]</span></p>
+                <p>周期 C/A 码频谱：</p>
+                <p><span class="math display">\[
+C(f)=
+\sum_m A_mP(mf_0)\delta(f-mf_0),
+\qquad f_0=1\,\text{kHz}
+\]</span></p>
+                <p>谱线系数：</p>
+                <p><span class="math display">\[
+A_m=\frac{1}{T_{\text{code}}}
+\sum_{k=0}^{N-1}c_k e^{-j2\pi mk/N}
+\]</span></p>
+                <p>功率谱线：</p>
+                <p><span class="math display">\[
+|C_m|^2=
+|A_m|^2T_c^2\operatorname{sinc}^2(mf_0T_c)
+\]</span></p>
+                <p>最需要记住的是：C/A 码的频谱不是一条连续光滑的 sinc 曲线，而是一组 1 kHz 间隔的离散谱线；sinc 或 sinc² 只是矩形码片给出的外层包络，具体每根谱线还要乘上 C/A 码一个周期内的 DFT 系数。导航数据、有限观测窗口和接收机前端会进一步改变工程上看到的频谱形状。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
