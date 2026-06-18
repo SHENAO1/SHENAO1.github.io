@@ -95,9 +95,43 @@
       margin-top: 0;
     }
 
+    .note-figure {
+      margin: 18px 0 22px;
+    }
+
+    .note-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid rgba(12, 36, 57, 0.10);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(7, 21, 34, 0.08);
+    }
+
+    .note-figure figcaption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .figure-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 22px;
+    }
+
+    .figure-grid .note-figure {
+      margin: 0;
+    }
+
     @media (max-width: 1040px) {
       .summary-grid,
-      .step-grid {
+      .step-grid,
+      .figure-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -214,8 +248,9 @@
               <a class="level-2" href="#window">6. 窗函数、卷积与“涂抹”</a>
               <a class="level-2" href="#periodic-zeros">7. 周期结构与深零点</a>
               <a class="level-2" href="#matlab-practice">8. MATLAB 绘图实践</a>
-              <a class="level-2" href="#summary">9. 一页总结</a>
-              <a class="level-2" href="#qa-appendix">10. 侧边聊天问答整理</a>
+              <a class="level-2" href="#code-check">9. 代码检查：修改前后对比</a>
+              <a class="level-2" href="#summary">10. 一页总结</a>
+              <a class="level-2" href="#qa-appendix">11. 侧边聊天问答整理</a>
             </nav>
           </details>
         </aside>
@@ -552,13 +587,102 @@ plots.enableLegendToggle(lgd);</code></pre>
                 <p>其核心逻辑是给 legend 设置 <code>ItemHitFcn</code>，在点击图例项时切换对应绘图对象的 <code>Visible</code> 属性。</p>
               </section>
 
+              <section id="code-check" class="level2">
+                <h2>9. 代码检查：修改前后对比</h2>
+                <p>这次调试中最容易混在一起的有两个问题：一是 C/A 码采样索引由浮点时间相位计算，导致 40 个 1 ms 周期并不完全相同；二是画 <code>fftshift</code> 后的匹配/非匹配频点时，掩码也必须同步 <code>fftshift</code>。第一个问题会影响命令行统计值，第二个问题主要影响移频图里的蓝点和橙点分类。</p>
+
+                <h3>9.1 修改前：浮点时间相位采样</h3>
+                <p>最初的 C/A 码采样写法是：</p>
+                <pre><code class="language-matlab">chipIndex = floor(cfg.t * cfg.codeRate) + 1;
+chipIndex = mod(chipIndex - 1, cfg.codeLength) + 1;
+caSampled = caCode(chipIndex);</code></pre>
+                <p>从数学模型看，这正是左闭右开区间的实现。但在离散机算中，<code>cfg.t * cfg.codeRate</code> 是浮点数运算，本来应该等于整数的 chip 边界可能变成 <code>15.999999999999996</code> 或 <code>16.000000000000004</code>。于是 <code>floor</code> 会把少数边界采样点分到相邻 chip，造成 40 个 C/A 周期不是严格重复。</p>
+
+                <h3>9.2 修改后：整数采样点索引</h3>
+                <p>在本实验里采样率是 C/A 码速率的整数倍：</p>
+                <pre><code class="language-matlab">cfg.fs / cfg.codeRate = 16</code></pre>
+                <p>因此更稳妥的实现是直接用整数采样点编号计算码片索引：</p>
+                <pre><code class="language-matlab">% 伪码采样：用整数采样点编号计算码片索引，避免浮点边界误差
+sampleIndex0 = (0:cfg.sampleCount - 1).';
+samplesPerChip = round(cfg.samplesPerChip);
+
+chipIndex = floor(sampleIndex0 / samplesPerChip) + 1;
+chipIndex = mod(chipIndex - 1, cfg.codeLength) + 1;
+caSampled = caCode(chipIndex);</code></pre>
+                <p>这个写法仍然保留 <code>floor()+1</code> 的区间含义，只是把自变量从浮点时间相位换成整数采样点编号。结果是每 16 个采样点严格对应 1 个 chip，每 16368 个采样点严格对应 1 个 C/A 周期。</p>
+
+                <figure class="note-figure">
+                  <img src="figures/period-consistency-before-after.png" alt="浮点时间采样与整数采样的 C/A 周期一致性对比图">
+                  <figcaption>图 1：修改前，除第 1 个周期外的 39 个 C/A 周期都与第 1 个周期存在索引差异；修改后，所有周期的码片索引完全一致。</figcaption>
+                </figure>
+
+                <h3>9.3 MATLAB 修改前后统计结果</h3>
+                <p>为了避免依赖当前 <code>BPSK_R.m</code> 处于哪个版本，笔记中新增了独立复现实验脚本 <a href="generate_sampling_comparison_figures.m"><code>generate_sampling_comparison_figures.m</code></a>。它同时构造“修改前”和“修改后”两套 C/A 采样序列，并使用不补零、不开窗的 DFT 检查周期匹配频点：</p>
+                <pre><code class="language-text">修改前：浮点时间相位采样
+  和第 1 个周期不同的周期数: 39
+  最多单周期不同索引点数: 194
+  总不同索引点数: 759
+  周期匹配频点最大值: 0.00 dB
+  非周期匹配频点最大值: -54.64 dB
+  非周期匹配频点最小值: -112.99 dB
+
+修改后：整数采样点索引采样
+  和第 1 个周期不同的周期数: 0
+  最多单周期不同索引点数: 0
+  总不同索引点数: 0
+  周期匹配频点最大值: 0.00 dB
+  非周期匹配频点最大值: -156.54 dB
+  非周期匹配频点最小值: -156.54 dB</code></pre>
+                <p>这说明原来看到的 <code>-54.64 dB</code> 并不是周期理论失效，而是输入给 DFT 的序列已经不是严格的周期重复序列。改成整数采样后，非周期匹配频点落到 <code>10*log10(eps)</code> 附近，即约 <code>-156.5 dB</code>。这里的 <code>eps</code> 是 dB 计算中人为加上的机器精度下限，用来避免 <code>log10(0)</code>。</p>
+
+                <div class="figure-grid">
+                  <figure class="note-figure">
+                    <img src="figures/matched-unmatched-before-float.png" alt="修改前浮点时间采样的周期匹配和非周期匹配 FFT 频点图">
+                    <figcaption>图 2：修改前，非周期匹配频点仍有明显残余功率，最大约为 -54.64 dB。</figcaption>
+                  </figure>
+                  <figure class="note-figure">
+                    <img src="figures/matched-unmatched-after-integer.png" alt="修改后整数采样的周期匹配和非周期匹配 FFT 频点图">
+                    <figcaption>图 3：修改后，非周期匹配频点全部塌到 eps 显示下限，说明周期相消恢复为理论结果。</figcaption>
+                  </figure>
+                </div>
+
+                <figure class="note-figure">
+                  <img src="figures/spectrum-before-after.png" alt="修改前后 C/A 码功率谱整体对比图">
+                  <figcaption>图 4：整体功率谱对比。修改前后外层 sinc² 包络基本一致，但修改后所有非周期匹配频点都被压到 dB 显示下限。</figcaption>
+                </figure>
+
+                <h3>9.4 “值不为 0 的点”到底是什么？</h3>
+                <p>图上的每一个点都来自 DFT 结果，但不是直接画复数 <code>X[k]</code>。实际画的是归一化功率谱：</p>
+                <pre><code class="language-matlab">caSamplesSpectrum = fft(caSignal, caSignalLength);
+caSamplesPower = abs(caSamplesSpectrum).^2;
+caSamplesPowerDBnorm = 10 * log10(caSamplesPower / max(caSamplesPower) + eps);</code></pre>
+                <p>所以点的 dB 值表示该频点功率相对于最大频点小多少。若严格周期条件成立，<code>k</code> 不是 <code>L</code> 的整数倍时，周期间相位因子为 0，DFT 结果为 0；在图上因为加了 <code>eps</code>，显示为约 <code>-156.5 dB</code>。若当前序列含有采样边界误差，可以理解为：</p>
+                <p><span class="math display">\[
+x[n]=x_{\text{periodic}}[n]+e[n]
+\]</span></p>
+                <p>其中严格周期部分在非匹配频点相消为 0，但误差项 \(e[n]\) 的 DFT 一般不为 0，因此会看到 <code>-54 dB</code> 到 <code>-113 dB</code> 这样的残余点。</p>
+
+                <h3>9.5 移频图的掩码也要同步移频</h3>
+                <p>当前代码中已经定义了：</p>
+                <pre><code class="language-matlab">MatchBinShift = fftshift(MatchBin);
+UnMatchBinShift = fftshift(UnMatchBin);</code></pre>
+                <p>如果后面画的是 <code>caSamplesPowerShiftDBnorm</code>，遮罩也应该使用移频后的掩码：</p>
+                <pre><code class="language-matlab">PowerMatchedDb = caSamplesPowerShiftDBnorm;
+PowerMatchedDb(UnMatchBinShift) = NaN;
+
+PowerUnmatchedDb = caSamplesPowerShiftDBnorm;
+PowerUnmatchedDb(MatchBinShift) = NaN;</code></pre>
+                <p>命令行统计值用的是未移频的 <code>caSamplesPowerDBnorm</code> 和未移频的 <code>MatchBin</code> / <code>UnMatchBin</code>，所以它不受这个绘图遮罩问题影响。这个问题只会让移频图中的蓝点和橙点分类在横轴上错位。</p>
+              </section>
+
               <section id="summary" class="level2">
-                <h2>9. 一页总结</h2>
+                <h2>10. 一页总结</h2>
                 <p>采样索引：</p>
                 <p><span class="math display">\[
 \text{chipIndex}=\left\lfloor tR_c\right\rfloor+1,\qquad
 \text{chipIndex}=\bmod(\text{chipIndex}-1,1023)+1
 \]</span></p>
+                <p>工程实现中，如果 \(F_s/R_c\) 是整数，更推荐用整数采样点编号代替浮点时间相位，避免边界处的机器精度误差破坏严格周期性。</p>
                 <p>基带扩频：</p>
                 <p><span class="math display">\[
 s(t)=D(t)C(t)
@@ -584,10 +708,10 @@ L,& k\equiv0\pmod L\\
               </section>
 
               <section id="qa-appendix" class="level2">
-                <h2>10. 侧边聊天问答整理</h2>
+                <h2>11. 侧边聊天问答整理</h2>
                 <p>本节把整理这篇笔记时侧边聊天中的提问和回答按主题补充进来。前面的正文已经把结论按推导顺序重组；这里保留问答形态，便于回看当时每个疑问是如何被拆开的。</p>
 
-                <h3>10.1 矩形窗为什么会让频谱出现尖锐起伏和深零点？</h3>
+                <h3>11.1 矩形窗为什么会让频谱出现尖锐起伏和深零点？</h3>
                 <blockquote>
                   <p><strong>问：</strong>矩形窗会把原始频谱与一个 sinc 函数卷积。sinc 有明显旁瓣和零点，因此不加窗时频谱中更容易出现尖锐起伏和深零点。这个怎么理解？</p>
                 </blockquote>
@@ -602,7 +726,7 @@ X_{\text{obs}}(f)=X(f)*W_{\text{rect}}(f)
                 <p>矩形窗的频谱是 sinc。sinc 主瓣较窄、旁瓣较高，并且不断振荡。卷积以后，原始频谱中的能量会被 sinc 的主瓣和旁瓣扩散到邻近频率；多个频率成分的 sinc 副本叠加时，有些频点相加变大，有些频点相互抵消变小。接近 0 的频点转成 dB 后，就会表现为很深的竖线。</p>
                 <p>对 C/A 码这类周期重复信号，这个现象更明显，因为原始频谱本来就有很多离散谱线。矩形窗会把每一根谱线都扩展成一个 sinc，许多 sinc 叠加后形成尖峰和深谷。Hann 窗的作用是平滑截断边缘，降低旁瓣；代价是主瓣变宽，但图形通常更平滑。</p>
 
-                <h3>10.2 “被 sinc 形状涂抹开”是什么意思？</h3>
+                <h3>11.2 “被 sinc 形状涂抹开”是什么意思？</h3>
                 <blockquote>
                   <p><strong>问：</strong>被一个 sinc 形状“涂抹”开怎么理解？</p>
                 </blockquote>
@@ -612,7 +736,7 @@ X_{\text{obs}}(f)=X(f)*W_{\text{rect}}(f)
 有限截断后：频谱像一个 sinc，主瓣在原频率处，旁瓣向两边延伸。</code></pre>
                 <p>如果原始频谱里有很多谱线，那么每一根谱线都会被扩散成一个 sinc；这些 sinc 相加后，就会形成有限长 FFT 中看到的峰、谷和旁瓣。</p>
 
-                <h3>10.3 卷积为什么能把 1 MHz 的细线变成 sinc？</h3>
+                <h3>11.3 卷积为什么能把 1 MHz 的细线变成 sinc？</h3>
                 <blockquote>
                   <p><strong>问：</strong>卷积的意义是什么？为什么可以把 1 MHz 的细线涂抹开？</p>
                 </blockquote>
@@ -638,7 +762,7 @@ X_{\text{obs}}(f)=X(f)*W(f)
 \]</span></p>
                 <p>所以原来位于 \(f_0\) 的一根细线，卷积后会变成以 \(f_0\) 为中心的 \(W(f)\)。如果 \(W(f)\) 是 sinc，那么细线就变成了一个以 1 MHz 为中心的 sinc。更直观地说：无限长正弦频率完全确定；只观察 40 ms 时，频率不再无限精确，能量必须在频域中占据一个有限宽度。</p>
 
-                <h3>10.4 “替换/扩散每一个点”如何从卷积公式看出来？</h3>
+                <h3>11.4 “替换/扩散每一个点”如何从卷积公式看出来？</h3>
                 <blockquote>
                   <p><strong>问：</strong>卷积就是“用一个函数的形状，去替换/扩散另一个函数里的每一个点”。这个如何通过公式理解？</p>
                 </blockquote>
@@ -657,7 +781,7 @@ Y(f)=a_1W(f-f_1)+a_2W(f-f_2)+a_3W(f-f_3)
 \]</span></p>
                 <p>所以每一根谱线都会被替换成一个平移后的 \(W\)，再按对应幅度加权叠加。有限长 FFT 中，\(W\) 就是窗函数频谱。</p>
 
-                <h3>10.5 周期结构下 DFT 为什么能拆成两层求和？</h3>
+                <h3>11.5 周期结构下 DFT 为什么能拆成两层求和？</h3>
                 <blockquote>
                   <p><strong>问：</strong>离散 FFT 中，如果 \(x[n]\) 有周期结构，\(N=LN_0\)，把 \(n\) 写成 \(\ell N_0+r\) 的过程是怎么推导的？</p>
                 </blockquote>
@@ -687,7 +811,7 @@ x[r]e^{-j2\pi k(\ell N_0+r)/N}
 \]</span></p>
                 <p>把指数项拆开，就得到正文中的周期内结构项和周期间相位项。</p>
 
-                <h3>10.6 等比级数为什么结果是 \(L\) 或 0？</h3>
+                <h3>11.6 等比级数为什么结果是 \(L\) 或 0？</h3>
                 <blockquote>
                   <p><strong>问：</strong>\(\sum_{\ell=0}^{L-1}e^{-j2\pi k\ell/L}\) 这段等比级数的结果怎么算？</p>
                 </blockquote>
@@ -718,7 +842,7 @@ L,& k\equiv0\pmod L\\
 \]</span></p>
                 <p>直观上，若 \(k\) 是 \(L\) 的整数倍，各周期相位完全对齐；否则这些复指数点均匀绕单位圆分布，矢量和为 0。</p>
 
-                <h3>10.7 频点和周期结构“不匹配”是什么意思？</h3>
+                <h3>11.7 频点和周期结构“不匹配”是什么意思？</h3>
                 <blockquote>
                   <p><strong>问：</strong>当频点和周期结构不匹配时，是否意味着此时的频点不是周期的整数倍？</p>
                 </blockquote>
@@ -741,7 +865,7 @@ k=mL
 \]</span></p>
                 <p>所以匹配条件是 \(k\) 为 \(L\) 的整数倍，或等价地说 \(f_k\) 落在周期信号允许的离散谱线 \(mf_0\) 上。不匹配时，相邻周期之间相位不完全对齐，多周期求和会相互抵消。</p>
 
-                <h3>10.8 \(k\) 和 \(L\) 分别代表什么？</h3>
+                <h3>11.8 \(k\) 和 \(L\) 分别代表什么？</h3>
                 <blockquote>
                   <p><strong>问：</strong>\(k\) 和 \(L\) 的意义是什么？</p>
                 </blockquote>
@@ -780,7 +904,7 @@ f_k=\frac{kF_s}{N}
 \]</span></p>
                 <p>以 40 ms C/A 码仿真为例，C/A 码周期是 1 ms，因此截取了 \(L=40\) 个周期。只考虑严格 1 ms 周期重复结构时，\(k=0,40,80,\ldots\) 这些频点与周期结构匹配；其他频点则容易发生周期间相消。</p>
 
-                <h3>10.9 本次笔记整理与网页发布记录</h3>
+                <h3>11.9 本次笔记整理与网页发布记录</h3>
                 <blockquote>
                   <p><strong>问：</strong>帮我整理这个对话的所有内容写一篇笔记发布到 SHENAO1.github.io 的个人笔记仓库内，重新组织语言顺序和逻辑，使得笔记通顺。</p>
                 </blockquote>
