@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>卷积：用一个函数的形状替换另一个函数的每一个点 | Signal Notes</title>
+  <meta name="description" content="卷积直觉笔记：从 LTI 系统冲激响应推导 y(t)=int x(tau)h(t-tau)dtau，再解释时域相乘对应频域卷积、窗函数频谱造成的涂抹，以及 W(f-nu) 为什么表示平移到 nu 附近。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .convolution-note .note-intro-copy h1,
+    .convolution-note .note-prose section.level1 > h1,
+    .convolution-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .convolution-note .note-intro-copy h1 {
+      max-width: 15ch;
+    }
+
+    .conv-visual {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+      gap: 16px;
+      align-items: stretch;
+      margin-top: 8px;
+    }
+
+    .conv-visual-card,
+    .summary-card,
+    .note-callout {
+      border: 1px solid rgba(12, 36, 57, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(7, 21, 34, 0.08);
+    }
+
+    .conv-visual-card {
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .conv-visual-card h2 {
+      margin: 0 0 8px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .conv-visual-card p {
+      margin: 8px 0 0;
+      color: var(--ink-soft);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .conv-visual svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-card {
+      padding: 14px 16px;
+    }
+
+    .summary-card strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .summary-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .note-callout {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--cyan);
+    }
+
+    .note-callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+    }
+
+    .note-callout p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .formula-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .formula-table table {
+      margin-top: 0;
+    }
+
+    .conv-label {
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      fill: #33516a;
+    }
+
+    .conv-axis {
+      stroke: rgba(12, 36, 57, 0.24);
+      stroke-width: 1.5;
+    }
+
+    .conv-stem {
+      stroke: #0d889a;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .conv-curve {
+      fill: none;
+      stroke: #de9b2b;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .conv-curve.secondary {
+      stroke: #0d889a;
+      opacity: 0.78;
+    }
+
+    @media (max-width: 980px) {
+      .conv-visual,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .conv-visual-card,
+      .summary-card,
+      .note-callout {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .conv-label {
+        fill: rgba(231, 248, 255, 0.78);
+      }
+
+      .conv-axis {
+        stroke: rgba(231, 248, 255, 0.22);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page convolution-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>卷积直觉</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / Convolution</div>
+          <h1>卷积：用一个函数的形状替换另一个函数的每一个点</h1>
+          <p>卷积的核心直觉是：把一个函数拆成很多带权重的点，再让另一个函数的形状在这些点上展开，最后把所有展开后的形状叠加起来。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>卷积</span>
+          <span>LTI 系统</span>
+          <span>冲激响应</span>
+          <span>频域涂抹</span>
+          <span>窗函数</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 书架</a>
+        </div>
+
+        <div class="conv-visual" aria-label="卷积直觉示意">
+          <article class="conv-visual-card">
+            <h2>时域：每个冲激激发一份响应</h2>
+            <svg viewBox="0 0 660 280" role="img" aria-label="输入冲激叠加与冲激响应平移相加">
+              <rect x="0" y="0" width="660" height="280" rx="16" fill="#fffdf8"></rect>
+              <line class="conv-axis" x1="48" y1="214" x2="612" y2="214"></line>
+              <line class="conv-axis" x1="92" y1="44" x2="92" y2="236"></line>
+              <g>
+                <line class="conv-stem" x1="150" y1="214" x2="150" y2="106"></line>
+                <line class="conv-stem" x1="264" y1="214" x2="264" y2="76"></line>
+                <line class="conv-stem" x1="390" y1="214" x2="390" y2="142"></line>
+              </g>
+              <g fill="#0d889a">
+                <path d="M150 94 L142 110 L158 110 Z"></path>
+                <path d="M264 64 L256 80 L272 80 Z"></path>
+                <path d="M390 130 L382 146 L398 146 Z"></path>
+              </g>
+              <path class="conv-curve" d="M142 214 C150 150 188 120 222 142 C252 161 264 188 305 192"></path>
+              <path class="conv-curve secondary" d="M256 214 C264 132 318 96 356 126 C386 149 408 182 456 188"></path>
+              <path class="conv-curve" d="M382 214 C390 170 432 146 466 162 C498 177 518 198 558 204" opacity="0.62"></path>
+              <path d="M128 226 C170 172 220 141 274 132 C338 122 406 151 538 192" fill="none" stroke="#102a3f" stroke-width="3" stroke-linecap="round" opacity="0.42"></path>
+              <g class="conv-label">
+                <text x="104" y="54">x(t) = impulses</text>
+                <text x="136" y="246">tau1</text>
+                <text x="250" y="246">tau2</text>
+                <text x="376" y="246">tau3</text>
+                <text x="408" y="64">x(tau) h(t - tau)</text>
+                <text x="444" y="132">sum -> y(t)</text>
+              </g>
+            </svg>
+            <p>输入信号的每一个点都会生成一份被平移、被缩放的冲激响应，所有响应加起来就是输出。</p>
+          </article>
+
+          <article class="conv-visual-card">
+            <h2>频域：一根谱线会被窗频谱涂开</h2>
+            <svg viewBox="0 0 620 280" role="img" aria-label="频域冲激谱线被窗函数频谱涂抹">
+              <rect x="0" y="0" width="620" height="280" rx="16" fill="#fffdf8"></rect>
+              <line class="conv-axis" x1="52" y1="214" x2="568" y2="214"></line>
+              <line class="conv-axis" x1="100" y1="52" x2="100" y2="236"></line>
+              <line class="conv-stem" x1="306" y1="214" x2="306" y2="74"></line>
+              <path fill="#0d889a" d="M306 62 L298 78 L314 78 Z"></path>
+              <path class="conv-curve" d="M166 214 C184 211 203 203 222 188 C244 169 262 132 306 132 C350 132 368 169 390 188 C409 203 428 211 446 214"></path>
+              <path d="M166 214 C184 217 203 225 222 240 C244 259 262 296 306 296 C350 296 368 259 390 240 C409 225 428 217 446 214" fill="none" stroke="#de9b2b" stroke-width="2" opacity="0.2"></path>
+              <g class="conv-label">
+                <text x="286" y="246">f0</text>
+                <text x="316" y="72">X(nu)=delta(nu-f0)</text>
+                <text x="318" y="118">Y(f)=W(f-f0)</text>
+                <text x="530" y="206">f</text>
+              </g>
+            </svg>
+            <p>如果原始频谱只有一根线，和窗函数频谱卷积后会变成以这根线为中心的一份 \(W\) 形状。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从 LTI 系统推导到频域卷积，再解释 \(W(f-\nu)\) 的平移方向。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#one-sentence">1. 一句话直觉</a>
+              <a class="level-2" href="#lti-system">2. 从 LTI 系统推导卷积</a>
+              <a class="level-2" href="#frequency-convolution">3. 时域相乘对应频域卷积</a>
+              <a class="level-2" href="#shift">4. 为什么 \(W(f-\nu)\) 表示平移</a>
+              <a class="level-2" href="#delta-line">5. 单根谱线的特例</a>
+              <a class="level-2" href="#commutative">6. 反过来怎么理解</a>
+              <a class="level-2" href="#summary">7. 一页总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="convolution-intuition" class="level1">
+              <h1>卷积：用一个函数的形状替换另一个函数的每一个点</h1>
+              <blockquote>
+                <p>卷积就是“用一个函数的形状，去替换或扩散另一个函数里的每一个点”。这个说法不是比喻，而是冲激分解和线性叠加直接给出的结果。</p>
+              </blockquote>
+
+              <section id="one-sentence" class="level2">
+                <h2>1. 一句话直觉</h2>
+                <p>如果把 \(x(t)\) 看成很多冲激点的叠加，那么 \(h(t)\) 就像一个模板。卷积做的事是：在 \(x(t)\) 的每个位置 \(\tau\)，放一份以 \(\tau\) 为中心的 \(h\) 形状，再用 \(x(\tau)\) 决定这份形状有多高，最后把所有形状加起来。</p>
+                <div class="summary-grid" aria-label="卷积三个动作">
+                  <article class="summary-card">
+                    <strong>拆成点</strong>
+                    <span>用冲激函数把输入拆成无数个带权重的点。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>替换成形状</strong>
+                    <span>每个点都激发一份被平移的模板函数。</span>
+                  </article>
+                  <article class="summary-card">
+                    <strong>加起来</strong>
+                    <span>所有平移、缩放后的形状叠加成最终输出。</span>
+                  </article>
+                </div>
+              </section>
+
+              <section id="lti-system" class="level2">
+                <h2>2. 从 LTI 系统推导卷积</h2>
+                <p>任意输入 \(x(t)\) 都可以看成无数个冲激的叠加：</p>
+                <p><span class="math display">\[
+x(t)=\int_{-\infty}^{\infty}x(\tau)\delta(t-\tau)\,d\tau
+\tag{1}
+\]</span></p>
+                <p>这句话的含义是：在每个时刻 \(\tau\)，都有一个强度为 \(x(\tau)\) 的冲激 \(\delta(t-\tau)\)。</p>
+                <p>现在让它通过一个线性、平移不变系统。令系统对单位冲激 \(\delta(t)\) 的响应为 \(h(t)\)。</p>
+                <ul>
+                  <li>由于系统平移不变，延迟冲激 \(\delta(t-\tau)\) 的响应就是 \(h(t-\tau)\)。</li>
+                  <li>由于系统线性，强度为 \(x(\tau)\) 的延迟冲激 \(\delta(t-\tau)\) 的响应就是 \(x(\tau)h(t-\tau)\)。</li>
+                </ul>
+                <p>把所有时刻 \(\tau\) 的响应叠加起来，就得到输出：</p>
+                <p><span class="math display">\[
+y(t)=\int_{-\infty}^{\infty}x(\tau)h(t-\tau)\,d\tau
+\tag{2}
+\]</span></p>
+                <div class="note-callout">
+                  <strong>这里 \(h(t-\tau)\) 的意思</strong>
+                  <p>它表示 \(\tau\) 时刻输入一个冲激时，系统冲激响应相对 \(h(t)\) 右移到了 \(\tau\) 附近。</p>
+                </div>
+              </section>
+
+              <section id="frequency-convolution" class="level2">
+                <h2>3. 时域相乘对应频域卷积</h2>
+                <p>如果在时域把信号乘上窗函数：</p>
+                <p><span class="math display">\[
+y(t)=x(t)w(t)
+\tag{3}
+\]</span></p>
+                <p>在 Hz 频率约定下，它对应频域卷积：</p>
+                <p><span class="math display">\[
+Y(f)=(X*W)(f)=\int_{-\infty}^{\infty}X(\nu)W(f-\nu)\,d\nu
+\tag{4}
+\]</span></p>
+                <p>频谱中每个输出频率 \(f\)，都是由 \(X\) 和 \(W\) 中“频率相加等于 \(f\)”的成分相乘后再求和得到的。</p>
+                <p>按和上面 LTI 推导相同的直觉，可以这样读式 (4)：</p>
+                <ul>
+                  <li>对信号频谱 \(X(\nu)\) 的每个频点 \(\nu\)，复制一份 \(W(f)\)。</li>
+                  <li>把这份 \(W(f)\) 平移到 \(\nu\) 附近，得到 \(W(f-\nu)\)。</li>
+                  <li>再用 \(X(\nu)\) 作为权重缩放这份 \(W(f-\nu)\)。</li>
+                  <li>把所有 \(\nu\) 位置贡献的形状加起来，得到 \(Y(f)\)。</li>
+                </ul>
+                <blockquote>
+                  <p>所以频域卷积也可以读成：用 \(W(f)\) 的形状去替换 \(X(f)\) 中的每一个点，然后把所有频点上的贡献相加。</p>
+                </blockquote>
+              </section>
+
+              <section id="shift" class="level2">
+                <h2>4. 为什么 \(W(f-\nu)\) 表示平移</h2>
+                <p>关键是 \(W(f-\nu)\)。如果 \(\nu=1\text{ MHz}\)，它就是：</p>
+                <p><span class="math display">\[
+W(f-1\text{ MHz})
+\tag{5}
+\]</span></p>
+                <p>这表示 \(W\) 的形状被搬到了 \(1\text{ MHz}\) 附近。原因很直接：如果原来的 \(W(f)\) 中心在 \(f=0\)，那么 \(W(f-\nu)\) 的中心满足：</p>
+                <p><span class="math display">\[
+f-\nu=0
+\quad\Longrightarrow\quad
+f=\nu
+\tag{6}
+\]</span></p>
+                <p>也就是说，\(W(f-\nu)\) 的中心在 \(f=\nu\)。</p>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>表达式</th>
+                        <th>中心位置</th>
+                        <th>读法</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>\(W(f)\)</td>
+                        <td>\(0\text{ MHz}\)</td>
+                        <td>原始 \(W\) 形状</td>
+                      </tr>
+                      <tr>
+                        <td>\(W(f-1\text{ MHz})\)</td>
+                        <td>\(1\text{ MHz}\)</td>
+                        <td>向右平移到 \(1\text{ MHz}\)</td>
+                      </tr>
+                      <tr>
+                        <td>\(W(f-2\text{ MHz})\)</td>
+                        <td>\(2\text{ MHz}\)</td>
+                        <td>向右平移到 \(2\text{ MHz}\)</td>
+                      </tr>
+                      <tr>
+                        <td>\(W(f+1\text{ MHz})\)</td>
+                        <td>\(-1\text{ MHz}\)</td>
+                        <td>向左平移到 \(-1\text{ MHz}\)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section id="delta-line" class="level2">
+                <h2>5. 单根谱线的特例</h2>
+                <p>如果原始频谱只有一根线：</p>
+                <p><span class="math display">\[
+X(\nu)=\delta(\nu-f_0)
+\tag{7}
+\]</span></p>
+                <p>那么：</p>
+                <p><span class="math display">\[
+Y(f)=\int_{-\infty}^{\infty}\delta(\nu-f_0)W(f-\nu)\,d\nu
+\tag{8}
+\]</span></p>
+                <p>冲激函数只会取 \(\nu=f_0\) 这一点，所以：</p>
+                <p><span class="math display">\[
+Y(f)=W(f-f_0)
+\tag{9}
+\]</span></p>
+                <p>这说明：原来在 \(f_0\) 处的一根细线，卷积后变成了以 \(f_0\) 为中心的 \(W\) 形状。</p>
+                <div class="note-callout">
+                  <strong>“涂抹”的数学含义</strong>
+                  <p>如果 \(W\) 是 sinc，那么一根细谱线就会变成一个以 \(f_0\) 为中心的 sinc。有限观测窗口、矩形窗和 FFT 频谱泄漏都可以用这个视角理解。</p>
+                </div>
+              </section>
+
+              <section id="commutative" class="level2">
+                <h2>6. 反过来怎么理解</h2>
+                <p>卷积具有交换律，所以式 (4) 也可以写成：</p>
+                <p><span class="math display">\[
+Y(f)=\int_{-\infty}^{\infty}W(\nu)X(f-\nu)\,d\nu
+\tag{10}
+\]</span></p>
+                <p>这时直觉就变成：用 \(X(f)\) 的形状去替换 \(W(f)\) 中的每个点，再用 \(W(\nu)\) 决定每份 \(X(f-\nu)\) 的高度。</p>
+                <p>两种读法都对，只是使用场景不同：</p>
+                <ul>
+                  <li>如果 \(X(f)\) 是稀疏谱线，通常更适合读成“每根谱线被 \(W(f)\) 涂开”。</li>
+                  <li>如果 \(W(f)\) 更稀疏，或者你想看窗口频谱每个频点如何复制 \(X(f)\)，就可以反过来读。</li>
+                  <li>工程上分析窗函数影响时，常把 \(W(f)\) 当作“涂抹核”，因为这最直观地解释频谱泄漏和主瓣旁瓣。</li>
+                </ul>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>7. 一页总结</h2>
+                <div class="formula-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>场景</th>
+                        <th>公式</th>
+                        <th>直觉</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>LTI 系统</td>
+                        <td>\(y(t)=\int x(\tau)h(t-\tau)d\tau\)</td>
+                        <td>输入每个点激发一份平移后的冲激响应。</td>
+                      </tr>
+                      <tr>
+                        <td>时域相乘</td>
+                        <td>\(Y(f)=\int X(\nu)W(f-\nu)d\nu\)</td>
+                        <td>频域中用 \(W\) 的形状替换 \(X\) 的每个频点。</td>
+                      </tr>
+                      <tr>
+                        <td>平移判断</td>
+                        <td>\(W(f-\nu)\)</td>
+                        <td>中心满足 \(f=\nu\)，所以它被平移到 \(\nu\) 附近。</td>
+                      </tr>
+                      <tr>
+                        <td>单根谱线</td>
+                        <td>\(\delta(\nu-f_0)*W(f)=W(f-f_0)\)</td>
+                        <td>一根线被扩散成以 \(f_0\) 为中心的 \(W\) 形状。</td>
+                      </tr>
+                      <tr>
+                        <td>交换律</td>
+                        <td>\(X*W=W*X\)</td>
+                        <td>也可以用 \(X\) 的形状替换 \(W\) 的每个点。</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p>最稳的记法是：卷积不是简单乘法，而是“平移、缩放、叠加”。在频域里，窗函数的频谱 \(W(f)\) 会把原本尖锐的频谱结构扩散成自己的形状，这就是常说的频谱涂抹。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
