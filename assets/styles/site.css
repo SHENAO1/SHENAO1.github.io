@@ -2224,6 +2224,17 @@ body.is-scrolled .site-nav {
   display: none;
 }
 
+.notes-quick-actions {
+  margin-top: 20px;
+}
+
+.notes-quick-actions .button-primary,
+.notes-quick-actions .button-secondary {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
 .notes-book-hero {
   display: grid;
   grid-template-columns: 150px minmax(0, 1fr);
@@ -2555,6 +2566,25 @@ a.chapter-row:hover {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
+}
+
+.loose-notes-directory {
+  display: grid;
+  gap: 14px;
+}
+
+.loose-notes-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.loose-notes-grid .knowledge-block {
+  min-height: 220px;
+}
+
+.loose-notes-grid .text-link {
+  margin-top: auto;
+  font-family: var(--font-ui);
 }
 
 .knowledge-block {
