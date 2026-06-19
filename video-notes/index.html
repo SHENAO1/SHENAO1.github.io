@@ -37,8 +37,12 @@
         <div class="index-header">
           <div class="index-copy">
             <div class="eyeline">Video learning archive</div>
-            <h1>把课程视频、讲座和实验录屏，整理成和章节讲义并行的第二条复习入口。</h1>
-            <p>这页不是简单列视频链接，而是预留一套适合长期积累的结构：时间戳摘要、关键概念、公式截图、相关讲义、代码或实验入口。这样你以后回顾视频，不需要重新从头拖进度条。</p>
+            <h1>视频笔记先看目录，再回到原视频。</h1>
+            <p>这里收束已经整理过的视频摘要：每篇保留原视频链接、BibiGPT 总结、章节拆分和个人复习线索。以后新增课程、讲座或录屏时，先进入目录，再决定看笔记还是回看视频。</p>
+            <div class="hero-actions video-quick-actions" aria-label="Video Notes 快速入口">
+              <a class="button-primary" href="#video-library">浏览已整理笔记</a>
+              <a class="button-secondary" href="#video-template-heading">查看整理模板</a>
+            </div>
           </div>
 
           <article class="video-feature">
@@ -54,19 +58,81 @@
                 </div>
               </div>
             </div>
+            <div class="video-feature-summary">
+              <div class="catalog-status">目录状态</div>
+              <h2>先放可读入口，再沉淀整理规范</h2>
+              <p>当前首页已经接入两篇视频笔记。后续新增内容时，优先补齐标题、来源、章节摘要和原视频回链。</p>
+            </div>
             <div class="formula-line">
-              <span>时间轴</span>
-              <span>公式截图</span>
-              <span>讲义关联</span>
-              <span>实验链接</span>
+              <span>2 篇已发布</span>
+              <span>原视频回链</span>
+              <span>BibiGPT 摘要</span>
+              <span>章节拆分</span>
             </div>
           </article>
         </div>
 
-        <div class="video-module-grid">
+        <section class="template-panel video-library" id="video-library" aria-labelledby="video-library-heading">
+          <div class="section-head">
+            <div>
+              <h2 id="video-library-heading">已整理视频笔记</h2>
+              <p>先把现有内容放到第一层，让这页不只是方法说明，而是真正的视频笔记目录。</p>
+            </div>
+          </div>
+
+          <div class="catalog-grid video-note-grid">
+            <article class="catalog-card video-note-card">
+              <div class="catalog-status">已发布</div>
+              <div class="catalog-meta">
+                <span>知识管理</span>
+                <span>Obsidian</span>
+                <span>GitHub 同步</span>
+              </div>
+              <h3>Obsidian 邪修用法：免费云同步、AI、手机端、进阶技巧</h3>
+              <p>围绕 Obsidian 本地 Markdown、GitHub 私有仓库同步、Obsidian Git 自动提交、AI 命令行辅助和附件管理，整理成一篇知识管理工作流笔记。</p>
+              <ul>
+                <li>适合回看：本地文件、Git 备份、移动端同步和导出方案。</li>
+                <li>重点线索：Gemini CLI、图片附件目录、双向链接和知识图谱。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>Obsidian</span>
+                  <span>Git</span>
+                  <span>AI 工具</span>
+                </div>
+                <a class="text-link" href="Obsidian邪修用法免费云同步AI手机端进阶技巧.html">阅读视频笔记</a>
+              </div>
+            </article>
+
+            <article class="catalog-card video-note-card">
+              <div class="catalog-status">已发布</div>
+              <div class="catalog-meta">
+                <span>AI 基础</span>
+                <span>Agent Skill</span>
+                <span>32:31</span>
+              </div>
+              <h3>从 LLM 到 Agent Skill，一期视频带你打通底层逻辑</h3>
+              <p>从工程视角串联 LLM、Token、Context、Prompt、Tool、MCP、Agent 和 Agent Skill，把一组容易混在一起的概念整理成可复习的知识链。</p>
+              <ul>
+                <li>适合回看：Transformer、Tokenizer、上下文窗口和 Prompt 结构。</li>
+                <li>重点线索：工具调用流程、MCP 标准、Agent 与 Skill 的关系。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>LLM</span>
+                  <span>MCP</span>
+                  <span>Agent</span>
+                </div>
+                <a class="text-link" href="从LLM到AgentSkill一期视频带你打通底层逻辑.html">阅读视频笔记</a>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <div class="video-module-grid" id="video-workflow">
           <article class="video-card">
-            <div class="catalog-status is-draft">已预留结构</div>
-            <h3>课程视频拆解</h3>
+            <div class="catalog-status is-draft">整理规范</div>
+            <h3>课程视频拆解方式</h3>
             <p>适合整理系统课程或教材配套视频，把整段内容拆成若干知识块，每块对应时间区间、讲解重点与关联章节。</p>
             <ul>
               <li>视频基本信息：课程名、主讲人、来源、时长。</li>
@@ -76,7 +142,7 @@
           </article>
 
           <article class="video-card">
-            <div class="catalog-status is-upcoming">适合后续补充</div>
+            <div class="catalog-status is-upcoming">下一批内容</div>
             <h3>实验演示复盘</h3>
             <p>适合录屏、MATLAB 演示或参数实验视频。重点不是记流水账，而是提取实验目的、参数设置、现象和结论图。</p>
             <ul>
@@ -87,7 +153,7 @@
           </article>
 
           <article class="video-card">
-            <div class="catalog-status is-upcoming">适合专题化</div>
+            <div class="catalog-status is-upcoming">专题整理</div>
             <h3>论文 / 公开课总结</h3>
             <p>适合整理公开讲座、论文报告或方法综述类视频，输出成“问题背景 - 方法链路 - 关键结论 - 个人理解”的专题页。</p>
             <ul>

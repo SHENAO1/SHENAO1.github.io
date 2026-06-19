@@ -1314,6 +1314,80 @@ input {
   min-height: 100%;
 }
 
+.page-video .index-copy h1 {
+  max-width: 13.5ch;
+  font-size: clamp(32px, 3.4vw, 48px);
+  letter-spacing: 0;
+}
+
+.page-video .index-copy p {
+  max-width: 52ch;
+}
+
+.page-video .index-header {
+  align-items: start;
+}
+
+.page-video .video-feature {
+  min-height: 0;
+  align-content: start;
+}
+
+.video-feature-summary {
+  display: grid;
+  gap: 8px;
+  padding: 2px 4px 0;
+}
+
+.video-feature-summary h2 {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-ui);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 800;
+  line-height: 1.18;
+  color: #163147;
+}
+
+.video-feature-summary p {
+  margin: 0;
+  max-width: 48ch;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.72;
+}
+
+.video-quick-actions {
+  margin-top: 22px;
+}
+
+.video-quick-actions .button-primary,
+.video-quick-actions .button-secondary {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.video-library {
+  scroll-margin-top: 128px;
+}
+
+.video-note-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.video-note-card {
+  min-height: 100%;
+}
+
+.video-note-card h3 {
+  max-width: 18ch;
+}
+
+.video-note-card .catalog-footer {
+  align-items: center;
+}
+
 @media (max-width: 1120px) {
   .hero-panel,
   .module-grid,
@@ -3822,6 +3896,7 @@ button:focus-visible,
   .hero-copy h1,
   .index-copy h1,
   .index-feature h2,
+  .video-feature-summary h2,
   .directory-heading h2,
   .book-card h3,
   .book-section h2,
