@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>北斗/GPS 双模软件接收机原理与实现技术 | Notes</title>
+  <meta name="description" content="《北斗/GPS 双模软件接收机原理与实现技术》书籍章节目录：按章归档当前已经整理的 GNSS 软件接收机笔记。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+</head>
+<body class="page-notes">
+  <div class="site-shell">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="index-panel">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <span>北斗/GPS 双模软件接收机原理与实现技术</span>
+        </div>
+
+        <div class="index-header notes-landing-header">
+          <div class="index-copy">
+            <div class="eyeline">鲁郁 / Book archive</div>
+            <h1>北斗/GPS 双模软件接收机原理与实现技术</h1>
+            <p>这本书对应当前站点里的信号捕获和跟踪环笔记。先在这里按章找内容，再进入具体章节或已发布小节。</p>
+          </div>
+
+          <article class="index-feature notes-book-hero">
+            <div class="book-cover-pair" aria-hidden="true">
+              <img src="../../../assets/images/books/beidou-gps-luyu-cover.webp" alt="">
+            </div>
+            <div>
+              <div class="eyeline">Current book</div>
+              <h2>9 章已建档</h2>
+              <p>已经整理的 4.1.6、4.2.1、4.2.2、4.2.3 统一挂在第 4 章下面；后续新增内容继续按章归档。</p>
+            </div>
+          </article>
+        </div>
+
+        <section class="book-section" aria-labelledby="beidou-gps-luyu-heading">
+          <div class="book-section-head">
+            <span class="book-section-kicker">Book / Chapter notes</span>
+            <div>
+              <h2 id="beidou-gps-luyu-heading">本书章节目录</h2>
+              <p>当前站点中的捕获与 PLL 跟踪环内容都归到这本书下，按书内章节号排序。</p>
+            </div>
+          </div>
+
+          <div class="chapter-list" aria-label="鲁郁书籍章节目录">
+            <a class="chapter-row" href="chapter-01/">
+              <div>
+                <span>Chapter 01</span>
+                <strong>定位、坐标系和时间标准</strong>
+                <p>定位基本问题、坐标系统、时间系统与双模接收机的基础坐标/时间框架。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-02/">
+              <div>
+                <span>Chapter 02</span>
+                <strong>GPS 和北斗卫星导航系统简介</strong>
+                <p>系统组成、星座、信号与服务能力的总览，为后续接收机实现铺垫背景。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-03/">
+              <div>
+                <span>Chapter 03</span>
+                <strong>GPS 和北斗的信号格式与导航电文</strong>
+                <p>信号格式、码结构、导航电文和接收机解析时需要关注的数据组织方式。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-04/">
+              <div>
+                <span>Chapter 04</span>
+                <strong>信号捕获和跟踪</strong>
+                <p>已整理 4.1.6 信号捕获、4.2.1 基本锁相环、4.2.2 线性 PLL 热噪声性能和 4.2.3 载波跟踪环。</p>
+              </div>
+              <span class="chapter-state">4 篇已发布</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-05/">
+              <div>
+                <span>Chapter 05</span>
+                <strong>双模观测量提取和误差分析</strong>
+                <p>伪距、载波相位等观测量提取，以及双模定位中常见误差项的整理入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-06/">
+              <div>
+                <span>Chapter 06</span>
+                <strong>卫星位置和速度的计算</strong>
+                <p>由导航电文计算卫星位置、速度和相关校正量的章节占位。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-07/">
+              <div>
+                <span>Chapter 07</span>
+                <strong>位置、速度和时间解算</strong>
+                <p>PVT 解算、线性化、迭代和双模定位求解流程的整理入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-08/">
+              <div>
+                <span>Chapter 08</span>
+                <strong>射频前端</strong>
+                <p>射频链路、采样、中频与接收机硬件前端相关内容的章节占位。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+
+            <a class="chapter-row" href="chapter-09/">
+              <div>
+                <span>Chapter 09</span>
+                <strong>北斗和 GPS 双模软件接收机的实现</strong>
+                <p>软件接收机整体实现、模块组织和工程验证内容的最终章节入口。</p>
+              </div>
+              <span class="chapter-state is-outline">已建档</span>
+            </a>
+          </div>
+
+          <div class="book-topic-links" aria-label="鲁郁书籍补充专题">
+            <a href="../../tracking/">跟踪环专题索引</a>
+            <a href="../../../video-notes/">视频与实验复盘</a>
+          </div>
+        </section>
+
+        <p class="catalog-section-note">本页是书籍级目录；章节入口只在进入本书以后展示，Notes 首页不再直接铺开章节列表。</p>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
