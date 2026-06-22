@@ -1,7 +1,7 @@
 :root {
   --ink: #0c2439;
   --ink-soft: #33516a;
-  --muted: #6d8090;
+  --muted: #566c7d;
   --paper: #fcf8ef;
   --paper-deep: #f5ecdc;
   --surface: rgba(255, 251, 244, 0.76);
@@ -945,7 +945,8 @@ input {
   background: rgba(255, 255, 255, 0.62);
 }
 
-.roadmap-card b {
+.roadmap-card b,
+.roadmap-state {
   width: 34px;
   height: 34px;
   display: grid;
@@ -954,6 +955,8 @@ input {
   color: #062035;
   background: linear-gradient(135deg, var(--amber-soft), var(--amber));
   font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .about-grid {
@@ -1532,7 +1535,7 @@ input {
   --font-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
   --ink: #102a3f;
   --ink-soft: #435f74;
-  --muted: #6b7e8f;
+  --muted: #566c7d;
   --paper: #f8f4ea;
   --paper-deep: #eee5d6;
   --surface: rgba(255, 251, 246, 0.74);
@@ -2148,10 +2151,12 @@ body.is-scrolled .site-nav {
 
 [data-reveal] {
   animation: none !important;
+  opacity: 1;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-reveal] {
+  html.reveal-ready [data-reveal] {
     opacity: 0;
     transform: translateY(26px) scale(0.985);
     transition:
@@ -2160,7 +2165,7 @@ body.is-scrolled .site-nav {
     transition-delay: var(--reveal-delay, 0ms);
   }
 
-  [data-reveal].is-visible {
+  html.reveal-ready [data-reveal].is-visible {
     opacity: 1;
     transform: none;
   }
@@ -3292,7 +3297,7 @@ body.page-home .site-nav {
   margin-bottom: 22px;
   padding: 12px 14px;
   border-radius: 18px;
-  box-shadow: 0 14px 38px rgba(6, 20, 33, 0.14);
+  box-shadow: 0 10px 28px rgba(6, 20, 33, 0.1);
 }
 
 body.page-home .brand-mark {
@@ -3393,7 +3398,7 @@ body.page-home .hero-metrics article {
   min-height: 126px;
   padding: 16px;
   border-radius: 8px;
-  box-shadow: 0 10px 24px rgba(7, 23, 34, 0.06);
+  box-shadow: 0 6px 18px rgba(7, 23, 34, 0.045);
 }
 
 body.page-home .hero-metrics strong {
@@ -3411,7 +3416,7 @@ body.page-home .hero-art {
   border-radius: 22px;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 22px 48px rgba(6, 20, 33, 0.16);
+    0 16px 36px rgba(6, 20, 33, 0.12);
 }
 
 body.page-home .hero-art::before {
@@ -3490,7 +3495,7 @@ body.page-home .about-card,
 body.page-home .roadmap-card,
 body.page-home .favorite-card {
   border-radius: 8px;
-  box-shadow: 0 10px 24px rgba(7, 23, 34, 0.055);
+  box-shadow: 0 6px 18px rgba(7, 23, 34, 0.045);
 }
 
 body.page-home .module-card::before,
@@ -3510,7 +3515,7 @@ body.page-home .about-card:hover,
 body.page-home .roadmap-card:hover,
 body.page-home .favorite-card:hover {
   transform: none;
-  box-shadow: 0 14px 30px rgba(7, 23, 34, 0.08);
+  box-shadow: 0 10px 22px rgba(7, 23, 34, 0.07);
 }
 
 body.page-home .module-card h3,
@@ -3531,6 +3536,30 @@ body.page-home .note-grid {
 
 body.page-home .projects-grid--repos {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.page-home .panel-subtle {
+  background: rgba(255, 251, 246, 0.56);
+  box-shadow: 0 12px 34px rgba(7, 23, 34, 0.055);
+}
+
+body.page-home .panel-subtle .section-head {
+  margin-bottom: 14px;
+}
+
+body.page-home .favorites-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body.page-home .favorite-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+body.page-home .favorite-card h3 {
+  font-size: 18px;
 }
 
 body.page-home .roadmap-grid {
@@ -3588,7 +3617,10 @@ body.page-home .roadmap-grid {
   }
 
   body.page-home .nav-links {
-    gap: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
     scrollbar-width: none;
   }
 
@@ -3597,8 +3629,16 @@ body.page-home .roadmap-grid {
   }
 
   body.page-home .nav-links a {
-    padding: 7px 7px;
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
     font-size: 13px;
+  }
+
+  body.page-home .nav-links a.nav-mobile-optional {
+    display: none;
   }
 
   body.page-home .hero-panel,
