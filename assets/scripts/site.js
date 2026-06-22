@@ -82,6 +82,7 @@ const revealNodes = [
   ...document.querySelectorAll(
     [
       ".hero-metrics article",
+      ".module-row",
       ".module-card",
       ".note-feature",
       ".note-card",
@@ -91,6 +92,8 @@ const revealNodes = [
       ".video-card",
       ".template-card",
       ".project-card",
+      ".favorite-row",
+      ".roadmap-item",
       ".roadmap-card",
       ".about-card",
       ".module-bridge-card"
