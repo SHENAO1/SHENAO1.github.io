@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 1 讲：为什么需要 OFDM？——从单载波的困境说起 | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 1 讲：从无线多径、频率选择性衰落和单载波均衡器复杂度出发，解释为什么宽带无线系统需要 OFDM。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 18ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose figure + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul {
+      margin-top: 14px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 10px 0 10px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose figure {
+      margin: 24px 0;
+    }
+
+    .ofdm-source-note .note-prose figure img {
+      width: min(100%, 900px);
+      margin: 0 auto;
+      border-radius: 6px;
+      box-shadow: none;
+      background: #fff;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 680px;
+      font-size: 16px;
+    }
+
+    .ofdm-source-note .note-prose .summary-table table {
+      min-width: 760px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 1 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 1</div>
+          <h1>第 1 讲：为什么需要 OFDM？——从单载波的困境说起</h1>
+          <p>在正式学习 OFDM 之前，先回到一个根本问题：为什么我们需要 OFDM？它到底解决了什么问题？</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>多径效应</span>
+          <span>频率选择性衰落</span>
+          <span>单载波均衡</span>
+          <span>FFT</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从单载波的困境出发，解释 OFDM 的设计动机。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#multipath">一、无线信道的多径效应</a>
+              <a class="level-2" href="#single-carrier">二、单载波的困境</a>
+              <a class="level-2" href="#ofdm-idea">三、OFDM 的破局思路</a>
+              <a class="level-2" href="#parameters">四、OFDM 的关键参数</a>
+              <a class="level-2" href="#summary">五、本讲小结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="why-ofdm" class="level1">
+              <h1>第 1 讲：为什么需要 OFDM？——从单载波的困境说起</h1>
+
+              <p>在开始正式学习 OFDM 之前，我想先带大家回到一个根本问题：<strong>为什么我们需要 OFDM？它到底解决了什么问题？</strong></p>
+              <p>这个问题看似简单，但它实际上触及了 OFDM 存在的全部理由。只有理解了单载波的困境，你才能真正理解 OFDM 的设计动机。</p>
+
+              <section id="multipath" class="level2">
+                <h2>一、无线信道的“<span class="ofdm-term">多径效应<span class="ofdm-mark">✦</span></span>”：信号的好帮手，也是大麻烦</h2>
+
+                <p>在理想情况下，<span class="ofdm-term">电磁波<span class="ofdm-mark">✦</span></span>从发射天线到接收天线，走的是一条直线路径。但现实世界没那么简单——高楼、山体、地面、车辆……到处都是<span class="ofdm-term">反射体<span class="ofdm-mark">✦</span></span>。发射出去的信号，会通过多条不同的路径到达接收端，这就是<strong>多径效应（Multipath Effect）</strong>。</p>
+                <p>你站在<span class="ofdm-term">城市街道<span class="ofdm-mark">✦</span></span>上用手机上网，信号可能通过以下三条路径到达你：</p>
+
+                <ul>
+                  <li><strong><span class="ofdm-term">直射路径<span class="ofdm-mark">✦</span></span></strong>：从基站直接到达你</li>
+                  <li><strong>地面反射</strong>：从地面反射后到达你</li>
+                  <li><strong>建筑反射</strong>：从旁边的建筑反射后到达你</li>
+                </ul>
+
+                <p>每条路径的长度不同，到达时间自然也不同。最先到达的可能是反射信号，最后到达的可能是直射信号——这完全取决于实际环境。</p>
+                <p>从频域的角度看，多径效应会导致<span class="ofdm-term">频率选择性衰落<span class="ofdm-mark">✦</span></span>（Frequency Selective Fading）。什么意思呢？由于不同频率的信号经过多径叠加后相位不同，某些<span class="ofdm-term">频率点<span class="ofdm-mark">✦</span></span>上的信号会相互增强，而另一些频率点上的信号会相互抵消。结果就是，信道的<span class="ofdm-term">频率响应<span class="ofdm-mark">✦</span></span>变得“坑坑洼洼”——某些频段信号质量很好，某些频段信号几乎完全消失。</p>
+
+                <figure>
+                  <img src="assets/figures/multipath-channel-delay-spread.png" alt="多径信道中基站、建筑反射、用户终端和冲激响应示意图">
+                </figure>
+
+                <p>我们可以用一个简单的<span class="ofdm-term">数学模型<span class="ofdm-mark">✦</span></span>来描述<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>。信道的<span class="ofdm-term">冲激响应<span class="ofdm-mark">✦</span></span>可以表示为：</p>
+                <p><span class="math display">\[
+h(t)=\sum_{l=0}^{L-1}\alpha_l\cdot\delta(t-\tau_l)
+\]</span></p>
+
+                <p>其中 $\alpha_l$ 是第 $l$ 条路径的<span class="ofdm-term">衰减系数<span class="ofdm-mark">✦</span></span>，$\tau_l$ 是第 $l$ 条路径的时延。所有路径中最大时延与最小时延之差，叫做<span class="ofdm-term">时延扩展<span class="ofdm-mark">✦</span></span>（Delay Spread），通常记为 $\tau_{max}$。</p>
+                <p>时延扩展直接决定了信道的<span class="ofdm-term">相干带宽<span class="ofdm-mark">✦</span></span>（Coherence Bandwidth）：</p>
+                <p><span class="math display">\[
+B_c\approx\frac{1}{5\tau_{max}}
+\]</span></p>
+
+                <p>这是一个非常重要的概念。如果信号带宽 $B$ 远大于 $B_c$（即 $B\gg B_c$），信号的不同频率分量会经历不同的衰落——这就是频率选择性衰落。反之，如果 $B\ll B_c$，整个信号带宽内的衰落近似一致，叫做<strong>平坦衰落（Flat Fading）</strong>。</p>
+
+                <figure>
+                  <img src="assets/figures/frequency-selective-vs-flat-fading.png" alt="频率选择性衰落和平坦衰落对比图">
+                </figure>
+              </section>
+
+              <section id="single-carrier" class="level2">
+                <h2>二、单载波的困境：均衡器扛不住了</h2>
+
+                <p>既然信道是频率选择性的，那最直接的想法就是：<strong>用均衡器把信道的畸变补偿回来。</strong></p>
+                <p><span class="ofdm-term">单载波系统<span class="ofdm-mark">✦</span></span>中，接收端使用时域<span class="ofdm-term">均衡器<span class="ofdm-mark">✦</span></span>（通常是线性横向均衡器 FIR 或判决反馈均衡器 DFE）来消除多径造成的<span class="ofdm-term">码间干扰<span class="ofdm-mark">✦</span></span>（ISI）。</p>
+                <p>均衡器的原理听起来简单：设计一个<span class="ofdm-term">滤波器<span class="ofdm-mark">✦</span></span>，使其频率响应恰好是信道频率响应的倒数，两者串联后总响应就恢复平坦了。</p>
+                <p><span class="math display">\[
+H_{EQ}(f)=\frac{1}{H(f)}
+\]</span></p>
+
+                <p>但问题是——<strong>这个均衡器<span class="ofdm-mark">✦</span>有多复杂？</strong></p>
+                <p>在实际系统中，均衡器的<span class="ofdm-term">抽头数<span class="ofdm-mark">✦</span></span>大约与时延扩展（以符号周期为单位）成正比。一个<span class="ofdm-term">经验公式<span class="ofdm-mark">✦</span></span>是：需要大约 2 ～ 3 倍时延扩展（归一化到<span class="ofdm-term">符号周期<span class="ofdm-mark">✦</span></span>）的抽头数。</p>
+                <p>我们来算一笔账。假设一个城市环境，最大时延扩展 $\tau_{max}=5\mu s$：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>带宽</th>
+                        <th>符号周期</th>
+                        <th>归一化时延扩展</th>
+                        <th>均衡器抽头数</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>5 MHz</td>
+                        <td>0.2 μs</td>
+                        <td>25</td>
+                        <td>~75</td>
+                      </tr>
+                      <tr>
+                        <td>10 MHz</td>
+                        <td>0.1 μs</td>
+                        <td>50</td>
+                        <td>~150</td>
+                      </tr>
+                      <tr>
+                        <td>20 MHz</td>
+                        <td>0.05 μs</td>
+                        <td>100</td>
+                        <td>~300</td>
+                      </tr>
+                      <tr>
+                        <td>100 MHz (5G)</td>
+                        <td>0.01 μs</td>
+                        <td>500</td>
+                        <td>~1500</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>看出来了吗？<strong>随着带宽增长，均衡器的复杂度急剧上升。</strong></p>
+                <p>5MHz 带宽时 75 个抽头的均衡器，到了 100MHz 就需要 1500 个抽头。每个抽头都需要做<span class="ofdm-term">复数乘法运算<span class="ofdm-mark">✦</span></span>，这对硬件来说简直是灾难。而且在 DFE 结构中，误差会在反馈环路中传播，收敛也是个问题。</p>
+                <p>这就是单载波的核心困境：<strong>带宽越宽，多径越严重，均衡器越复杂，系统越难实现。</strong></p>
+
+                <figure>
+                  <img src="assets/figures/single-carrier-vs-ofdm-equalization.png" alt="单载波均衡器与 OFDM 单抽头均衡对比图">
+                </figure>
+              </section>
+
+              <section id="ofdm-idea" class="level2">
+                <h2>三、OFDM 的破局思路：<span class="ofdm-term">分而治之<span class="ofdm-mark">✦</span></span></h2>
+
+                <p>OFDM 的核心思想，用一句话概括就是：</p>
+                <blockquote>
+                  <p>把一个宽带信道，切分成多个窄带子载波，让每个<span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>上的衰落都变成平坦衰落。</p>
+                </blockquote>
+
+                <p>这样的话，每个子载波上只需要做一个<strong>单抽头均衡器</strong>（也就是<span class="ofdm-term">复数除法<span class="ofdm-mark">✦</span></span>），复杂度从 $O(N_{taps})$ 直接降到了 $O(1)$ per subcarrier。</p>
+                <p>这个思路的精妙之处在于，它利用了 DFT（<span class="ofdm-term">离散傅里叶变换<span class="ofdm-mark">✦</span></span>）的数学性质来实现“分而治之”：</p>
+                <p><span class="math display">\[
+X[k]=\mathrm{DFT}\{x[n]\}=\sum_{n=0}^{N-1}x[n]\cdot e^{-j\frac{2\pi}{N}kn}
+\]</span></p>
+
+                <p>在接收端做 DFT（即 FFT）之后，<span class="ofdm-term">频域信号<span class="ofdm-mark">✦</span></span>天然就是各子载波上的独立数据，可以直接逐子载波做均衡。整个过程不需要复杂的<span class="ofdm-term">时域滤波<span class="ofdm-mark">✦</span></span>。</p>
+                <p>用一个更直观的类比来理解：</p>
+
+                <figure>
+                  <img src="assets/figures/single-carrier-equalizer-complexity.png" alt="单载波均衡器复杂度随带宽增长趋势图">
+                </figure>
+              </section>
+
+              <section id="parameters" class="level2">
+                <h2>四、OFDM 的关键参数：一窥究竟</h2>
+
+                <p>为了让这个“分而治之”的方案切实可行，OFDM 在设计上做了几个关键选择：</p>
+
+                <h3>1. <span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span> = 1/T（T 是 OFDM 符号周期）</h3>
+                <p>这个选择保证了子载波之间的<span class="ofdm-term">正交性<span class="ofdm-mark">✦</span></span>（Orthogonality），即使它们的<span class="ofdm-term">频谱<span class="ofdm-mark">✦</span></span>在频域上是重叠的，也不会互相干扰。这是 OFDM 中最精妙的设计，我们将在第 2 讲详细展开。</p>
+
+                <h3>2. 循环前缀（Cyclic Prefix, CP）</h3>
+                <p>在每个<span class="ofdm-term">OFDM 符号<span class="ofdm-mark">✦</span></span>前面，复制符号尾部的一段作为前缀。这个看似多余的操作，巧妙地消除了多径带来的<span class="ofdm-term">符号间干扰<span class="ofdm-mark">✦</span></span>（ISI）和<span class="ofdm-term">子载波间干扰<span class="ofdm-mark">✦</span></span>（ICI）。我们将在第 5 讲深入讨论。</p>
+
+                <h3>3. 子载波数量 N 的选择</h3>
+                <p>子载波数量越多，每个子载波越窄，<span class="ofdm-term">频谱效率<span class="ofdm-mark">✦</span></span>越高，但 FFT 的计算量也越大，对<span class="ofdm-term">相位噪声<span class="ofdm-mark">✦</span></span>也越敏感。典型的选择范围是 64 到 4096，具体取决于带宽和子载波间隔。</p>
+
+                <p>以 LTE 系统为例，20MHz 带宽配置：</p>
+                <ul>
+                  <li>子载波间隔：$\Delta f = 15\mathrm{kHz}$</li>
+                  <li>子载波数量：$N = 2048$（实际使用 1200 个）</li>
+                  <li>OFDM 符号周期：$T=1/\Delta f = 66.7\mu s$</li>
+                  <li>循环前缀长度：$4.7\mu s$（常规 CP）</li>
+                </ul>
+
+                <p>这些参数不是随意选的，背后都有严格的工程考量。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>五、本讲小结</h2>
+
+                <p>让我们用一张表来总结单载波和 OFDM 的核心区别：</p>
+
+                <div class="ofdm-table summary-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>维度</th>
+                        <th>单载波</th>
+                        <th>OFDM</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>均衡复杂度</td>
+                        <td>O(N_taps)，随带宽增长</td>
+                        <td>O(1)/子载波，与带宽无关</td>
+                      </tr>
+                      <tr>
+                        <td>带宽扩展性</td>
+                        <td>差</td>
+                        <td>好</td>
+                      </tr>
+                      <tr>
+                        <td>对频率选择性信道</td>
+                        <td>敏感，需复杂均衡</td>
+                        <td>天然适应</td>
+                      </tr>
+                      <tr>
+                        <td>峰均比（PAPR）</td>
+                        <td>低</td>
+                        <td>高（这是OFDM的代价）</td>
+                      </tr>
+                      <tr>
+                        <td>对<span class="ofdm-term">同步误差<span class="ofdm-mark">✦</span></span></td>
+                        <td>较宽容</td>
+                        <td>敏感（需要精确同步）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>可以看到，OFDM 并非完美无缺——它在降低均衡复杂度的同时，引入了高峰均比和对<span class="ofdm-term">同步精度<span class="ofdm-mark">✦</span></span>的严格要求。这些代价是真实存在的，也是我们后续课程中要重点讨论的问题。</p>
+                <p>但总体来说，对于<span class="ofdm-term">宽带无线通信<span class="ofdm-mark">✦</span></span>（带宽 &gt; 5MHz），OFDM 的收益远远大于代价。这就是为什么 4G LTE、5G NR、Wi-Fi 4/5/6/7，几乎所有主流宽带无线标准，都不约而同地选择了 OFDM 作为<span class="ofdm-term">物理层波形<span class="ofdm-mark">✦</span></span>。</p>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

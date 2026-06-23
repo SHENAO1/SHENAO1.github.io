@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OFDM 从算法到实现 | SHENAO1 的学习主页</title>
+  <meta name="description" content="OFDM 从算法到实现专栏：整理 OFDM 的设计动机、子载波正交性、FFT/IFFT 实现、循环前缀、均衡与工程参数。">
+  <link rel="stylesheet" href="../../assets/styles/site.css">
+</head>
+<body class="page-topic">
+  <div class="site-shell">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a class="is-current" href="../index.html">Notes</a>
+        <a href="../../video-notes/">Video Notes</a>
+        <a href="../../index.html#projects">Projects</a>
+        <a href="../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="index-panel">
+        <div class="breadcrumb">
+          <a href="../../index.html">Home</a>
+          <span>/</span>
+          <a href="../index.html">Notes</a>
+          <span>/</span>
+          <span>OFDM</span>
+        </div>
+
+        <div class="index-header">
+          <div class="index-copy">
+            <div class="eyeline">OFDM from algorithm to implementation</div>
+            <h1>OFDM 从算法到实现。</h1>
+            <p>这个专栏把 OFDM 的设计动机、关键参数、FFT/IFFT 实现、循环前缀、均衡和工程权衡放在同一条学习线上。第一篇先从单载波在宽带多径信道中的困境说起。</p>
+          </div>
+
+          <article class="index-feature">
+            <div class="eyeline">Current focus</div>
+            <h2>第 1 讲：为什么需要 OFDM？</h2>
+            <p>先理解多径、频率选择性衰落、单载波均衡器复杂度，再看 OFDM 如何用“分而治之”的方式把宽带信道拆成多个窄带子载波。</p>
+            <div class="chip-row">
+              <span>Multipath</span>
+              <span>Frequency selective fading</span>
+              <span>Single carrier</span>
+              <span>FFT</span>
+              <span>CP</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="catalog-grid catalog-grid--single">
+          <article class="catalog-card catalog-card--feature">
+            <img src="why-ofdm-single-carrier/assets/figures/single-carrier-vs-ofdm-equalization.png" alt="单载波与 OFDM 均衡复杂度对比示意图">
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 1</span>
+                <span>OFDM design motivation</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 1 讲：为什么需要 OFDM？——从单载波的困境说起</h3>
+              <p>从无线多径信道和频率选择性衰落出发，解释单载波时域均衡器为什么会随带宽变宽而迅速变复杂，再引出 OFDM 的子载波划分、正交性、循环前缀和关键参数。</p>
+              <ul>
+                <li>保留原截图的正文顺序、核心公式、两张对比表和配图位置。</li>
+                <li>用 MathJax 重排信道冲激响应、相干带宽、均衡器和 DFT 公式。</li>
+                <li>图片资产放在本专栏目录下，便于后续继续追加第 2 讲、第 3 讲。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>多径效应</span>
+                  <span>均衡器复杂度</span>
+                  <span>分而治之</span>
+                </div>
+                <a class="text-link" href="why-ofdm-single-carrier/">阅读第 1 讲</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <p class="catalog-section-note">后续 OFDM 正交性、IFFT 调制、循环前缀、信道估计、频域均衡和同步误差可以继续放在这个专栏下，保持“算法原理 → 工程实现”的顺序。</p>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../index.html">Home</a>
+        <a href="../index.html">Notes</a>
+        <a href="../../video-notes/">Video Notes</a>
+        <a href="../../index.html#projects">Projects</a>
+        <a href="../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../assets/scripts/site.js"></script>
+</body>
+</html>

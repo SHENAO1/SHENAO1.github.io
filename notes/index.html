@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Notes | SHENAO1 的学习主页</title>
-  <meta name="description" content="GNSS / 北斗 / 软件接收机笔记索引页：集中管理讲义、推导、实验和后续整理计划。">
+  <meta name="description" content="GNSS / 北斗 / 软件接收机 / OFDM 笔记索引页：集中管理讲义、推导、实验和后续整理计划。">
   <link rel="stylesheet" href="../assets/styles/site.css">
 </head>
 <body class="page-notes">
@@ -53,7 +53,7 @@
             <div>
               <div class="eyeline">Current shelf</div>
               <h2>两本书分开归档</h2>
-              <p>北斗/GPS 软件接收机相关章节归鲁郁这本；卷积直觉、C/A 码频谱、BOC 功率谱和 FFT 相关基础补充可以直接从零散笔记进入。</p>
+              <p>北斗/GPS 软件接收机相关章节归鲁郁这本；卷积直觉、C/A 码频谱、BOC 功率谱、FFT 相关基础补充和 OFDM 专栏可以直接从零散笔记进入。</p>
             </div>
           </article>
         </div>
@@ -136,7 +136,7 @@
               <div class="eyeline">Loose notes</div>
               <h2 id="loose-notes-heading">零散笔记入口</h2>
             </div>
-            <p>不想按书找时，从这里进入横向专题。Signal 放信号、频谱和数学推导；Tracking 放 PLL、载波跟踪和环路实现笔记。</p>
+            <p>不想按书找时，从这里进入横向专题。Signal 放信号、频谱和数学推导；Tracking 放 PLL、载波跟踪和环路实现；OFDM 放从算法到实现的系列笔记。</p>
           </div>
 
           <div class="knowledge-block-grid loose-notes-grid">
@@ -166,6 +166,20 @@
                 <span>环路实现</span>
               </div>
               <span class="text-link">进入 Tracking Notes</span>
+            </a>
+
+            <a class="knowledge-block" href="ofdm/" aria-label="进入 OFDM 从算法到实现专栏">
+              <span class="knowledge-number">OFDM</span>
+              <span class="knowledge-state">算法到实现</span>
+              <strong>OFDM 从算法到实现</strong>
+              <p>从单载波在宽带多径信道中的困境讲起，后续继续整理子载波正交性、FFT/IFFT、循环前缀、均衡和同步实现。</p>
+              <div class="chip-row">
+                <span>多径</span>
+                <span>FFT</span>
+                <span>CP</span>
+                <span>均衡</span>
+              </div>
+              <span class="text-link">进入 OFDM 专栏</span>
             </a>
           </div>
         </section>
