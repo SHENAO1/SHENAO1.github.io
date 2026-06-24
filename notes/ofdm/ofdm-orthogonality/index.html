@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 2 讲：正交频分复用——“正交”到底是什么意思？ | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 2 讲：从几何内积、信号相关积分、子载波频谱零点和 DFT/FFT 接收机实现解释 OFDM 的正交性。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 20ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose figure + p,
+    .ofdm-source-note .note-prose blockquote + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 10px 0 10px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose figure {
+      margin: 24px 0;
+    }
+
+    .ofdm-source-note .note-prose figure img {
+      width: min(100%, 900px);
+      margin: 0 auto;
+      border-radius: 6px;
+      box-shadow: none;
+      background: #fff;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    .ofdm-boxed-equation {
+      width: max-content;
+      max-width: 100%;
+      margin: 12px auto 0;
+      padding: 8px 14px;
+      border: 2px solid #1f2933;
+      background: #fff;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 680px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-boxed-equation {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td,
+      .ofdm-boxed-equation {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-boxed-equation {
+        border-color: rgba(231, 248, 255, 0.78);
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 2 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 2</div>
+          <h1>第 2 讲：正交频分复用——“正交”到底是什么意思？</h1>
+          <p>从几何内积讲到信号相关积分，再看 OFDM 子载波为什么可以频谱重叠却彼此不干扰。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>正交性</span>
+          <span>子载波间隔</span>
+          <span>DFT / FFT</span>
+          <span>LTE / 5G NR</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从定义、推导、直觉和工程参数四层理解正交性。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#orthogonal-definition">一、什么是正交？从几何到信号</a>
+              <a class="level-2" href="#math-derivation">二、子载波正交性的数学推导</a>
+              <a class="level-2" href="#spectrum-intuition">三、频谱重叠却不干扰——直觉解释</a>
+              <a class="level-2" href="#dft-role">四、正交性在接收端的实现——DFT 的作用</a>
+              <a class="level-2" href="#engineering-parameters">五、工程视角：LTE 中的正交性参数</a>
+              <a class="level-2" href="#summary">总结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-orthogonality" class="level1">
+              <h1>第 2 讲：正交频分复用——“正交”到底是什么意思？</h1>
+
+              <p>上一讲我们聊到，OFDM 的核心思想是把一个宽带信道切成若干个窄带子载波，让每个<span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>单独去面对“平坦”的<span class="ofdm-term">信道<span class="ofdm-mark">✦</span></span>。但你可能马上会产生一个疑问：<strong>这些子载波的频谱是相互重叠的，难道不会互相干扰吗？</strong></p>
+              <p>这正是 OFDM 最精妙的地方——子载波之间的频谱虽然重叠，但它们满足<span class="ofdm-term">正交性<span class="ofdm-mark">✦</span></span>，彼此之间没有干扰。</p>
+              <p>“正交”这个词，在教材里出镜率极高，但很多人对它的理解停留在“两个<span class="ofdm-term">向量<span class="ofdm-mark">✦</span></span>夹角 90 度”这一层面。今天，我们就用最直观的方式，把 OFDM 中的正交性说透。</p>
+
+              <section id="orthogonal-definition" class="level2">
+                <h2>一、什么是正交？从几何到信号</h2>
+
+                <p>在几何里，两个向量正交意味着它们的<span class="ofdm-term">内积<span class="ofdm-mark">✦</span></span>为零，例如 $\vec{a}\cdot\vec{b}=0$。两个正交向量“互不干扰”——你在 $\vec{a}$ 方向上投影，得不到任何 $\vec{b}$ 的分量。</p>
+                <p><span class="ofdm-term">信号处理<span class="ofdm-mark">✦</span></span>里的正交性是这个概念的推广。对于两个信号 $s_m(t)$ 和 $s_n(t)$，若它们在区间 $[0,T]$ 上的<strong>内积（相关积分）</strong>为零：</p>
+
+                <p><span class="math display">\[
+\int_0^T s_m(t)\cdot s_n^*(t)\,dt=0,\qquad m\ne n
+\]</span></p>
+
+                <p>就称这两个信号在该区间内<strong>正交</strong>。</p>
+                <p>OFDM 中，每个子载波是一个<span class="ofdm-term">复指数信号<span class="ofdm-mark">✦</span></span>：</p>
+
+                <p><span class="math display">\[
+s_k(t)=e^{j2\pi f_k t},\qquad t\in[0,T]
+\]</span></p>
+
+                <p>其中 $f_k=f_0+k\cdot\Delta f$ 是第 $k$ 个子载波的频率，$f_0$ 为最低子载波频率，$\Delta f$ 为子载波间隔，$T$ 为 OFDM 符号持续时间（不含循环前缀）。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="math-derivation" class="level2">
+                <h2>二、子载波正交性的数学推导</h2>
+
+                <p>我们来验证两个不同子载波 $s_m(t)=e^{j2\pi f_m t}$ 和 $s_n(t)=e^{j2\pi f_n t}$（$m\ne n$）之间的内积：</p>
+
+                <p><span class="math display">\[
+\langle s_m,s_n\rangle
+=\int_0^T e^{j2\pi f_m t}\cdot e^{-j2\pi f_n t}\,dt
+=\int_0^T e^{j2\pi(f_m-f_n)t}\,dt
+\]</span></p>
+
+                <p>令频率差 $\Delta f_{mn}=f_m-f_n$，则：</p>
+
+                <p><span class="math display">\[
+\langle s_m,s_n\rangle
+=\int_0^T e^{j2\pi\Delta f_{mn}t}\,dt
+=\frac{e^{j2\pi\Delta f_{mn}T}-1}{j2\pi\Delta f_{mn}}
+\]</span></p>
+
+                <p>要使这个积分等于零，需要：</p>
+
+                <p><span class="math display">\[
+e^{j2\pi\Delta f_{mn}T}=1
+\]</span></p>
+
+                <p>即：</p>
+
+                <p><span class="math display">\[
+\Delta f_{mn}\cdot T=k,\qquad k\in\mathbb{Z}^{+}
+\]</span></p>
+
+                <p><strong>当且仅当子载波间隔 $\Delta f$ 是 $1/T$ 的整数倍时</strong>，任意两个不同子载波的内积均为零，正交性成立。</p>
+
+                <p>在 OFDM 系统中，我们选取<strong>最小子载波间隔</strong>：</p>
+
+                <div class="ofdm-boxed-equation">
+                  <span class="math display">\[
+\Delta f=\frac{1}{T}
+\]</span>
+                </div>
+
+                <p>这就是 OFDM <span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span>设计的根本来源。$T$ 越长，$\Delta f$ 越小，<span class="ofdm-term">频谱效率<span class="ofdm-mark">✦</span></span>越高；$T$ 越短，则符号速率越快，但需要更多带宽。</p>
+
+                <figure>
+                  <img src="assets/figures/subcarrier-spectra-waveforms.png" alt="频域子载波频谱和时域三个子载波波形示意图">
+                </figure>
+              </section>
+
+              <section id="spectrum-intuition" class="level2">
+                <h2>三、<span class="ofdm-term">频谱<span class="ofdm-mark">✦</span></span>重叠却不干扰——直觉解释</h2>
+
+                <p>看完公式，让我们用直觉再感受一下这件事。</p>
+                <p>OFDM 每个子载波的频谱形状是一个 <strong>sinc 函数</strong>：</p>
+
+                <p><span class="math display">\[
+S_k(f)=T\cdot\mathrm{sinc}\big((f-f_k)T\big)
+=T\cdot\frac{\sin[\pi(f-f_k)T]}{\pi(f-f_k)T}
+\]</span></p>
+
+                <p>sinc 函数的一个关键性质是：<strong>它在 $f=f_k\pm n/T$（$n$ 为非零整数）处精确过零点。</strong></p>
+                <p>而 OFDM 的子载波间隔正好是 $1/T$，所以：</p>
+
+                <blockquote>
+                  <p>第 m 个子载波的<span class="ofdm-term">中心频率<span class="ofdm-mark">✦</span></span> $f_m$，恰好落在所有其他子载波的零点上。</p>
+                </blockquote>
+
+                <p>当接收端对第 m 个子载波做解调（即在 $f_m$ 处采样频谱）时，所有其他子载波的贡献恰好为零——这就是“频谱重叠但无 ICI（<span class="ofdm-term">子载波间干扰<span class="ofdm-mark">✦</span></span>）”的根本原因。</p>
+
+                <figure>
+                  <img src="assets/figures/zero-crossing-alignment.png" alt="子载波正交性零点对齐示意图">
+                </figure>
+              </section>
+
+              <section id="dft-role" class="level2">
+                <h2>四、正交性在接收端的实现——DFT 的作用</h2>
+
+                <p>你也许会问：接收端怎么利用正交性来分离每个子载波上的数据？</p>
+                <p>答案是：<strong><span class="ofdm-term">离散傅里叶变换<span class="ofdm-mark">✦</span></span>（DFT）。</strong></p>
+                <p>设接收到的 OFDM 时域信号为 $r(t)$，对第 n 个子载波上的数据信号 $X[n]$ 的<span class="ofdm-term">解调<span class="ofdm-mark">✦</span></span>，等价于计算：</p>
+
+                <p><span class="math display">\[
+\hat{X}[n]=\int_0^T r(t)\cdot e^{-j2\pi f_n t}\,dt
+\]</span></p>
+
+                <p>由于子载波的正交性，来自第 $m\ne n$ 个子载波的分量在上述积分中消失，只留下 $X[n]$ 本身（加上信道影响和噪声）。</p>
+                <p>在数字系统中，<span class="ofdm-term">连续积分<span class="ofdm-mark">✦</span></span>变成求和，这正是<strong>离散傅里叶变换（DFT）</strong>的定义：</p>
+
+                <p><span class="math display">\[
+\hat{X}[n]=\sum_{k=0}^{N-1}r[k]\cdot e^{-j2\pi nk/N}
+\]</span></p>
+
+                <p>其中 $N$ 是子载波总数，$r[k]$ 是第 $k$ 个<span class="ofdm-term">采样点<span class="ofdm-mark">✦</span></span>。</p>
+                <p><strong>这就是 OFDM 接收端做 FFT 的原因</strong>——FFT 不只是为了计算效率（虽然它把 $O(N^2)$ 降到了 $O(N\log N)$），更是<span class="ofdm-term">正交性原理<span class="ofdm-mark">✦</span></span>的直接体现。发射端用 IFFT“叠加”所有子载波，接收端用 FFT“分离”所有子载波，正交性保证了这两步操作是完美可逆的。</p>
+
+                <figure>
+                  <img src="assets/figures/ifft-fft-transceiver.png" alt="OFDM 发射端 IFFT 和接收端 FFT 结构示意图">
+                </figure>
+              </section>
+
+              <section id="engineering-parameters" class="level2">
+                <h2>五、工程视角：<span class="ofdm-term">LTE<span class="ofdm-mark">✦</span></span>中的正交性参数</h2>
+
+                <p>理论上，只要子载波间隔是 $1/T$ 的整数倍，正交性就成立。但在实际系统中，正交性会被以下因素破坏：</p>
+
+                <ol>
+                  <li><strong><span class="ofdm-term">载波频率偏差<span class="ofdm-mark">✦</span></span>（CFO）</strong>：发射端和接收端的振荡器频率存在误差，导致子载波偏移，各子载波不再在彼此的零点处——这会产生<strong>子载波间干扰（ICI）</strong>。CFO 是 OFDM 系统最敏感的非理想因素之一，第 13 讲会专门讲解。</li>
+                  <li><strong><span class="ofdm-term">多普勒频移<span class="ofdm-mark">✦</span></span></strong>：高速移动场景（如高铁）中，<span class="ofdm-term">相对运动<span class="ofdm-mark">✦</span></span>导致每个子载波的频率发生偏移，同样破坏正交性。</li>
+                  <li><strong><span class="ofdm-term">相位噪声<span class="ofdm-mark">✦</span></span></strong>：振荡器的相位随机抖动，在频域上表现为子载波能量“溢出”到邻近子载波。</li>
+                </ol>
+
+                <p>以 <strong>LTE（4G）</strong> 为例，其子载波<span class="ofdm-term">参数设计<span class="ofdm-mark">✦</span></span>为：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>参数</th>
+                        <th>数值</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span> $\Delta f$</td>
+                        <td>15 kHz</td>
+                      </tr>
+                      <tr>
+                        <td>OFDM 符号时间 $T_u$</td>
+                        <td>$1/15000\approx66.7\,\mu s$</td>
+                      </tr>
+                      <tr>
+                        <td><span class="ofdm-term">子载波数<span class="ofdm-mark">✦</span></span>（20MHz 带宽）</td>
+                        <td>1200 个数据子载波 + 保护子载波</td>
+                      </tr>
+                      <tr>
+                        <td>FFT 点数</td>
+                        <td>2048</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>其中 $T_u=1/\Delta f=1/15\text{kHz}\approx66.7\,\mu s$，完美符合 $\Delta f=1/T$ 的<span class="ofdm-term">正交条件<span class="ofdm-mark">✦</span></span>。</p>
+                <p><strong><span class="ofdm-term">5G NR<span class="ofdm-mark">✦</span></span></strong>则引入了<strong>灵活参数集（Flexible Numerology）</strong>，子载波间隔可以是 $15\text{ kHz}\times 2^\mu$（$\mu=0,1,2,3,4$），即 15/30/60/120/240 kHz——每种配置都保持 $\Delta f=1/T$ 的正交性关系，但通过调整 $T$ 和 $\Delta f$ 来适应不同频段和业务需求。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>这一讲，我们从数学和直觉两个角度搞清楚了 OFDM 中“正交”的含义：</p>
+
+                <ul>
+                  <li><strong>数学层面：</strong>当子载波间隔 $\Delta f=1/T$ 时，任意两个子载波在一个符号周期内的相关积分为零，即满足正交性。</li>
+                  <li><strong>直觉层面：</strong>每个子载波的 sinc 频谱恰好在其他子载波的中心频率处为零，使得解调时“一点不沾”。</li>
+                  <li><strong>实现层面：</strong>接收端的 FFT 正是<span class="ofdm-term">正交分解<span class="ofdm-mark">✦</span></span>的数学实现，它保证了多个子载波可以在频谱重叠的情况下，仍然被独立地还原出来。</li>
+                  <li><strong>工程层面：</strong>CFO、多普勒频移等非理想因素会破坏正交性，产生 ICI，这是 OFDM <span class="ofdm-term">系统设计<span class="ofdm-mark">✦</span></span>中需要重点应对的挑战。</li>
+                </ul>
+
+                <p>理解了正交性，你就理解了 OFDM“能够工作”的根本原因。</p>
+                <p>下一讲，我们将从整体视角来看 OFDM 发射机的完整框架——<strong>从<span class="ofdm-term">比特<span class="ofdm-mark">✦</span></span>串进去，到<span class="ofdm-term">射频信号<span class="ofdm-mark">✦</span></span>出来，每一步到底在做什么。</strong></p>
+              </section>
+
+              <section id="questions" class="level2">
+                <h2>思考题</h2>
+
+                <ol>
+                  <li>如果 OFDM 系统的子载波间隔设为 $\Delta f=2/T$（即两倍最小间隔），子载波之间还正交吗？频谱效率会发生什么变化？</li>
+                  <li>在 LTE 系统中，若载波频率偏差（CFO）为子载波间隔的 1%（即 150 Hz），对信号质量的影响大吗？请做定性分析。</li>
+                  <li>为什么 5G NR 选择 $\Delta f=15\times2^\mu\text{ kHz}$ 而不是其他值？这与 LTE 的向后兼容性有什么关系？</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

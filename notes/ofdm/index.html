@@ -40,24 +40,25 @@
           <div class="index-copy">
             <div class="eyeline">OFDM from algorithm to implementation</div>
             <h1>OFDM 从算法到实现。</h1>
-            <p>这个专栏把 OFDM 的设计动机、关键参数、FFT/IFFT 实现、循环前缀、均衡和工程权衡放在同一条学习线上。第一篇先从单载波在宽带多径信道中的困境说起。</p>
+            <p>这个专栏把 OFDM 的设计动机、关键参数、FFT/IFFT 实现、循环前缀、均衡和工程权衡放在同一条学习线上。前三篇先从单载波困境、子载波正交性和发射机框架说起。</p>
           </div>
 
           <article class="index-feature">
             <div class="eyeline">Current focus</div>
-            <h2>第 1 讲：为什么需要 OFDM？</h2>
-            <p>先理解多径、频率选择性衰落、单载波均衡器复杂度，再看 OFDM 如何用“分而治之”的方式把宽带信道拆成多个窄带子载波。</p>
+            <h2>第 3 讲：OFDM 发射机框架总览</h2>
+            <p>从比特流到射频信号，第 3 讲沿 QAM 映射、串并转换、IFFT、循环前缀、DAC 和上变频，把发射机链路一次走完。</p>
             <div class="chip-row">
-              <span>Multipath</span>
-              <span>Frequency selective fading</span>
-              <span>Single carrier</span>
-              <span>FFT</span>
+              <span>QAM</span>
+              <span>S/P</span>
+              <span>IFFT</span>
               <span>CP</span>
+              <span>DAC</span>
+              <span>Upconversion</span>
             </div>
           </article>
         </div>
 
-        <div class="catalog-grid catalog-grid--single">
+        <div class="catalog-grid">
           <article class="catalog-card catalog-card--feature">
             <img src="why-ofdm-single-carrier/assets/figures/single-carrier-vs-ofdm-equalization.png" alt="单载波与 OFDM 均衡复杂度对比示意图">
             <div class="catalog-card-body">
@@ -72,7 +73,7 @@
               <ul>
                 <li>保留原截图的正文顺序、核心公式、两张对比表和配图位置。</li>
                 <li>用 MathJax 重排信道冲激响应、相干带宽、均衡器和 DFT 公式。</li>
-                <li>图片资产放在本专栏目录下，便于后续继续追加第 2 讲、第 3 讲。</li>
+                <li>图片资产放在本专栏目录下，便于后续继续追加更多 OFDM 讲次。</li>
               </ul>
               <div class="catalog-footer">
                 <div class="chip-row">
@@ -84,9 +85,64 @@
               </div>
             </div>
           </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <img src="ofdm-orthogonality/assets/figures/zero-crossing-alignment.png" alt="OFDM 子载波正交性零点对齐示意图">
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 2</span>
+                <span>Orthogonal frequency division multiplexing</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 2 讲：正交频分复用——“正交”到底是什么意思？</h3>
+              <p>从几何内积推广到信号相关积分，推导 Δf = 1/T 的子载波正交条件，再用 sinc 频谱零点、DFT/FFT 接收机和 LTE/5G NR 参数解释工程实现。</p>
+              <ul>
+                <li>保留原截图的正文顺序、公式推导、三张配图、LTE 参数表和思考题。</li>
+                <li>用 MathJax 重排子载波内积、sinc 频谱、DFT 解调和 5G NR numerology 公式。</li>
+                <li>图片资产放在本专栏第 2 讲目录下，便于后续继续追加 CP、均衡和同步等内容。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>正交性</span>
+                  <span>sinc 零点</span>
+                  <span>DFT/FFT</span>
+                </div>
+                <a class="text-link" href="ofdm-orthogonality/">阅读第 2 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 3</span>
+                <span>Transmitter chain overview</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 3 讲：OFDM 发射机框架总览——一张图看懂全貌</h3>
+              <p>按发射机完整链路，从比特流进入 QAM 映射开始，走过串并转换、IFFT、循环前缀、并串转换、DAC、上变频，最后到天线发射。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、蓝色术语标记、代码块和 LTE 参数表。</li>
+                <li>用 MathJax 重排 IFFT 公式、CP 符号长度和 LTE 参数中的关键表达式。</li>
+                <li>补入 LTE 20MHz 系统参数代码块，方便后续继续推导速率和实现细节。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>发射机链路</span>
+                  <span>QAM 映射</span>
+                  <span>IFFT</span>
+                  <span>CP</span>
+                </div>
+                <a class="text-link" href="ofdm-transmitter-overview/">阅读第 3 讲</a>
+              </div>
+            </div>
+          </article>
         </div>
 
-        <p class="catalog-section-note">后续 OFDM 正交性、IFFT 调制、循环前缀、信道估计、频域均衡和同步误差可以继续放在这个专栏下，保持“算法原理 → 工程实现”的顺序。</p>
+        <p class="catalog-section-note">后续循环前缀细节、信道估计、频域均衡和同步误差可以继续放在这个专栏下，保持“算法原理 → 工程实现”的顺序。</p>
       </section>
     </main>
 

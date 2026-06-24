@@ -51,7 +51,7 @@
 
           <div class="hero-metrics" aria-label="站点概览">
             <article>
-              <strong>8+ 篇</strong>
+              <strong>9+ 篇</strong>
               <span>GNSS、信号处理与 OFDM 笔记</span>
             </article>
             <article>
@@ -69,8 +69,8 @@
           <div class="blog-desk">
             <article class="blog-panel is-main">
               <span>Latest note</span>
-              <strong>第 1 讲：为什么需要 OFDM？</strong>
-              <p>从单载波多径困境引出 OFDM。</p>
+              <strong>第 3 讲：OFDM 发射机框架总览</strong>
+              <p>从比特流到射频信号，走完发射机 7 大环节。</p>
             </article>
 
             <div class="blog-stack">
@@ -235,11 +235,20 @@
                   <a href="notes/ofdm/why-ofdm-single-carrier/">第 1 讲：为什么需要 OFDM？</a>
                   <p>从多径效应、频率选择性衰落和单载波均衡器复杂度，引出 OFDM 的分而治之。</p>
                 </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-orthogonality/">第 2 讲：正交频分复用</a>
+                  <p>从内积、相关积分、sinc 零点和 FFT 接收机解释子载波频谱重叠却不干扰。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-transmitter-overview/">第 3 讲：OFDM 发射机框架总览</a>
+                  <p>沿 QAM 映射、串并转换、IFFT、循环前缀、DAC 和上变频走完发射机链路。</p>
+                </li>
               </ul>
               <div class="chip-row">
                 <span>OFDM</span>
-                <span>多径</span>
-                <span>FFT</span>
+                <span>发射机</span>
+                <span>IFFT</span>
+                <span>CP</span>
               </div>
             </article>
 
@@ -431,7 +440,7 @@
           <article class="about-card">
             <h3>当前状态</h3>
             <ul>
-              <li>已接入 3 篇 HTML 讲义。</li>
+              <li>已接入多篇 HTML 讲义和专题笔记。</li>
               <li>已展示 ai-handoff-init 与 mind-master 两个项目。</li>
               <li>开源收藏已收敛为资料摘录，后续再扩展分类。</li>
             </ul>
