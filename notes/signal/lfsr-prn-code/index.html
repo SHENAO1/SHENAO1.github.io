@@ -18,6 +18,14 @@
       max-width: 17ch;
     }
 
+    .lfsr-prn-note .note-layout {
+      overflow: visible;
+    }
+
+    .lfsr-prn-note .note-sidebar {
+      overflow: visible;
+    }
+
     .lfsr-prn-note .note-prose h3 {
       margin-top: 54px;
     }
@@ -200,6 +208,7 @@
 <h4 id="ranging-code-composition">测距码合成</h4>
 <p>两路序列逐码片模二加：\(\text{测距码}=\text{G1序列}\oplus\text{G2序列}=r_8^1\oplus r_8^2\)</p>
 <p>这里&ldquo;遍历 G2 初相&rdquo;与 GPS 用抽头选择器做相位选择，本质上是同一件事&mdash;&mdash;都是在生成 \(\{a\oplus T^k b\}\) 这族 Gold 码。</p>
+<p>这里的 \(T\) 表示<strong>循环移位算子</strong>，\(T^k b\) 表示把序列 \(b\) 循环移位 \(k\) 个码片后得到的新序列。因此 \(a\oplus T^k b\) 的意思是：固定一条 m 序列 \(a\)，再把另一条 m 序列 \(b\) 取不同的循环相位，逐码片异或生成一族 Gold 码。若序列周期为 \(N\)，可写成 \(T^k b[n]=b[(n-k)\bmod N]\)；有些资料用 \(b[(n+k)\bmod N]\) 表示相反方向，方向约定不同不影响“遍历所有循环相位”的码族结论。</p>
 <h3 id="current-polynomial-problem">现有多项式的问题</h3>
 <ul>
 <li>\(G_1(x)=1+x^2+x^3+x^4+x^8\)<strong> 是本原多项式</strong>，周期 255，自相关只有 \(\{255,-1\}\) 两值&mdash;&mdash;是合格的 m 序列。</li>
@@ -512,5 +521,40 @@
   </div>
 
   <script src="../../../assets/scripts/site.js"></script>
+  <script>
+    (() => {
+      const toc = document.querySelector(".lfsr-prn-note .note-toc");
+      const links = [...document.querySelectorAll(".lfsr-prn-note .note-toc a[href^='#']")];
+      if (!toc || !links.length) return;
+
+      const sections = links
+        .map((link) => {
+          const id = decodeURIComponent(link.getAttribute("href").slice(1));
+          const target = document.getElementById(id);
+          return target ? { link, target } : null;
+        })
+        .filter(Boolean);
+
+      const setActive = () => {
+        let current = sections[0];
+        for (const item of sections) {
+          if (item.target.getBoundingClientRect().top <= 170) current = item;
+        }
+
+        links.forEach((link) => link.classList.toggle("is-active", current && link === current.link));
+
+        if (current) {
+          current.link.scrollIntoView({
+            block: "nearest",
+            inline: "nearest"
+          });
+        }
+      };
+
+      setActive();
+      document.addEventListener("scroll", setActive, { passive: true });
+      window.addEventListener("resize", setActive);
+    })();
+  </script>
 </body>
 </html>
