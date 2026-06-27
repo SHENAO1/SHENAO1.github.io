@@ -142,6 +142,9 @@
               <a class="level-3" href="#g2-sequence">G2 序列的产生</a>
               <a class="level-3" href="#ranging-code-composition">测距码合成</a>
               <a class="level-3" href="#current-polynomial-problem">现有多项式的问题</a>
+              <a class="level-3" href="#finite-field-primer">GF(2)、可约与不可约</a>
+              <a class="level-3" href="#primitive-and-order">本原多项式与根的阶</a>
+              <a class="level-3" href="#lfsr-field-proof">LFSR 为什么等价于乘 \(\alpha\)</a>
               <a class="level-3" href="#gold-three-value-spectrum">Gold码应有的三值谱</a>
               <a class="level-3" href="#primitive-polynomial-definition">本原多项式的定义</a>
               <a class="level-2" href="#recommended-g1-g2-pair">推荐的 G1/G2 配对</a>
@@ -209,6 +212,124 @@
 <p class="question-note">时序逻辑电路？不同初相落进不同的循环？
 </p>
 </blockquote>
+<h3 id="finite-field-primer">GF(2)、可约与不可约</h3>
+<p>\(GF(2)\) 是 <strong>Galois Field with 2 elements</strong>，也就是只有两个元素的有限域：</p>
+<p>\[GF(2)=\{0,1\}\]</p>
+<p>所有加法、减法和乘法都按模 2 计算。因此 \(1+1=0\)，加法表就是异或 XOR：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: center;">\(a\)</th>
+<th style="text-align: center;">\(b\)</th>
+<th style="text-align: center;">\(a+b\pmod 2\)</th>
+<th style="text-align: center;">\(a\oplus b\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table></div>
+<p>所以在 \(GF(2)\) 上讨论多项式，意思是：多项式系数只能是 0 或 1，同类项相加时按异或抵消。例如：</p>
+<p>\[(1+x+x^3)+(1+x^2+x^3)=x+x^2\]</p>
+<p>因为常数项 \(1+1=0\)，三次项 \(x^3+x^3=0\)。LFSR、CRC、Gold 码和扩频码里的反馈多项式，通常都默认在 \(GF(2)\) 上讨论。</p>
+<h4 id="trivial-factorization">平凡分解、非平凡分解与可约性</h4>
+<p><strong>平凡分解</strong>是没有真正拆开多项式的分解，例如：</p>
+<p>\[f(x)=1\cdot f(x)=f(x)\cdot 1\]</p>
+<p>这里的因子 1 是常数多项式，原多项式没有被拆成更低阶结构。</p>
+<p><strong>非平凡分解</strong>是把 \(f(x)\) 写成两个次数都大于 0、且都低于 \(f(x)\) 的多项式乘积：</p>
+<p>\[f(x)=a(x)b(x),\qquad 1\le \deg a,\deg b < \deg f\]</p>
+<p>如果存在这种非平凡分解，\(f(x)\) 就叫<strong>可约多项式</strong>；如果不存在，就叫<strong>不可约多项式</strong>。例如：</p>
+<p>\[x^2+x=x(x+1)\]</p>
+<p>这是非平凡分解，所以 \(x^2+x\) 在 \(GF(2)\) 上可约。</p>
+<blockquote>
+<p><strong>互素不可约因子</strong>表示两件事同时成立：第一，每个因子本身不可约；第二，两个因子之间没有公共多项式因子，即 \(\gcd(a(x),b(x))=1\)。这里的“互素”不是说数字系数互素，而是说两个多项式没有共同因子。</p>
+</blockquote>
+<p>对当前这个 \(G_2\)：</p>
+<p>\[G_2(x)=1+x+x^2+x^3+x^8=(1+x^2+x^3)(1+x+x^3+x^4+x^5)\]</p>
+<p>右边是一个 3 阶因子乘一个 5 阶因子，这就是非平凡分解。所以 \(G_2(x)\) 是可约的；这两个因子又各自不可约且互素，因此称为 \(G_2(x)\) 的两个互素不可约因子。</p>
+<h4 id="how-to-test-reducible">如何分析一个多项式是否可约</h4>
+<p>判断 \(n\) 阶多项式是否可约，本质上是检查它能不能被次数不超过 \(\lfloor n/2\rfloor\) 的非平凡多项式整除。</p>
+<ol>
+<li>先看一次因子。若 \(f(0)=0\)，说明有因子 \(x\)；若 \(f(1)=0\)，说明有因子 \(x+1\)。在 \(GF(2)\) 里 \(x-1=x+1\)。</li>
+<li>再检查更高阶不可约因子。比如 2 阶不可约多项式只有 \(x^2+x+1\)，更高阶时检查对应次数的不可约多项式。</li>
+<li>对 8 阶多项式，只需检查 1、2、3、4 阶因子；如果都不能整除，它就是不可约的。</li>
+</ol>
+<p>当前的 \(G_2(x)\) 已经被明确分解成 3 阶和 5 阶因子，因此不需要再继续猜测，它一定可约。</p>
+<h3 id="primitive-and-order">本原多项式与根的阶</h3>
+<p>一个 \(n\) 阶多项式 \(f(x)\) 在 \(GF(2)\) 上是<strong>本原多项式</strong>，需要同时满足两条：</p>
+<ol>
+<li>\(f(x)\) 不可约；</li>
+<li>若 \(\alpha\) 是 \(f(x)\) 的一个根，则 \(\alpha\) 的阶达到最大值：\(\operatorname{ord}(\alpha)=2^n-1\)。</li>
+</ol>
+<p>如果多项式可约，它一定不是本原多项式。若它不可约但根的阶只是 \(2^n-1\) 的真因子，也不是本原多项式，而是<strong>不可约但非本原</strong>。</p>
+<p><strong>根的阶</strong>定义为：</p>
+<p>\[\operatorname{ord}(\alpha)=\min\{m>0:\alpha^m=1\}\]</p>
+<p>也就是 \(\alpha\) 连续相乘，第一次回到 1 所需要的次数。这个定义和普通模乘法里的“阶”是同一件事。例如模 7 下，若某个数 \(g\) 满足 \(g^6\equiv 1\pmod 7\) 且更小的正指数都不等于 1，那么 \(g\) 的阶就是 6。</p>
+<p>对 \(n\) 阶不可约多项式，根 \(\alpha\) 位于扩域 \(GF(2^n)\) 中。这个域的非零元素共有 \(2^n-1\) 个，并且它们构成乘法群，所以任何非零元素的阶都必须整除 \(2^n-1\)。</p>
+<p>这解释了 3 阶和 5 阶因子的周期：</p>
+<ul>
+<li>3 阶最大周期是 \(2^3-1=7\)。7 是质数，根的阶只能是 1 或 7。不可约 3 阶多项式的根不可能是 1，所以阶为 7。</li>
+<li>5 阶最大周期是 \(2^5-1=31\)，不是 35。31 也是质数，根的阶只能是 1 或 31。不可约 5 阶多项式的根不可能是 1，所以阶为 31。</li>
+</ul>
+<p>“根不可能是 1”的理由是：如果 \(1\) 是 \(f(x)\) 的根，则 \(f(1)=0\)，于是 \(x+1\) 是 \(f(x)\) 的因子。对于次数大于 1 的不可约多项式，这会构成一次非平凡因子，矛盾。因此不可约多项式的根 \(\alpha\ne 1\)。</p>
+<p>所以当前例子中，3 阶因子周期为 7，5 阶因子周期为 31。两个部分都非零时，组合周期就是：</p>
+<p>\[\operatorname{lcm}(7,31)=217\]</p>
+<p>再加上只有 3 阶部分非零的 7 周期环、只有 5 阶部分非零的 31 周期环，整个非零状态空间被拆成：</p>
+<p>\[217+31+7=255\]</p>
+<p>这就是 \(G_2\) 的状态空间为什么不是一个统一的 255 长环。</p>
+<h4 id="why-root-in-extension-field">为什么根在 \(GF(2^n)\) 里</h4>
+<p>设 \(f(x)\) 是 \(GF(2)\) 上的 \(n\) 阶不可约多项式。可以构造商结构：</p>
+<p>\[GF(2)[x]/(f(x))\]</p>
+<p>意思是所有 \(GF(2)\) 上的多项式都按 \(f(x)\) 取余。因为 \(f(x)\) 是 \(n\) 阶，所以任意多项式都可以化成次数小于 \(n\) 的代表元：</p>
+<p>\[a_0+a_1x+\cdots+a_{n-1}x^{n-1},\qquad a_i\in\{0,1\}\]</p>
+<p>这样的代表元一共有 \(2^n\) 个。若 \(f(x)\) 不可约，这个商结构是一个域，因此它就是 \(GF(2^n)\)。在这个域里令：</p>
+<p>\[\alpha=x\bmod f(x)\]</p>
+<p>那么：</p>
+<p>\[f(\alpha)=f(x)\bmod f(x)=0\]</p>
+<p>所以 \(\alpha\) 就是 \(f(x)\) 在扩域 \(GF(2^n)\) 里的一个根。</p>
+<h3 id="lfsr-field-proof">LFSR 为什么等价于乘 \(\alpha\)</h3>
+<p>下面给出标准代数证明。先提醒一点：不同 LFSR 画法可能对应“乘 \(\alpha\)”或“乘 \(\alpha^{-1}\)”，这取决于移位方向、状态排列和抽头定义；但 \(\alpha\) 与 \(\alpha^{-1}\) 的阶相同，所以周期结论不变。</p>
+<p>设 \(n\) 阶反馈多项式写成：</p>
+<p>\[f(x)=x^n+c_{n-1}x^{n-1}+\cdots+c_1x+c_0\]</p>
+<p>其中 \(c_i\in GF(2)\)。若 \(\alpha\) 是 \(f(x)\) 的根，则：</p>
+<p>\[f(\alpha)=0\]</p>
+<p>也就是：</p>
+<p>\[\alpha^n=c_{n-1}\alpha^{n-1}+\cdots+c_1\alpha+c_0\]</p>
+<p>减号在 \(GF(2)\) 中等于加号，所以这里不用区分加减。</p>
+<p>把连续 \(n\) 个寄存器状态打包成扩域元素：</p>
+<p>\[S_t=s_t+s_{t+1}\alpha+s_{t+2}\alpha^2+\cdots+s_{t+n-1}\alpha^{n-1}\]</p>
+<p>乘一次 \(\alpha\)：</p>
+<p>\[\alpha S_t=s_t\alpha+s_{t+1}\alpha^2+\cdots+s_{t+n-1}\alpha^n\]</p>
+<p>最后一项 \(\alpha^n\) 用上面的关系降阶，就仍然可以写成 \(1,\alpha,\dots,\alpha^{n-1}\) 的线性组合。这个“降阶后重新表示”的过程，正对应 LFSR 中“移位 + 反馈”的一次状态更新。于是可以写成：</p>
+<p>\[S_{t+1}=\alpha S_t\]</p>
+<p>因此状态轨迹就是：</p>
+<p>\[S_0,\alpha S_0,\alpha^2S_0,\alpha^3S_0,\dots\]</p>
+<p>如果取 \(S_0=1\)，就得到常见写法：</p>
+<p>\[1,\alpha,\alpha^2,\alpha^3,\dots\]</p>
+<p>走多少拍回到原状态，取决于最小的 \(m>0\) 使得 \(\alpha^m=1\)，也就是根的阶。于是根的阶就是该不可约因子对应 LFSR 子系统的周期；若阶达到 \(2^n-1\)，就得到最大长度 m 序列。</p>
 <h3 id="gold-three-value-spectrum">Gold码应有的三值谱</h3>
 <figure><img alt="Gold 码自相关和互相关三值谱公式截图 1" decoding="async" loading="lazy" src="assets/figures/gold-three-value-spectrum-01.png"/><figcaption>Gold 码应有的自相关与互相关取值范围参考图（1）。</figcaption></figure>
 <figure><img alt="Gold 码自相关和互相关三值谱公式截图 2" decoding="async" loading="lazy" src="assets/figures/gold-three-value-spectrum-02.png"/><figcaption>Gold 码应有的自相关与互相关取值范围参考图（2）。</figcaption></figure>
