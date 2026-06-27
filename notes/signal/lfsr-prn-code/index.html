@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>由 LFSR 生成 PRN 码 | Signal Notes</title>
+  <meta name="description" content="整理 8 级 LFSR 生成 PRN 码的 Gold 码构造、G1/G2 多项式问题、本原多项式、三值谱和推荐 G1/G2 配对。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .lfsr-prn-note .note-intro-copy h1,
+    .lfsr-prn-note .note-prose h2 {
+      letter-spacing: 0;
+    }
+
+    .lfsr-prn-note .note-intro-copy h1 {
+      max-width: 17ch;
+    }
+
+    .lfsr-prn-note .note-prose .note-red {
+      color: #c72f35;
+      font-weight: 800;
+    }
+
+    .lfsr-prn-note .note-prose .note-highlight {
+      padding: 0.08em 0.22em;
+      border-radius: 6px;
+      background: #fff0a8;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .lfsr-prn-note .note-prose .result-label {
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .lfsr-prn-note .note-prose .question-note {
+      color: var(--muted);
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    .lfsr-prn-note .note-prose blockquote figure {
+      margin: 16px 0 0;
+    }
+
+    .lfsr-prn-note .note-prose figure img {
+      max-height: 760px;
+      object-fit: contain;
+    }
+
+    .lfsr-prn-note .note-prose .table-wrap {
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    .lfsr-prn-note .note-prose .table-wrap table {
+      margin-top: 0;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page lfsr-prn-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">Signal</a>
+          <span>/</span>
+          <span>LFSR PRN 码</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">Signal basics / LFSR and PRN code</div>
+          <h1>由 LFSR 生成 PRN 码：8 级 Gold 码、周期与本原多项式</h1>
+          <p>这篇笔记把 8 级 LFSR 的反馈抽头、G1/G2 生成多项式、Gold 码三值谱、本原多项式判据和推荐配对集中整理成一页，并将原 Markdown 中的远程图片下载为本地资源。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>LFSR</span>
+          <span>PRN code</span>
+          <span>Gold code</span>
+          <span>m 序列</span>
+          <span>本原多项式</span>
+          <span>Kasami</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 Signal Notes</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 书架</a>
+        </div>
+      </section>
+
+      <section class="panel note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从抽头映射开始，依次检查周期、相关谱、本原多项式和可用配对。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>章节导航</summary>
+            <nav class="note-toc">
+              <a class="level-2" href="#lfsr-prn-code">8bit LFSR生成PRN码</a>
+              <a class="level-3" href="#gold-code-generation">8级Gold码生成</a>
+              <a class="level-3" href="#polynomial-tap-mapping">多项式与抽头映射</a>
+              <a class="level-3" href="#g1-sequence">G1 序列的产生</a>
+              <a class="level-3" href="#g2-sequence">G2 序列的产生</a>
+              <a class="level-3" href="#ranging-code-composition">测距码合成</a>
+              <a class="level-3" href="#current-polynomial-problem">现有多项式的问题</a>
+              <a class="level-3" href="#gold-three-value-spectrum">Gold码应有的三值谱</a>
+              <a class="level-3" href="#primitive-polynomial-definition">本原多项式的定义</a>
+              <a class="level-2" href="#recommended-g1-g2-pair">推荐的 G1/G2 配对</a>
+              <a class="level-2" href="#two-notes">两点说明</a>
+              <a class="level-2" href="#references">可以参考的资料</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+<h2 id="lfsr-prn-code">8bit LFSR生成PRN码</h2>
+<p>\[G_1(x)=1+x^2+x^3+x^4+x^8\]</p>
+<p>\[G_2(x)=1+x^1+x^2+x^3+x^8\]</p>
+<figure><img alt="8 级 LFSR 生成 PRN 码的反馈抽头配置图" decoding="async" loading="lazy" src="assets/figures/lfsr-feedback-topology.png"/><figcaption>原始笔记中的 8 级 LFSR 反馈抽头配置图。</figcaption></figure>
+<h3 id="gold-code-generation">8级Gold码生成</h3>
+<h4 id="polynomial-tap-mapping">多项式与抽头映射</h4>
+<p>由图中线性反馈抽头配置可得两个 8 级寄存器的生成多项式为</p>
+<p>\[G_1(x)=1+x^2+x^3+x^4+x^8,\qquad G_2(x)=1+x^1+x^2+x^3+x^8\]</p>
+<p>其中：</p>
+<ul>
+<li>\(x^k\ (k\ge 1)\) 项对应寄存器第 \(k\) 级的抽头</li>
+<li><strong><span class="note-red">常数项 </span></strong>\(1\)<strong><span class="note-red">（即 </span></strong>\(x^0\)<strong><span class="note-red">）对应反馈线本身而非物理抽头</span></strong></li>
+<li><strong><span class="note-highlight">每拍先输出，再计算反馈，再右移  </span></strong></li>
+</ul>
+<blockquote>
+<p>于是 G1 的反馈抽头在第 2、3、4、8 级，G2 的反馈抽头在第 1、2、3、8 级。
+</p>
+</blockquote>
+<h4 id="g1-sequence">G1 序列的产生</h4>
+<p>设 G1 移位寄存器内容用 \(r_i^1\) 表示，\(i=1,\cdots,8\)，初相置为全 1（\(r_i^1=1\)）</p>
+<p>每个时钟上升沿，第 2 到第 8 个寄存器内容被前一个寄存器内容更新，第 1 个寄存器内容被反馈值 \(F\) 更新：</p>
+<p>\[F=r_2^1\oplus r_3^1\oplus r_4^1\oplus r_8^1,\qquad r_1^1=F,\qquad r_i^1=r_{i-1}^1\ (i=2,\cdots,8)\]</p>
+<p>G1 序列从第 8 级寄存器 \(r_8^1\) 输出。</p>
+<h4 id="g2-sequence">G2 序列的产生</h4>
+<p>类似地，G2 寄存器内容用 \(r_i^2\) 表示，\(i=1,\cdots,8\)，更新过程为</p>
+<p>\[F=r_1^2\oplus r_2^2\oplus r_3^2\oplus r_8^2,\qquad r_1^2=F,\qquad r_i^2=r_{i-1}^2\ (i=2,\cdots,8)\]</p>
+<p>与 G1 不同的是，G2 不固定初相&mdash;&mdash;通过遍历 G2 的非全零初始相位，使 G2 序列相对 G1 产生不同的循环移位 \(T^k\)，从而生成一族测距码。</p>
+<h4 id="ranging-code-composition">测距码合成</h4>
+<p>两路序列逐码片模二加：\(\text{测距码}=\text{G1序列}\oplus\text{G2序列}=r_8^1\oplus r_8^2\)</p>
+<p>这里&ldquo;遍历 G2 初相&rdquo;与 GPS 用抽头选择器做相位选择，本质上是同一件事&mdash;&mdash;都是在生成 \(\{a\oplus T^k b\}\) 这族 Gold 码。</p>
+<h3 id="current-polynomial-problem">现有多项式的问题</h3>
+<ul>
+<li>\(G_1(x)=1+x^2+x^3+x^4+x^8\)<strong> 是本原多项式</strong>，周期 255，自相关只有 \(\{255,-1\}\) 两值&mdash;&mdash;是合格的 m 序列。</li>
+<li>\(G_2(x)=1+x+x^2+x^3+x^8\)<strong> 不是本原的，甚至不是不可约的。</strong> 它可分解为</li>
+</ul>
+<p>\[G_2(x)=(1+x^2+x^3)\,(1+x+x^3+x^4+x^5)\]</p>
+<p>即一个 3 阶因子<strong>（阶为 7）</strong>乘一个 5 阶因子<strong>（阶为 31）</strong>。其状态空间不是单一长循环，而是裂成 <strong>217 / 31 / 7 三个周期不同的环</strong></p>
+<blockquote>
+<p>217 / 31 / 7 三个周期不同的环是由\(G_2(x)\)的两个<strong><u>互素不可约</u></strong>因子的周期组合出来的。\(217+31+7=255\)，\(\text{lcm}(7,31)=217\)<strong><span class="note-red">最小公倍数</span></strong></p>
+<p><strong><span> 在</span></strong>\(GF(2)\)<strong><span>上，一个多项式如果不能再分解成两个次数更低的非平凡多项式，就叫不可约多项式。  </span></strong>
+</p>
+<p class="question-note">本原多项式的周期和可约性
+</p>
+</blockquote>
+<p><strong class="result-label"><span class="note-red">结果：</span></strong></p>
+<ul>
+<li>遍历 G2 初相生成测距码，不同初相落进不同的环，得到的会是周期分别为 217、31、7 的序列，不是周期 255 的统一 Gold 族</li>
+<li>实测 G1 与 G2 的互相关峰值达到 <strong>41</strong>，互相关谱有 20 个取值，完全不是 Gold 码应有的三值谱 \(\{-33,-1,31\}\)</li>
+<li>\(\beta(8) = 1 + 2^{\left\lfloor \frac{8+2}{2} \right\rfloor}=1+32=33\)</li>
+<li>\(R_{x_i}(\tau = k T_C) \in \left\{ 1, \frac{\beta(n) - 2}{N}, \frac{-1}{N}, \frac{-\beta(n)}{N} \right\}\)，如果不归一化，就是\(\{-33,-1,31\}\)</li>
+<li>\(R_{x_i, x_j}(\tau = k T_C) \in \left\{ \frac{\beta(n) - 2}{N}, \frac{-1}{N}, \frac{-\beta(n)}{N} \right\}\)</li>
+</ul>
+<blockquote>
+<p class="question-note">时序逻辑电路？不同初相落进不同的循环？
+</p>
+</blockquote>
+<h3 id="gold-three-value-spectrum">Gold码应有的三值谱</h3>
+<figure><img alt="Gold 码自相关和互相关三值谱公式截图 1" decoding="async" loading="lazy" src="assets/figures/gold-three-value-spectrum-01.png"/><figcaption>Gold 码应有的自相关与互相关取值范围参考图（1）。</figcaption></figure>
+<figure><img alt="Gold 码自相关和互相关三值谱公式截图 2" decoding="async" loading="lazy" src="assets/figures/gold-three-value-spectrum-02.png"/><figcaption>Gold 码应有的自相关与互相关取值范围参考图（2）。</figcaption></figure>
+<figure><img alt="Gold 码自相关和互相关三值谱公式截图 3" decoding="async" loading="lazy" src="assets/figures/gold-three-value-spectrum-03.png"/><figcaption>Gold 码应有的自相关与互相关取值范围参考图（3）。</figcaption></figure>
+<p>\[R_{x_i}(\tau = k T_C) \in \left\{ 1, \frac{\beta(n) - 2}{N}, \frac{-1}{N}, \frac{-\beta(n)}{N} \right\}\]</p>
+<p>\(\beta(n) = 1 + 2^{\left\lfloor \frac{n+2}{2} \right\rfloor}\)，其中\(\lfloor a \rfloor\)代表小于或等于\(a\)的最大整数。</p>
+<p>\[R_{x_i, x_j}(\tau = k T_C) \in \left\{ \frac{\beta(n) - 2}{N}, \frac{-1}{N}, \frac{-\beta(n)}{N} \right\}\]</p>
+<p><strong><span class="note-red">理论原因：</span></strong>\(n=8\)<strong> 能被 4 整除</strong>，而 m 序列的<u>优选对</u>对 \(n\equiv 0 \pmod 4\) 不存在&mdash;&mdash;这正是 GPS 选 \(n=10\)（1023，\(10\bmod 4=2\)）而不是 8 的原因。所以即使你把 \(G_2\) 换成一个本原多项式，长度 255 的经典 Gold 码在理论上也拿不到理想三值谱。</p>
+<h4 id="primitive-polynomial-definition">本原多项式的定义</h4>
+<p>一个 \(n\) 阶多项式是<u>本原的</u>，当且仅当用它做的 LFSR 能把全部 \(2^n-1\) 个非零状态在<strong>一个循环</strong>里跑遍&mdash;&mdash;即产生最大长度序列（m 序列）</p>
+<ul>
+<li>\(G_1\) 周期 255（遍历 \(2^8-1=255\) 个状态）</li>
+<li>\(G_2\) 裂成 217+31+7 三个圈，所以它<strong><u>不本原</u></strong>。</li>
+</ul>
+<blockquote>
+<p><strong><u>m序列的定义</u></strong>：由n级反馈移位寄存器产生的、周期等于最大可能值（\(2^n-1\)码片）的序列，称为最长线性反馈移位寄存器，通常简称m序列</p>
+<p>m出自英文单词&ldquo;maximum&rdquo;的首字母</p>
+<p>可将一个由n级反馈移位寄存器产生的m序列称为n级m序列</p>
+<figure><img alt="m 序列定义与性质参考图 1" decoding="async" loading="lazy" src="assets/figures/m-sequence-definition-01.png"/><figcaption>m 序列定义与最大长度性质参考图（1）。</figcaption></figure>
+<figure><img alt="m 序列定义与性质参考图 2" decoding="async" loading="lazy" src="assets/figures/m-sequence-definition-02.png"/><figcaption>m 序列定义与最大长度性质参考图（2）。</figcaption></figure>
+<figure><img alt="m 序列定义与性质参考图 3" decoding="async" loading="lazy" src="assets/figures/m-sequence-definition-03.png"/><figcaption>m 序列定义与最大长度性质参考图（3）。</figcaption></figure>
+<p>参考来源：《GPS原理与接收机设计》谢刚
+</p>
+</blockquote>
+<p><strong>代数定义：</strong> 把 8 位寄存器的非零状态看成有限域 \(GF(2^8)\) 里的元素，LFSR 每走一拍，相当于把当前状态&ldquo;乘以多项式的根 \(\alpha\)&rdquo;。于是状态依次走过 \(\alpha^0,\alpha^1,\alpha^2,\dots\)，走完一圈的长度就等于 \(\alpha\) 的<strong>乘法阶</strong>（order）。要&ldquo;本原&rdquo;，需要两个条件叠加：</p>
+<ol>
+<li><strong>不可约</strong>：多项式不能在 \(GF(2)\) 上分解成更低次的乘积。 \(G_2=(1+x^2+x^3)(1+x+x^3+x^4+x^5)\)<strong><span class="note-red"> 是可约的</span></strong></li>
+<li><strong>根的阶达到最大</strong>：\(\alpha\) 的阶恰为 \(2^8-1=255\)（理论上限）。满足这一条的 \(\alpha\) 叫<strong>本原元</strong>&mdash;&mdash;它的幂能扫遍 \(GF(2^8)\) 的全部 255 个非零元素</li>
+</ol>
+<p><strong>本原多项式 = 某个本原元的最小多项式 = 不可约且根的阶 = </strong>\(2^n-1\)<strong>。</strong></p>
+<p>这正是"本原"二字的来历:它对应域里的"本原元"。</p>
+<p>三种情形的状态循环结构：<strong>只有本原多项式落进一个大环</strong> &mdash;&mdash; 一拍一拍走下去，255 个非零状态一个不漏地轮一遍才回到起点。这正是 m 序列&ldquo;最大长度&rdquo;的含义，也是它自相关只有 \(\{255,-1\}\) 两值、且"遍历初相"能得到统一 255 周期码族的根本原因。</p>
+<p>另外两类都碎成多个环：不可约非本原碎成<strong>等长</strong>的几个，可约则碎成<strong>不等长</strong>的几个（ <u>G2 = 217+31+7</u>）。</p>
+<figure><img alt="本原、不可约和可约多项式的状态循环结构示意图" decoding="async" loading="lazy" src="assets/figures/primitive-polynomial-cycle-structure.png"/><figcaption>三类多项式对应的状态循环结构：本原多项式形成单一最大环。</figcaption></figure>
+<p>具体到 8 阶，这个三层包含关系的数目是:\(2^7=128\) 个候选多项式 &rarr; 30 个不可约 &rarr; 其中 16 个本原。</p>
+<p>30 个不可约多项式的根的阶只可能取 \(\{17,51,85,255\}\)，唯有阶 \(=255\) 的 16 个是本原的</p>
+<p><strong>只有这样两路寄存器才都是干净的 255 周期 m 序列，你那套"置初相 + 遍历 G2 相位"的测距码生成逻辑才成立</strong>;否则像原来的 \(G_2\)，遍历初相会掉进 217/31/7 三个不同的环，根本拼不出统一的码族。</p>
+<p><strong>两个方向：</strong></p>
+<ol>
+<li>若只是想要一个能跑的演示，先把 \(G_2\) 换成本原 8 阶多项式（degree-8 本原多项式共 16 个），至少保证两路都是 255 周期的 m 序列；</li>
+<li>若你真正需要 \(n=8\)、码长 255 且互相关受控的码族，正解是 <strong>Kasami 序列</strong>（\(n\) 偶数适用），小集合互相关上界只有 \(2^{n/2}+1=17\)，远好于这里的 41</li>
+</ol>
+<p><strong>全部16 个 8 阶本原多项式</strong></p>
+<p>如下（都已验证周期为 255、自相关两值，是合格的 m 序列）。<u>第 9 个是原来的 </u>\(G_1\)（也是 AES/Rijndael 用的那个）：  </p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: center;">#</th>
+<th style="text-align: center;">多项式</th>
+<th style="text-align: center;">抽头 （taps）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">\(1+x^4+x^5+x^6+x^8\)</td>
+<td style="text-align: center;">4，5，6，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">\(1+x^3+x^5+x^7+x^8\)</td>
+<td style="text-align: center;">3，5，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">\(1+x^3+x^5+x^6+x^8\)</td>
+<td style="text-align: center;">3，5，6，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">\(1+x^2+x^5+x^6+x^8\)</td>
+<td style="text-align: center;">2，5，6，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">\(1+x^2+x^4+x^5+x^6+x^7+x^8\)</td>
+<td style="text-align: center;">2，4，5，6，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">\(1+x^2+x^3+x^7+x^8\)</td>
+<td style="text-align: center;">2，3，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">\(1+x^2+x^3+x^6+x^8\)</td>
+<td style="text-align: center;">2，3，6，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">\(1+x^2+x^3+x^5+x^8\)</td>
+<td style="text-align: center;">2，3，5，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">\(1+x^2+x^3+x^4+x^8\) &larr; 原 G1</td>
+<td style="text-align: center;">2，3，4，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">\(1+x+x^6+x^7+x^8\)</td>
+<td style="text-align: center;">1，6，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td style="text-align: center;">\(1+x+x^5+x^6+x^8\)</td>
+<td style="text-align: center;">1，5，6，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">\(1+x+x^3+x^5+x^8\)</td>
+<td style="text-align: center;">1，3，5，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">\(1+x+x^2+x^7+x^8\)</td>
+<td style="text-align: center;">1，2，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">14</td>
+<td style="text-align: center;">\(1+x+x^2+x^5+x^6+x^7+x^8\)</td>
+<td style="text-align: center;">1，2，5，6，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">\(1+x+x^2+x^3+x^6+x^7+x^8\)</td>
+<td style="text-align: center;">1，2，3，6，7，8</td>
+</tr>
+<tr>
+<td style="text-align: center;">16</td>
+<td style="text-align: center;">\(1+x+x^2+x^3+x^4+x^6+x^8\)</td>
+<td style="text-align: center;">1，2，3，4，6，8</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="recommended-g1-g2-pair">推荐的 G1/G2 配对</h2>
+<p>120 个配对里互相关峰值最小的一对：</p>
+<p>\[G_1(x)=1+x^4+x^5+x^6+x^8\quad(\text{taps }4,5,6,8)\]</p>
+<p>\[G_2(x)=1+x^3+x^5+x^6+x^8\quad(\text{taps }3,5,6,8)\]</p>
+<p>互相关峰值 \(|CCF|_{\max}=31\)，谱为 \(\{-17,-1,15,31\}\)&mdash;&mdash;这是全部 m 序列配对里最好的结果。反馈式改成：</p>
+<p>\[\text{G1}:\quad F=r_4^1\oplus r_5^1\oplus r_6^1\oplus r_8^1\]</p>
+<p>\[\text{G2}:\quad F=r_3^2\oplus r_5^2\oplus r_6^2\oplus r_8^2\]</p>
+<p>其余（移位、初相置位、\(r_8\) 输出、\(\text{测距码}=\text{G1}\oplus\text{G2}\)）完全不变</p>
+<h2 id="two-notes">两点说明</h2>
+<p>第一，如果保留原来的 \(G_1\)（taps 2，3，4，8），它能配到的最佳组合是 \(1+x^4+x^5+x^6+x^8\)，峰值同样是 31，但谱变成 16 个取值、很散。所以从相关性看，还是换成上面那对干净的组合更好。</p>
+<p>第二，<strong>31 是 </strong>\(n=8\)<strong> 用 m 序列能达到的下限，跨不过去</strong>&mdash;&mdash;这正是前面说的 \(n\equiv 0\pmod 4\) 没有优选对的代价（Welch 下界约 16，而你看谱里 \(\{-17,-1,15\}\) 已经踩到了 \(t=2^{4}+1=17\) 的小 Gold 集，只是多出一个 31 的尖峰破坏了三值性）。</p>
+<p>若 TDMA 对互相关要求高（比如要逼近 17），就得上 <strong>Kasami 小集合</strong>：\(n=8\) 时共 16 条码、互相关上界仅 17，几乎到 Welch 界。</p>
+<p>要我把这一对 m 序列对应的 255 族 Gold 码也生成出来、或者直接给你 \(n=8\) 的 Kasami 序列构造（含寄存器结构和那 16 条码）吗？</p>
+<h2 id="references">可以参考的资料</h2>
+<p><a href="https://www.mathworks.com/help/comm/ref/goldsequencegenerator.html">https://www.mathworks.com/help/comm/ref/goldsequencegenerator.html</a></p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

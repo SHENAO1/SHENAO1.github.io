@@ -40,16 +40,18 @@
           <div class="index-copy">
             <div class="eyeline">Signal structure collection</div>
             <h1>把卷积、方波、谐波、FFT 相关和 BOC 频谱单独从跟踪环里拆出来。</h1>
-            <p>这一块用于整理信号与频谱专题。既放《新一代卫星导航系统信号设计原理与实现技术》里的扩频调制章节，也放傅里叶分析、方波谐波、FFT 互相关和时频域直觉这类基础补充。</p>
+            <p>这一块用于整理信号与频谱专题。既放《新一代卫星导航系统信号设计原理与实现技术》里的扩频调制章节，也放 LFSR/PRN 码、傅里叶分析、方波谐波、FFT 互相关和时频域直觉这类基础补充。</p>
           </div>
 
           <article class="index-feature">
             <div class="eyeline">Current focus</div>
-            <h2>从卷积直觉、C/A 码扩频频谱到方波、FFT 相关和 BOC 功率谱</h2>
-            <p>新增卷积直觉笔记，把 LTI 系统冲激响应、时域相乘对应频域卷积，以及窗函数频谱造成的涂抹放在同一条推导线里说明。</p>
+            <h2>从卷积直觉、C/A 码扩频频谱到 LFSR、FFT 相关和 BOC 功率谱</h2>
+            <p>新增 LFSR 生成 PRN 码笔记，把 8 级 Gold 码、多项式周期、本原多项式和推荐 G1/G2 配对放在同一页里整理。</p>
             <div class="chip-row">
               <span>Convolution</span>
               <span>C/A code</span>
+              <span>LFSR</span>
+              <span>PRN code</span>
               <span>Data bit sampling</span>
               <span>Square wave</span>
               <span>Fourier series</span>
@@ -107,6 +109,30 @@
                 <span>DFT ripple</span>
               </div>
               <a class="text-link" href="ca-code-data-bit-sampling-spectrum/">阅读 C/A 码频谱笔记</a>
+            </div>
+          </article>
+
+          <article class="catalog-card">
+            <div class="catalog-status">基础补充笔记</div>
+            <div class="catalog-meta">
+              <span>LFSR</span>
+              <span>PRN code</span>
+              <span>形式：Markdown 转 HTML + 本地配图</span>
+            </div>
+            <h3>由 LFSR 生成 PRN 码：8 级 Gold 码、周期与本原多项式</h3>
+            <p>整理 8 级 LFSR 的反馈抽头、G1/G2 生成多项式、现有 G2 可约导致的 217/31/7 周期环、Gold 码三值谱限制和推荐的本原多项式配对。</p>
+            <ul>
+              <li>将原 Markdown 中的 8 张 Yuque 远程图片下载到本地文章资源目录。</li>
+              <li>保留公式、表格、引用块和强调标记，并使用 MathJax 渲染 GF(2)、互相关谱和反馈方程。</li>
+              <li>补充侧边目录，方便从抽头映射、本原多项式定义和推荐 G1/G2 配对之间跳转。</li>
+            </ul>
+            <div class="catalog-footer">
+              <div class="chip-row">
+                <span>Gold code</span>
+                <span>m 序列</span>
+                <span>本原多项式</span>
+              </div>
+              <a class="text-link" href="lfsr-prn-code/">阅读 LFSR PRN 码笔记</a>
             </div>
           </article>
 
