@@ -340,6 +340,27 @@
 <p><strong>根的阶</strong>定义为：</p>
 <p>\[\operatorname{ord}(\alpha)=\min\{m>0:\alpha^m=1\}\]</p>
 <p>也就是 \(\alpha\) 连续相乘，第一次回到 1 所需要的次数。这个定义和普通模乘法里的“阶”是同一件事。例如模 7 下，若某个数 \(g\) 满足 \(g^6\equiv 1\pmod 7\) 且更小的正指数都不等于 1，那么 \(g\) 的阶就是 6。</p>
+<p><strong>有限域里的具体例子：</strong>取 3 阶不可约多项式</p>
+<p>\[f(x)=x^3+x+1\]</p>
+<p>设 \(\alpha\) 是它在 \(GF(2^3)\) 里的一个根，则 \(f(\alpha)=0\)，即：</p>
+<p>\[\alpha^3+\alpha+1=0\]</p>
+<p>在 \(GF(2)\) 里加法和减法相同，所以可写成：</p>
+<p>\[\alpha^3=\alpha+1\]</p>
+<p>现在连续乘 \(\alpha\)，并且每次遇到 \(\alpha^3\) 都用 \(\alpha+1\) 降阶：</p>
+<p>\[
+\begin{aligned}
+\alpha^1 &= \alpha,\\
+\alpha^2 &= \alpha^2,\\
+\alpha^3 &= \alpha+1,\\
+\alpha^4 &= \alpha(\alpha+1)=\alpha^2+\alpha,\\
+\alpha^5 &= \alpha(\alpha^2+\alpha)=\alpha^3+\alpha^2=\alpha^2+\alpha+1,\\
+\alpha^6 &= \alpha(\alpha^2+\alpha+1)=\alpha^3+\alpha^2+\alpha=\alpha^2+1,\\
+\alpha^7 &= \alpha(\alpha^2+1)=\alpha^3+\alpha=(\alpha+1)+\alpha=1.
+\end{aligned}
+\]</p>
+<p>从 \(\alpha^1\) 到 \(\alpha^6\) 都没有回到 1，第一次回到 1 是 \(\alpha^7=1\)，所以：</p>
+<p>\[\operatorname{ord}(\alpha)=7\]</p>
+<p>这就对应一个 3 级 LFSR 的 7 周期。也就是说，“根的阶”不是抽象地背公式，而是在问：这个根连续乘多少次，才第一次回到乘法单位元 1。</p>
 <p>对 \(n\) 阶不可约多项式，根 \(\alpha\) 位于扩域 \(GF(2^n)\) 中。这个域的非零元素共有 \(2^n-1\) 个，并且它们构成乘法群，所以任何非零元素的阶都必须整除 \(2^n-1\)。</p>
 <p>这解释了 3 阶和 5 阶因子的周期：</p>
 <ul>
