@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 5 讲：循环前缀 CP——OFDM 的”护城河” | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 5 讲：复刻循环前缀 CP 的作用、线性卷积到循环卷积、CP 长度配置、接收端去 CP、变种方案和工程实现要点。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 26ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-author {
+      margin-bottom: 28px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-source-note .note-prose pre code .ofdm-term,
+    .ofdm-source-note .note-prose pre code .ofdm-mark {
+      color: #004996;
+      font-weight: 400;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 5 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 5</div>
+          <h1>第 5 讲：循环前缀 CP——OFDM 的”护城河”</h1>
+          <p>从多径引起的 ISI/ICI 讲起，解释循环前缀如何把线性卷积变成循环卷积，并落到 CP 长度、接收处理和工程实现上。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>Cyclic Prefix</span>
+          <span>ISI / ICI</span>
+          <span>循环卷积</span>
+          <span>频域均衡</span>
+          <span>LTE / 5G NR</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从 ISI/ICI、循环卷积、CP 长度和接收端处理理解 CP 的工程价值。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#introduction">引言</a>
+              <a class="level-2" href="#without-cp">一、没有 CP 时，多径会造成什么灾难？</a>
+              <a class="level-3" href="#isi">1.1 ISI：符号间的”串扰”</a>
+              <a class="level-3" href="#ici">1.2 ICI：子载波间的”互相干扰”</a>
+              <a class="level-2" href="#cp-core">二、CP 的核心魔法：把线性卷积变成循环卷积</a>
+              <a class="level-3" href="#why-cp-removes-isi">2.1 为什么 CP 能消除 ISI？</a>
+              <a class="level-3" href="#frequency-equalization">2.2 频域均衡成为可能</a>
+              <a class="level-2" href="#cp-length">三、CP 长度怎么选？——工程上的权衡</a>
+              <a class="level-3" href="#theory-requirement">3.1 理论要求</a>
+              <a class="level-3" href="#lte-5g-cp">3.2 LTE/5G 中的 CP 配置</a>
+              <a class="level-3" href="#not-too-long">3.3 CP 不是越长越好</a>
+              <a class="level-2" href="#receiver-processing">四、CP 在接收端怎么处理？</a>
+              <a class="level-3" href="#remove-cp-timing">4.1 去 CP 的时机</a>
+              <a class="level-3" href="#timing-benefit">4.2 CP 带来的额外好处：符号边界模糊化</a>
+              <a class="level-2" href="#variants">五、无边带 CP 的变种</a>
+              <a class="level-2" href="#implementation">六、工程实现要点</a>
+              <a class="level-2" href="#summary">总结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-cyclic-prefix" class="level1">
+              <h1>第5讲：循环前缀 CP——OFDM 的”护城河”</h1>
+
+              <p class="ofdm-author">作者：码农 | <span class="ofdm-term">无线通信算法工程师<span class="ofdm-mark">✦</span></span> | 6 年 <span class="ofdm-term">OFDM<span class="ofdm-mark">✦</span></span> 系统研发经验</p>
+
+              <section id="introduction" class="level2">
+                <h2>引言</h2>
+
+                <p>如果你在实验室里搭过一个完整的 OFDM 链路仿真，你会发现一个有趣的现象：把循环前缀（Cyclic Prefix, CP）去掉之后，BER 曲线会瞬间崩塌，哪怕信道已经做了完美的<span class="ofdm-term">信道估计<span class="ofdm-mark">✦</span></span>。</p>
+
+                <p>CP 就是这么一个”不起眼但没了它就不行”的角色。它像是 OFDM 系统的<span class="ofdm-term">护城河<span class="ofdm-mark">✦</span></span>——不显山露水，却守护着整个系统的稳定性。</p>
+
+                <p>本讲，我们深入拆解 CP 的工作原理、设计要点，以及它在工程实现中的各种权衡。</p>
+              </section>
+
+              <section id="without-cp" class="level2">
+                <h2>一、没有 CP 时，<span class="ofdm-term">多径<span class="ofdm-mark">✦</span></span>会造成什么灾难？</h2>
+
+                <section id="isi" class="level3">
+                  <h3>1.1 ISI：符号间的”串扰”</h3>
+
+                  <p>在<span class="ofdm-term">单载波<span class="ofdm-mark">✦</span></span>系统中，<span class="ofdm-term">多径效应<span class="ofdm-mark">✦</span></span>会导致接收信号的时域扩散，前一个符号的尾部”拖”到下一个符号的时间里，这就是<span class="ofdm-term">码间干扰<span class="ofdm-mark">✦</span></span>（ISI, Inter-Symbol Interference）。</p>
+
+                  <p>在 OFDM 系统中，一条 OFDM 符号的时域长度为 $T_{sym}$。如果没有任何保护间隔，多径时延为 $\tau_{max}$ 的信道会让第 $n$ 个符号的尾部 $\tau_{max}$ 时间段内混进第 $n+1$ 个符号的能量，造成 ISI。</p>
+
+                  <p>用公式描述，接收信号为：</p>
+
+                  <p><span class="math display">\[
+y(t)=\sum_{k=0}^{L-1}h_k\cdot x(t-\tau_k)+n(t)
+\]</span></p>
+
+                  <p>其中 $h_k$ 是第 $k$ 条路径的<span class="ofdm-term">复增益<span class="ofdm-mark">✦</span></span>，$\tau_k$ 是对应的时延，$L$ 是可分辨路径数。</p>
+
+                  <p>当 $\tau_{max}&gt;0$ 时，相邻 OFDM 符号在时域上发生混叠，直接破坏了<span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>间的正交性。</p>
+                </section>
+
+                <section id="ici" class="level3">
+                  <h3>1.2 ICI：<span class="ofdm-term">子载波间<span class="ofdm-mark">✦</span></span>的”互相干扰”</h3>
+
+                  <p>更致命的是，<strong><span class="ofdm-term">子载波间干扰<span class="ofdm-mark">✦</span></span>（ICI, Inter-Carrier Interference）</strong>。</p>
+
+                  <p>OFDM 的子载波正交性要求：在 FFT 积分区间内，子载波之间精确正交。多径引起的时延，相当于在时域上对每个子载波做了一个<span class="ofdm-term">相位旋转<span class="ofdm-mark">✦</span></span>，而且这个<span class="ofdm-term">旋转量<span class="ofdm-mark">✦</span></span>在 FFT 积分区间内不是常数——结果就是子载波之间不再正交，出现 ICI。</p>
+
+                  <p>数学上，第 $m$ 个子载波上的接收信号为：</p>
+
+                  <p><span class="math display">\[
+Y_m=\int_0^T y(t)e^{-j2\pi m\Delta f t}\,dt
+\]</span></p>
+
+                  <p>当 $y(t)$ 包含多径引起的时延扩展时，上述积分在 $m\ne n$ 时不再为零，ICI 由此产生。</p>
+                </section>
+              </section>
+
+              <section id="cp-core" class="level2">
+                <h2>二、CP 的核心魔法：把<span class="ofdm-term">线性卷积<span class="ofdm-mark">✦</span></span>变成循环卷积</h2>
+
+                <section id="why-cp-removes-isi" class="level3">
+                  <h3>2.1 为什么 CP 能消除 ISI？</h3>
+
+                  <p>CP 的做法非常简单：把 OFDM 符号时域波形的<strong>最后一段复制到符号的最前面</strong>，作为”前缀”。</p>
+
+                  <pre><code>无CP时:
+┌──────────── OFDM符号 ────────────┐
+│                                  │
+│   [原始符号 T_sym]               │
+│                                  │
+└──────────────────────────────────┘
+          ↓ 多径导致拖尾，侵入下一个符号
+
+加CP后:
+┌────┬─────────────────────────────┐
+│ CP │   [原始符号 T_sym]           │
+│(T_cp)│                            │
+└────┴─────────────────────────────┘
+          ↓ CP区域内，多径拖尾不影响FFT积分</code></pre>
+
+                  <p>关键在于：在<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>的最大时延扩展 $\tau_{max}$ 范围内，接收端做 FFT 积分的区间<strong>完全落在符号的”周期延伸”区域内</strong>。只要 $\tau_{max}&lt;T_{cp}$，FFT 积分区间内的信号就等价于原始符号的<strong>循环移位版本</strong>，线性卷积就被转化为了循环卷积。</p>
+                </section>
+
+                <section id="frequency-equalization" class="level3">
+                  <h3>2.2 <span class="ofdm-term">频域均衡<span class="ofdm-mark">✦</span></span>成为可能</h3>
+
+                  <p>循环卷积在频域对应<span class="ofdm-term">逐点乘法<span class="ofdm-mark">✦</span></span>：</p>
+
+                  <p>时域：$y[n]=h[n]\circledast x[n]$（循环卷积）</p>
+
+                  <p>频域：$Y[k]=H[k]\cdot X[k]$</p>
+
+                  <p>这就是为什么 CP 如此重要——<strong>它使得频域均衡变成了一个简单的<span class="ofdm-term">复数除法<span class="ofdm-mark">✦</span></span></strong>：</p>
+
+                  <p><span class="math display">\[
+\hat{X}[k]=\frac{Y[k]}{H[k]}
+\]</span></p>
+
+                  <p>如果没有 CP，<span class="ofdm-term">时域<span class="ofdm-mark">✦</span></span>是线性卷积，频域不再是<span class="ofdm-term">对角矩阵<span class="ofdm-mark">✦</span></span>，均衡就变得非常复杂（需要用<span class="ofdm-term">时域均衡<span class="ofdm-mark">✦</span></span>器，复杂度高得多）。</p>
+                </section>
+              </section>
+
+              <section id="cp-length" class="level2">
+                <h2>三、<span class="ofdm-term">CP 长度<span class="ofdm-mark">✦</span></span>怎么选？——工程上的权衡</h2>
+
+                <section id="theory-requirement" class="level3">
+                  <h3>3.1 理论要求</h3>
+
+                  <p>CP 长度 $T_{cp}$ 必须<strong>大于信道的最大<span class="ofdm-term">多径时延扩展<span class="ofdm-mark">✦</span></span></strong> $\tau_{max}$：</p>
+
+                  <p><span class="math display">\[
+T_{cp}&gt;\tau_{max}
+\]</span></p>
+
+                  <p>在实际系统中，$\tau_{max}$ 由部署场景决定：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>场景</th>
+                          <th>典型最大时延扩展<br>$\tau_{max}$</th>
+                          <th>CP 长度参考</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>室内办公</td>
+                          <td>~50 ns</td>
+                          <td>短 CP</td>
+                        </tr>
+                        <tr>
+                          <td>城市微蜂窝</td>
+                          <td>~0.5 μs</td>
+                          <td>短 CP</td>
+                        </tr>
+                        <tr>
+                          <td>城市<span class="ofdm-term">宏蜂窝<span class="ofdm-mark">✦</span></span></td>
+                          <td>~5 μs</td>
+                          <td>普通 CP</td>
+                        </tr>
+                        <tr>
+                          <td>农村/郊区</td>
+                          <td>~10 μs+</td>
+                          <td>长 CP</td>
+                        </tr>
+                        <tr>
+                          <td>3GPP ETU模型</td>
+                          <td>5 μs</td>
+                          <td>普通 CP</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section id="lte-5g-cp" class="level3">
+                  <h3>3.2 LTE/5G 中的 CP 配置</h3>
+
+                  <p><strong>LTE（4G）：</strong></p>
+
+                  <ul>
+                    <li>普通 CP（Normal CP）：长度约 4.7 μs，占用前 160 个<span class="ofdm-term">采样点<span class="ofdm-mark">✦</span></span>（20MHz 带宽，2048 点 FFT）</li>
+                    <li>支持每时隙 7 个 <span class="ofdm-term">OFDM 符号<span class="ofdm-mark">✦</span></span></li>
+                    <li><span class="ofdm-term">扩展CP<span class="ofdm-mark">✦</span></span>（Extended CP）：长度约 16.7 μs，支持 6个OFDM符号/时隙</li>
+                  </ul>
+
+                  <p><strong>5G NR:</strong></p>
+
+                  <ul>
+                    <li>支持灵活子载波间隔（15/30/60/120 kHz）</li>
+                    <li>CP长度随 SCS缩放：$T_{cp}\propto1/\Delta f$</li>
+                    <li>120 kHz SCS下CP仅约 0.59 μs，适合高频场景</li>
+                  </ul>
+                </section>
+
+                <section id="not-too-long" class="level3">
+                  <h3>3.3 CP 不是越长越好</h3>
+
+                  <p>CP 越长，抗多径能力越强，但<strong>频谱效率损失越大</strong>：</p>
+
+                  <p><span class="math display">\[
+\eta_{loss}=\frac{T_{cp}}{T_{sym}+T_{cp}}
+\]</span></p>
+
+                  <p>以 LTE 为例，$T_{sym}=66.7\,\mu s$，$T_{cp}=4.7\,\mu s$，<span class="ofdm-term">频谱效率<span class="ofdm-mark">✦</span></span>损失约 <strong>7%</strong>。</p>
+
+                  <p>在 5G 高频（120 kHz SCS）场景下，CP 占比更小，频谱效率更高——这也是 5G 选择更大 SCS 的原因之一。</p>
+                </section>
+              </section>
+
+              <section id="receiver-processing" class="level2">
+                <h2>四、CP 在接收端怎么处理？</h2>
+
+                <section id="remove-cp-timing" class="level3">
+                  <h3>4.1 <span class="ofdm-term">去 CP<span class="ofdm-mark">✦</span></span>的时机</h3>
+
+                  <p>接收端的处理流程：</p>
+
+                  <pre><code>接收时域信号
+    ↓
+(粗符号定时同步，找到符号起点)
+    ↓
+去除 CP（丢弃前 L_cp 个采样点）
+    ↓
+对剩余 T_sym 长度做 FFT
+    ↓
+频域均衡</code></pre>
+
+                  <p>关键点：<strong>FFT 窗口的起始位置必须在 CP 区域内，但不一定要在 CP 的最开头。</strong> 实际上，只要 FFT 窗口完全落在符号的”无 ISI 区间”内，均衡就能正常工作。这也是为什么符号定时同步允许一定的<span class="ofdm-term">误差容限<span class="ofdm-mark">✦</span></span>。</p>
+                </section>
+
+                <section id="timing-benefit" class="level3">
+                  <h3>4.2 CP 带来的额外好处：<span class="ofdm-term">符号边界模糊化<span class="ofdm-mark">✦</span></span></h3>
+
+                  <p>由于 CP 是符号尾部的复制，它在时域上提供了一个”缓冲带”。即便定时同步有一点偏差，只要偏差在 CP 范围内，FFT 积分区间仍然落在正确的符号周期内，系统性能不会恶化。</p>
+
+                  <p>这也是为什么在实际系统中，符号定时同步不需要做到”采样点精度”——CP 已经给了你一个不小的容差窗口。</p>
+                </section>
+              </section>
+
+              <section id="variants" class="level2">
+                <h2>五、无边带 CP 的变种</h2>
+
+                <p>标准 CP 需要占用额外的时域资源，在追求极致频谱效率的场景下，研究者提出了几种替代方案：</p>
+
+                <h3>5.1 零前缀（Zero Prefix, ZP<span class="ofdm-mark">✦</span>）</h3>
+
+                <p>用全零序列代替 CP。优点是峰均比更低（没有重复的信号段），缺点是失去了 CP 提供的”循环卷积”特性，需要特殊的<span class="ofdm-term">信号处理技术<span class="ofdm-mark">✦</span></span>来恢复正交性。</p>
+
+                <h3>5.2 已知符号前缀（Known Symbol Prefix, KSP<span class="ofdm-mark">✦</span>）</h3>
+
+                <p>用已知的固定序列作为前缀。可以同时用于符号定时同步和信道估计，但同样需要额外的信号处理复杂度。</p>
+
+                <h3>5.3 实际应用</h3>
+
+                <p>在主流标准（LTE、5G NR、WiFi）中，CP <strong>仍然是不二之选</strong>。它的简单性和<span class="ofdm-term">鲁棒性<span class="ofdm-mark">✦</span></span>远超各种变种方案。只有在一些特殊的<span class="ofdm-term">低功耗<span class="ofdm-mark">✦</span></span>物联网场景中，才会考虑 ZP 等替代方案。</p>
+              </section>
+
+              <section id="implementation" class="level2">
+                <h2>六、工程实现要点</h2>
+
+                <p>在实际芯片实现中，CP 的处理有几个值得注意的细节：</p>
+
+                <ol>
+                  <li><strong><span class="ofdm-term">CP 长度的配置灵活性<span class="ofdm-mark">✦</span></span>：</strong>5G NR 支持多种 CP 长度，基站通过系统消息通知 UE 当前使用的 CP类型，UE <span class="ofdm-term">接收机<span class="ofdm-mark">✦</span></span>据此调整 FFT 窗口长度。</li>
+                  <li><strong>定点实现中的 CP 复制：</strong>发送端 IFFT 输出的是定点复数序列，CP复制就是一段简单的存储器读写操作，但要注意定点溢出问题（时域信号幅度可能因 IFFT 而增大）。</li>
+                  <li><strong><span class="ofdm-term">CP 与同步的联合优化<span class="ofdm-mark">✦</span></span>：</strong>在接收端，利用 CP 与符号尾部的相似性做符号定时同步（经典算法如 Schmidl &amp; Cox），CP 同时承担了”保护间隔”和”同步辅助”双重角色。</li>
+                </ol>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>CP 是 OFDM 系统中最简单却最精妙的设计之一：</p>
+
+                <ul>
+                  <li><strong>核心作用：</strong>消除 ISI 和 ICI，将线性卷积转化为循环卷积，使频域均衡成为可能</li>
+                  <li><strong>设计原则：</strong>CP 长度 &gt; 最大多径时延扩展，同时尽量减少频谱效率损失</li>
+                  <li><strong>工程权衡：</strong>CP 越长，抗多径能力越强，但频谱效率损失越大</li>
+                  <li><strong>实际配置：</strong>LTE/5G NR 都提供了多种 CP 配置，适应不同部署场景</li>
+                </ul>
+
+                <p>下一讲，我们将进入 <strong>QAM 调制与子载波映射</strong>，看看比特是怎么”装”到了子载波上去的。</p>
+
+                <hr class="ofdm-divider">
+
+                <p><em>下一篇预告：[第6讲] QAM调制与子载波映射——<span class="ofdm-term">比特<span class="ofdm-mark">✦</span></span>怎么变成子载波?</em></p>
+              </section>
+
+              <section id="questions" class="level2">
+                <blockquote>
+                  <p>思考题</p>
+                </blockquote>
+
+                <ol>
+                  <li>如果一个系统的 CP 长度是 5 μs，但实际部署环境的最大多径时延扩展是 7 μs，BER 性能会如何变化？为什么？</li>
+                  <li>5G NR 为什么要把子载波间隔做得更大（如 120 kHz）？从 CP 的角度分析其优势。</li>
+                  <li>如果让你设计一个适用于高铁场景（<span class="ofdm-term">多普勒频移<span class="ofdm-mark">✦</span></span>很大）的 OFDM 系统，CP 长度应该怎么考虑？</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

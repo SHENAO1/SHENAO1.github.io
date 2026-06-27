@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 6 讲：QAM 调制与子载波映射——比特怎么变成子载波？ | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 6 讲：复刻 QAM 调制、星座点归一化、子载波映射、LTE 资源网格实例和工程实现要点。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 27ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 6 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 6</div>
+          <h1>第 6 讲：QAM 调制与子载波映射——比特怎么变成子载波？</h1>
+          <p>从比特流到 QAM 星座点，再到 IFFT 所需的频域输入向量，补上 OFDM 发射机里最容易断层的一段。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>QAM</span>
+          <span>Subcarrier Mapping</span>
+          <span>Resource Grid</span>
+          <span>LTE 20MHz</span>
+          <span>MATLAB</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从 QAM 星座点、子载波映射、资源网格和工程实现理解频域向量的生成。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#introduction">引言：从比特流到频域符号的旅程</a>
+              <a class="level-2" href="#qam">一、QAM 调制：比特 → 复数符号</a>
+              <a class="level-3" href="#complex-symbol">1.1 为什么用复数表示信号？</a>
+              <a class="level-3" href="#constellation">1.2 QPSK、16QAM、64QAM 星座图</a>
+              <a class="level-3" href="#normalization">1.3 星座点归一化</a>
+              <a class="level-2" href="#subcarrier-mapping">二、子载波映射：符号 → IFFT 输入向量</a>
+              <a class="level-3" href="#three-subcarriers">2.1 三类子载波</a>
+              <a class="level-3" href="#resource-grid">2.2 资源网格（Resource Grid）</a>
+              <a class="level-3" href="#matlab-mapping">2.3 子载波映射的 MATLAB 实现</a>
+              <a class="level-2" href="#lte-example">三、LTE 资源网格实例解析</a>
+              <a class="level-2" href="#implementation">四、工程实现要点</a>
+              <a class="level-3" href="#pilot-pattern">4.1 导频图案设计的权衡</a>
+              <a class="level-3" href="#oversampling">4.2 频域过采样（零填充）</a>
+              <a class="level-3" href="#fft-index">4.3 子载波编号与频率的对应</a>
+              <a class="level-2" href="#summary">总结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="qam-subcarrier-mapping" class="level1">
+              <h1>第 6讲： QAM调制与子载波映射——比特怎么变成子载波?</h1>
+
+              <section id="introduction" class="level2">
+                <h2>引言：从<span class="ofdm-term">比特流<span class="ofdm-mark">✦</span></span>到频域符号的旅程</h2>
+
+                <p>做了这么多年OFDM，我发现很多人对发射机的理解是”<span class="ofdm-term">断层<span class="ofdm-mark">✦</span></span>”的：知道最终要发出<span class="ofdm-term">射频信号<span class="ofdm-mark">✦</span></span>，也知道中间要做<span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span>，但<strong>比特是怎么一步步变成 IFFT 输入的复数符号的</strong>，这段逻辑往往含糊不清。</p>
+
+                <p>这一讲，我们来填上这个断层。</p>
+
+                <p>一个OFDM系统的发射端，在做IFFT之前，要完成两件关键的事：</p>
+
+                <ol>
+                  <li><strong>QAM调制：</strong>把0/1比特流映射成<span class="ofdm-term">复平面<span class="ofdm-mark">✦</span></span>上的星座点</li>
+                  <li><strong><span class="ofdm-term">子载波映射<span class="ofdm-mark">✦</span></span>：</strong>把这些星座点按规则分配到各个子载波上</li>
+                </ol>
+
+                <p>这两步合起来，才能生成IFFT所需的频域输入<span class="ofdm-term">向量<span class="ofdm-mark">✦</span></span>。理解了这里，你对OFDM 发射机的理解就真正连贯了。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="qam" class="level2">
+                <h2>一、 <span class="ofdm-term">QAM 调制<span class="ofdm-mark">✦</span></span>：比特 → 复数符号</h2>
+
+                <section id="complex-symbol" class="level3">
+                  <h3>1.1 为什么用复数表示信号?</h3>
+
+                  <p>在数字通信里，我们在 I（同相）和 Q（<span class="ofdm-term">正交<span class="ofdm-mark">✦</span></span>）两个维度上同时携带信息。一个复数符号 $s=I+jQ$，既代表了幅度，也代表<span class="ofdm-term">相位<span class="ofdm-mark">✦</span></span>，是对两路独立信号的紧凑表示。</p>
+
+                  <p>这就是所谓的”<span class="ofdm-term">正交调制<span class="ofdm-mark">✦</span></span>”——I和Q两路信号频率相同、<span class="ofdm-term">相位相差<span class="ofdm-mark">✦</span></span>90°，彼此互不干扰，合在一起可以把<span class="ofdm-term">传输效率<span class="ofdm-mark">✦</span></span>翻倍。</p>
+                </section>
+
+                <section id="constellation" class="level3">
+                  <h3>1.2 QPSK、16QAM、64QAM 星座图</h3>
+
+                  <p>QAM（Quadrature Amplitude Modulation，<span class="ofdm-term">正交幅度调制<span class="ofdm-mark">✦</span></span>）的核心思想是：用<strong>幅度和相位的联合变化</strong>来承载更多比特。</p>
+
+                  <p>星座图大小与阶数的关系：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>调制方式</th>
+                          <th>星座点数</th>
+                          <th>每符号比特数<span class="ofdm-mark">✦</span></th>
+                          <th>理论频谱效率<span class="ofdm-mark">✦</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>BPSK</td>
+                          <td>2</td>
+                          <td>1 bit/symbol</td>
+                          <td>1 bit/s/Hz</td>
+                        </tr>
+                        <tr>
+                          <td>QPSK</td>
+                          <td>4</td>
+                          <td>2 bit/symbol</td>
+                          <td>2 bit/s/Hz</td>
+                        </tr>
+                        <tr>
+                          <td>16QAM</td>
+                          <td>16</td>
+                          <td>4 bit/symbol</td>
+                          <td>4 bit/s/Hz</td>
+                        </tr>
+                        <tr>
+                          <td>64QAM</td>
+                          <td>64</td>
+                          <td>6 bit/symbol</td>
+                          <td>6 bit/s/Hz</td>
+                        </tr>
+                        <tr>
+                          <td>256QAM</td>
+                          <td>256</td>
+                          <td>8 bit/symbol</td>
+                          <td>8 bit/s/Hz</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>以 <strong>16QAM</strong> 为例，其星座点分布在 4 × 4 的均匀网格上，<span class="ofdm-term">I轴<span class="ofdm-mark">✦</span></span>和Q轴各有4个<span class="ofdm-term">电平<span class="ofdm-mark">✦</span></span>：$\{-3,-1,+1,+3\}$（归一化后）。</p>
+
+                  <p><span class="ofdm-term">格雷码映射<span class="ofdm-mark">✦</span></span>是QAM 的标配——相邻星座点之间只有1个比特不同。这样当噪声导致判决错误时，最可能的错误是跳到相邻星座点，而只错1个比特，有效降低<span class="ofdm-term">误比特率<span class="ofdm-mark">✦</span></span>（BER）。</p>
+                </section>
+
+                <section id="normalization" class="level3">
+                  <h3>1.3 星座点归一化</h3>
+
+                  <p>为了让不同调制方式下的功率可比，通常对星座点做<span class="ofdm-term">平均功率<span class="ofdm-mark">✦</span></span>归一化：</p>
+
+                  <p><span class="math display">\[
+E\{|s|^2\}=1
+\]</span></p>
+
+                  <p>对于 16QAM，归一化因子为 $\frac{1}{\sqrt{10}}$；对于 64QAM，<span class="ofdm-term">归一化因子<span class="ofdm-mark">✦</span></span>为 $\frac{1}{\sqrt{42}}$。</p>
+
+                  <p>用 MATLAB 生成标准的16QAM映射表：</p>
+
+                  <pre><code class="language-matlab">function symbols = qam16_modulate(bits)
+% QAM16_MODULATE  16QAM调制：每4个比特映射为1个复数符号
+%   采用格雷码映射，平均功率归一化
+%
+%   输入： bits - 比特行向量（长度须为4的整数倍）
+%   输出： symbols - 复数符号行向量✦
+%
+% 归一化因子（16QAM平均功率 = 10）
+normFactor = 1 / sqrt(10);
+
+% 格雷码映射表：4比特 → 未归一化IQ电平
+%   bit3  bit2  bit1  bit0
+constellation = [-3-3j, -3-1j, -3+1j, -3+3j,   % 0000~0011
+                 -1-3j, -1-1j, -1+1j, -1+3j,   % 0100~0111
+                  1-3j,  1-1j,  1+1j,  1+3j,   % 1100~1101 (格雷码顺序)
+                  3-3j,  3-1j,  3+1j,  3+3j];  % 1000~1011
+
+N_sym = length(bits) / 4;
+symbols = zeros(1, N_sym);
+
+for k = 1:N_sym
+    idx = bi2de(bits(4*(k-1)+1 : 4*k), 'left-msb') + 1;
+    symbols(k) = constellation(idx) * normFactor;
+end
+end</code></pre>
+                </section>
+              </section>
+
+              <section id="subcarrier-mapping" class="level2">
+                <h2>二、子载波映射：符号 → IFFT 输入向量</h2>
+
+                <section id="three-subcarriers" class="level3">
+                  <h3>2.1 三类子载波</h3>
+
+                  <p>得到<span class="ofdm-term">调制符号<span class="ofdm-mark">✦</span></span>之后，并不是简单地把所有符号依次塞进 IFFT 的每个输入端口。 OFDM 系统中，频域子载波通常分为三类：</p>
+
+                  <pre><code>频域资源网格（示意）：
+
+子载波编号：   0   1   2   3   4   5   6   7   8   9  10 11 12 ...
+子载波类型：   P   D   D   D   P   D   D   D   P   D   D  G  ...
+
+P = 导频子载波✦ (Pilot)      — 发已知符号，用于信道估计
+D = 数据子载波✦ (Data)       — 承载实际QAM数据
+G = 保护子载波✦ (Guard)      — 填零，形成频谱边界</code></pre>
+
+                  <ul>
+                    <li><strong>数据子载波（Data Subcarrier）：</strong>承载实际用户数据，比例越高，频谱效率越好</li>
+                    <li><strong>导频子载波（Pilot Subcarrier）：</strong>发送接收端已知的参考符号，接收端用它来估计信道响应（如同在频域”打标记”）</li>
+                    <li><strong>保护子载波（Guard Subcarrier / Null Subcarrier）：</strong>位于频带两端，置零，防止与相邻<span class="ofdm-term">频段<span class="ofdm-mark">✦</span></span>干扰，也用来容纳 <span class="ofdm-term">DC 分量<span class="ofdm-mark">✦</span></span></li>
+                  </ul>
+                </section>
+
+                <section id="resource-grid" class="level3">
+                  <h3>2.2 资源网格（Resource Grid）</h3>
+
+                  <p>在LTE/5G <span class="ofdm-term">NR<span class="ofdm-mark">✦</span></span>中，子载波映射被组织成一个<strong>二维资源网格</strong>，横轴是时间（OFDM符号），纵轴是频率（子载波编号）。</p>
+
+                  <p><strong>LTE（20MHz带宽）的关键参数：</strong></p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>参数</th>
+                          <th>数值</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span> $\Delta f$</td>
+                          <td>15 kHz</td>
+                        </tr>
+                        <tr>
+                          <td>FFT点数 N</td>
+                          <td>2048</td>
+                        </tr>
+                        <tr>
+                          <td>有效子载波总数</td>
+                          <td>1200</td>
+                        </tr>
+                        <tr>
+                          <td>数据子载波（近似）</td>
+                          <td>~1176</td>
+                        </tr>
+                        <tr>
+                          <td>导频子载波（RS）</td>
+                          <td>约占14%（CRS格式）</td>
+                        </tr>
+                        <tr>
+                          <td>每子帧符号数</td>
+                          <td>14（Normal CP）</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>直观来说，一个LTE 20MHz的资源网格是： <strong>1200行（频率方向） × 14列（时间方向）</strong> 的矩形块，也就是一个<strong>时隙（0.5ms）</strong>的资源量。</p>
+
+                  <p><strong>5G NR</strong> 引入了”灵活参数集”概念，子载波间隔可以是 15/30/60/120/240 kHz，对应不同场景（eMBB / URLLC / mmWave），但资源网格的组织逻辑是一致的。</p>
+                </section>
+
+                <section id="matlab-mapping" class="level3">
+                  <h3>2.3 子载波映射的 MATLAB 实现</h3>
+
+                  <pre><code class="language-matlab">function X = subcarrier_mapping(dataSymbols, N_fft, N_used)
+% SUBCARRIER_MAPPING  将调制符号放入IFFT输入向量
+%
+%   输入：
+%       dataSymbols - QAM数据符号行向量（长度 &lt;= N_used）
+%       N_fft       - FFT点数（决定采样率）
+%       N_used      - 有效子载波数（数据 + 导频）
+%   输出：
+%       X           - N_fft 点频域向量（IFFT输入）
+
+X = zeros(1, N_fft);
+half = floor(N_used / 2);
+
+% 正频率部分（子载波 1 ~ half）
+X(2 : half+1) = dataSymbols(1 : half);
+
+% 负频率部分（子载波 N_fft-half+1 ~ N_fft，对应 -half ~ -1）
+X(N_fft-half+1 : N_fft) = dataSymbols(half+1 : N_used);
+
+% X(1) = DC，保持为零
+end
+
+function x = ofdm_transmit(dataBits, N_fft, N_used)
+% OFDM_TRANSMIT  完整OFDM发射端（比特 -> 时域符号）
+%
+%   输入：
+%       dataBits - 比特行向量
+%       N_fft    - FFT点数
+%       N_used   - 有效子载波数
+%   输出：
+%       x        - 时域OFDM符号（行向量）
+
+% 步骤1：QAM调制（16QAM）
+dataSymbols = qam16_modulate(dataBits);
+
+% 步骤2：子载波映射
+X = subcarrier_mapping(dataSymbols, N_fft, N_used);
+
+% 步骤3：IFFT → 时域符号，功率归一化
+x = ifft(X, N_fft) * sqrt(N_fft);
+end</code></pre>
+                </section>
+              </section>
+
+              <section id="lte-example" class="level2">
+                <h2>三、LTE 资源网格实例解析</h2>
+
+                <p>用一个具体的 LTE 参数来走一遍从比特到频域向量的全过程：</p>
+
+                <p><strong>场景：</strong> LTE 20MHz， Normal CP， 1个OFDM符号</p>
+
+                <p><strong>计算步骤：</strong></p>
+
+                <p><span class="math display">\[
+\text{有效子载波数}=100\ \mathrm{RB}\times 12\ \text{子载波}/\mathrm{RB}=1200\ \text{子载波}
+\]</span></p>
+
+                <p><span class="math display">\[
+\text{OFDM符号时长}=\frac{1}{\Delta f}=\frac{1}{15\mathrm{kHz}}\approx 66.7\ \mu s
+\]</span></p>
+
+                <p><span class="math display">\[
+\text{CP时长}=5.2\ \mu s\ \text{（第0个符号）或}\ 4.69\ \mu s\ \text{（其余符号）}
+\]</span></p>
+
+                <p><span class="math display">\[
+\text{采样率}=N_{\mathrm{FFT}}\times \Delta f = 2048\times 15\mathrm{kHz}=30.72\ \mathrm{MSPS}
+\]</span></p>
+
+                <p>如果采用 <strong>64QAM</strong>，每个数据子载波承载6 bit，则：</p>
+
+                <p><span class="math display">\[
+\text{一个OFDM符号的数据容量}\approx (1200-\text{导频数})\times 6\ \mathrm{bit}
+\]</span></p>
+
+                <p><span class="math display">\[
+\approx 1100\times 6=6600\ \mathrm{bit}\approx 825\ \mathrm{Byte}\ \text{（去掉导频后）}
+\]</span></p>
+
+                <p>LTE下行 14个符号/子帧，1个子帧 = 1ms，理论峰值<span class="ofdm-term">吞吐量<span class="ofdm-mark">✦</span></span>约：</p>
+
+                <p><span class="math display">\[
+825\times 14\times 1000\approx 11.55\ \mathrm{Mbps}\ \text{（单端口，未含编码码率）}
+\]</span></p>
+
+                <p>实际 LTE Category 4峰值是150 Mbps（含2×2 MIMO、5/6编码率），这里只是单入单出的粗估，但<span class="ofdm-term">数量级<span class="ofdm-mark">✦</span></span>是对的。</p>
+              </section>
+
+              <section id="implementation" class="level2">
+                <h2>四、工程实现要点</h2>
+
+                <section id="pilot-pattern" class="level3">
+                  <h3>4.1 导频图案设计的权衡</h3>
+
+                  <p>导频密度越高，信道估计越准确，但数据承载效率越低。实际工程中是个典型的<strong>准确性 vs 效率</strong>权衡：</p>
+
+                  <ul>
+                    <li><strong>时域密度：</strong>取决于信道<span class="ofdm-term">相干时间<span class="ofdm-mark">✦</span></span>（信道变化速度）</li>
+                    <li><strong>频域密度：</strong>取决于信道<span class="ofdm-term">相干带宽<span class="ofdm-mark">✦</span></span>（多径延迟扩展）</li>
+                  </ul>
+
+                  <blockquote>
+                    <p>工程经验：导频间隔不能超过相干带宽对应的子载波数的一半（<span class="ofdm-term">采样定理<span class="ofdm-mark">✦</span></span>在频率维度的应用）。</p>
+                  </blockquote>
+                </section>
+
+                <section id="oversampling" class="level3">
+                  <h3>4.2 <span class="ofdm-term">频域过采样<span class="ofdm-mark">✦</span></span>（零填充）</h3>
+
+                  <p>IFFT的点数 $N_{\mathrm{FFT}}$ 通常远大于有效子载波数 $N_{\mathrm{used}}$。比如LTE 20MHz的 2048点FFT，有效子载波只有1200个，其余848个端口全部置零（保护子载波）。</p>
+
+                  <p>这等效于时域信号的<strong>过采样</strong>，让DAC端的模拟<span class="ofdm-term">滤波器设计<span class="ofdm-mark">✦</span></span>更容易。</p>
+                </section>
+
+                <section id="fft-index" class="level3">
+                  <h3>4.3 子载波编号与频率的对应</h3>
+
+                  <p>FFT输入向量的编号与实际频率的对应关系（以0为DC）：</p>
+
+                  <p><span class="math display">\[
+f_k=k\cdot\Delta f,\qquad k=0,1,\cdots,N/2-1,-N/2,\cdots,-1
+\]</span></p>
+
+                  <p>在实现时需要注意 <code>fftshift</code> 操作：FFT的正负频率排列与直觉上的”低频居中”不同，实现时子载波映射要特别注意索引对应关系，否则会出现镜像频谱或DC泄漏。</p>
+                </section>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>这一讲覆盖了OFDM发射机中”比特→频域向量”的完整路径：</p>
+
+                <ol>
+                  <li><strong>QAM调制</strong>将比特流映射为格雷码星座点，调制阶数越高、每符号携带比特越多，但对<span class="ofdm-term">信噪比<span class="ofdm-mark">✦</span></span>要求也更严</li>
+                  <li><strong>子载波映射</strong>将调制符号分配到数据子载波、导频子载波，保护子载波置零，构成IFFT的输入向量</li>
+                  <li><strong>资源网格</strong>是时频二维的资源组织方式，LTE/5G NR以此为基础做多用户调度</li>
+                  <li><strong>工程中</strong>需要关注导频设计权衡、零填充过采样、FFT索引与频率的正确对应</li>
+                </ol>
+
+                <p>下一讲我们进入更底层：<strong>第7讲 IFFT的硬件实现——从算法到电路</strong>，看看那些在教材里漂亮的蝶形运算，在真实芯片里是怎么活下来的。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="questions" class="level2">
+                <blockquote>
+                  <p>思考题</p>
+                </blockquote>
+
+                <ol>
+                  <li>若LTE系统采用64QAM调制，有效子载波1200个，其中导频100个，CP开销约7%，请估算单天线下行方向每秒最大可传输的数据量（忽略编码率）。</li>
+                  <li>为什么格雷码映射能降低误比特率？请结合星座图说明。</li>
+                  <li>5G NR的子载波间隔为60 kHz时，对应的OFDM符号时长和相干带宽要求是多少?</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

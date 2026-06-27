@@ -51,7 +51,7 @@
 
           <div class="hero-metrics" aria-label="站点概览">
             <article>
-              <strong>9+ 篇</strong>
+              <strong>10+ 篇</strong>
               <span>GNSS、信号处理与 OFDM 笔记</span>
             </article>
             <article>
@@ -69,8 +69,8 @@
           <div class="blog-desk">
             <article class="blog-panel is-main">
               <span>Latest note</span>
-              <strong>第 3 讲：OFDM 发射机框架总览</strong>
-              <p>从比特流到射频信号，走完发射机 7 大环节。</p>
+              <strong>第 13 讲：载波频率同步</strong>
+              <p>从 CFO、CPE/ICI、Moose 算法到 5G NR PT-RS 实践。</p>
             </article>
 
             <div class="blog-stack">
@@ -243,12 +243,53 @@
                   <a href="notes/ofdm/ofdm-transmitter-overview/">第 3 讲：OFDM 发射机框架总览</a>
                   <p>沿 QAM 映射、串并转换、IFFT、循环前缀、DAC 和上变频走完发射机链路。</p>
                 </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-ifft-core/">第 4 讲：从傅里叶变换理解 OFDM</a>
+                  <p>从 DFT/IDFT、矩阵形式、FFT 复杂度和 LTE 参数解释 IFFT 为什么是核心。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-cyclic-prefix/">第 5 讲：循环前缀 CP</a>
+                  <p>从 ISI/ICI、循环卷积、频域均衡和 CP 长度配置解释 OFDM 的保护间隔。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/qam-subcarrier-mapping/">第 6 讲：QAM 调制与子载波映射</a>
+                  <p>从 QAM 星座点、格雷码映射、子载波映射和 LTE 资源网格解释频域输入向量的生成。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-ifft-hardware/">第 7 讲：IFFT 的硬件实现</a>
+                  <p>从 Cooley-Tukey FFT、流水线/并行架构、定点量化和 EVM 影响解释算法如何落到电路。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-cp-windowing/">第 8 讲：循环前缀与加窗</a>
+                  <p>从矩形脉冲的 sinc 旁瓣、升余弦加窗和 EVM 权衡解释 OFDM 如何降低带外泄漏。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-papr-problem-part-1/">第 9 讲：峰均比 PAPR 问题（上）</a>
+                  <p>从 PAPR 定义、子载波同相叠加、CCDF 统计、PA 回退和 MATLAB 仿真解释 OFDM 为什么“峰”很多。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-papr-problem-part-2/">第 10 讲：峰均比 PAPR 问题（下）</a>
+                  <p>从限幅滤波、峰值加窗、SLM、PTS、TR、TI 和 SC-FDMA 解释工程上如何压低 OFDM 峰值。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/wireless-channel-modeling/">第 11 讲：无线信道建模</a>
+                  <p>从多径信道、四个关键参数、瑞利/莱斯衰落、3GPP 标准模型和多普勒效应解释 OFDM 的信道约束。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-symbol-timing-sync/">第 12 讲：符号定时同步</a>
+                  <p>从 STO 对相位和 ISI 的影响、CP 滑动相关和 Schmidl &amp; Cox 训练符号解释 OFDM 接收机如何找到符号起点。</p>
+                </li>
+                <li>
+                  <a href="notes/ofdm/ofdm-carrier-frequency-synchronization/">第 13 讲：载波频率同步</a>
+                  <p>从 CFO 来源、CPE 与 ICI 影响、CP/Moose/导频估计和两级补偿解释 OFDM 接收机如何消除频偏。</p>
+                </li>
               </ul>
               <div class="chip-row">
                 <span>OFDM</span>
-                <span>发射机</span>
-                <span>IFFT</span>
-                <span>CP</span>
+                <span>信道建模</span>
+                <span>符号同步</span>
+                <span>载波同步</span>
+                <span>PT-RS</span>
               </div>
             </article>
 

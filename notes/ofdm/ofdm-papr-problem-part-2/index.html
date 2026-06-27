@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 10 讲：峰均比 PAPR 问题（下）——主流抑制技术详解 | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 10 讲：复刻峰均比 PAPR 问题下篇内容，系统整理限幅滤波、峰值加窗、SLM、PTS、TR、TI、SC-FDMA 和工程混合方案。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 34ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 10 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 10</div>
+          <h1>第 10 讲：峰均比 PAPR 问题（下）——主流抑制技术详解</h1>
+          <p>从限幅滤波、峰值加窗、SLM、PTS、TR、TI 到 SC-FDMA，按工程取舍整理主流 PAPR 抑制技术。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>PAPR</span>
+          <span>Clipping</span>
+          <span>SLM</span>
+          <span>PTS</span>
+          <span>TR/TI</span>
+          <span>SC-FDMA</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>按截图顺序复刻 PAPR 抑制的三类方法、工程组合方案和思考题。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#intro">引言</a>
+              <a class="level-2" href="#predistortion">一、信号预畸变类</a>
+              <a class="level-3" href="#clipping-filtering">1.1 限幅滤波</a>
+              <a class="level-3" href="#peak-windowing">1.2 峰值加窗</a>
+              <a class="level-2" href="#coding">二、信号编码类</a>
+              <a class="level-3" href="#slm">2.1 选择性映射</a>
+              <a class="level-3" href="#pts">2.2 部分传输序列</a>
+              <a class="level-2" href="#probabilistic">三、概率类方法</a>
+              <a class="level-3" href="#tr">3.1 预留子载波</a>
+              <a class="level-3" href="#ti">3.2 时域注入</a>
+              <a class="level-2" href="#comparison">四、技术权衡全景对比</a>
+              <a class="level-2" href="#engineering">五、工程实践：混合方案才是正解</a>
+              <a class="level-3" href="#base-station">5.1 典型基站发端方案</a>
+              <a class="level-3" href="#sc-fdma">5.2 终端方案：SC-FDMA 的根本性解决</a>
+              <a class="level-2" href="#summary">六、小结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-papr-problem-part-2" class="level1">
+              <h1>第10讲：峰均比PAPR问题（下）——主流抑制技术详解</h1>
+
+              <section id="intro" class="level2">
+                <p>上一讲我们把 PAPR 的底裤扒了个干净——它为什么存在、有多严重、对 PA 和 ADC 有什么灾难性影响。今天趁热打铁，直接来看工程师们是怎么跟这些“峰值”掰手腕的。</p>
+
+                <p><span class="ofdm-term">PAPR 抑制技术<span class="ofdm-mark">✦</span></span>五花八门，但可以归纳为三大流派：<span class="ofdm-term">信号预畸变<span class="ofdm-mark">✦</span></span>（简单粗暴但有效）、<span class="ofdm-term">信号编码<span class="ofdm-mark">✦</span></span>（巧妙的数学游戏）、<span class="ofdm-term">概率类<span class="ofdm-mark">✦</span></span>（预留后门曲线救国）。每种方法都有取舍，工程上往往是几种技术组合使用。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="predistortion" class="level2">
+                <h2>一、信号预畸变类——”砍掉它，然后擦干净”</h2>
+
+                <section id="clipping-filtering" class="level3">
+                  <h3>1.1 <span class="ofdm-term">限幅滤波<span class="ofdm-mark">✦</span></span>（Clipping + Filtering）</h3>
+
+                  <p>这是最简单、最直观、也是<strong>工程中使用最普遍</strong>的 PAPR 抑制方法。思路就两个字：<strong>削峰</strong>。</p>
+
+                  <p>设目标限幅门限为 $A_{\mathrm{clip}}$，则限幅操作为：</p>
+
+                  <p><span class="math display">\[
+y[n]=
+\begin{cases}
+x[n], & |x[n]|\le A_{\mathrm{clip}}\\
+A_{\mathrm{clip}}\cdot e^{j\angle x[n]}, & |x[n]|>A_{\mathrm{clip}}
+\end{cases}
+\]</span></p>
+
+                  <p>用通俗的话说：凡是幅度超过门限的样本，直接把幅度压到门限，相位保持不变。</p>
+
+                  <p>用一个称为<strong>限幅比（Clipping Ratio, CR）</strong>的参数来描述削峰程度：</p>
+
+                  <p><span class="math display">\[
+\mathrm{CR}
+=\frac{A_{\mathrm{clip}}}{\sqrt{E[|x[n]|^2]}}
+=\frac{A_{\mathrm{clip}}}{\sigma}
+\]</span></p>
+
+                  <p>CR 越小，削峰越狠，PAPR降得越多——但信号失真也越大。</p>
+
+                  <p><strong>限幅的问题在哪？</strong> 硬削峰相当于在时域乘了一个矩形窗函数，根据傅里叶变换的卷积性质，这在频域引入了<strong>带外辐射（Out-of-Band Emission, OOB）</strong>——信号频谱会“泄露”到相邻信道，违反频谱模板。</p>
+
+                  <p>怎么办？<strong>加滤波器。</strong></p>
+
+                  <p><strong>Clipping + Filtering</strong> 就是：先削峰 → 再滤波把带外泄漏擦干净。但滤波又会引入新的峰值再生（Peak Regrowth），所以实际中常做<strong>多次限幅+滤波迭代</strong>：</p>
+
+                  <pre><code>原始信号 → [Clip 1 → Filter 1] → [Clip 2 → Filter 2] → … → [Clip N → Filter N] → 输出</code></pre>
+
+                  <p>MATLAB实现（单次限幅+滤波）：</p>
+
+                  <pre><code class="language-matlab">% 限幅滤波法
+function y = clip_filter(x, CR, N_fft)
+    % x: 输入时域OFDM信号
+    % CR: 限幅比（如CR = 1.8，即限幅电平为1.8*RMS）
+    % N_fft: FFT点数（用于频域滤波）
+
+    % Step 1: 限幅
+    A_clip = CR * rms(x);
+    y_clip = x;
+    idx = abs(x) > A_clip;
+    y_clip(idx) = A_clip * exp(1j * angle(x(idx)));
+
+    % Step 2: 频域滤波（去除带外辐射）
+    Y = fft(y_clip, N_fft);
+    % 只保留有效子载波，其余置零
+    N_used = N_fft; % 实际使用时根据子载波分配方案只保留有效子载波
+    Y(N_used/2+2 : end-N_used/2) = 0;  % 带外置零
+    y = ifft(Y);
+end</code></pre>
+
+                  <p><strong>优缺点总结：</strong></p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>维度</th>
+                          <th>评价</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>PAPR抑制效果</td>
+                          <td>★★★★★（可控制在3~5dB范围内）</td>
+                        </tr>
+                        <tr>
+                          <td>计算复杂度</td>
+                          <td>★☆☆☆☆（极低，一个if判断 + 一次FFT/IFFT）</td>
+                        </tr>
+                        <tr>
+                          <td>带内失真</td>
+                          <td>无法避免，EVM 会恶化</td>
+                        </tr>
+                        <tr>
+                          <td>带外辐射</td>
+                          <td>通过滤波可控，但峰值再生需要迭代处理</td>
+                        </tr>
+                        <tr>
+                          <td>硬件可实现性</td>
+                          <td>★★★★★（FPGA/ASIC 实现非常成熟）</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section id="peak-windowing" class="level3">
+                  <h3>1.2 <span class="ofdm-term">峰值加窗<span class="ofdm-mark">✦</span></span>（Peak Windowing）</h3>
+
+                  <p>限幅的硬削平相当于乘以矩形窗，频谱旁瓣很高。<strong>峰值加窗</strong>的思路是用<strong>光滑窗函数</strong>（如升余弦窗、Kaiser窗）替代硬削，让削峰过渡更平滑，从而减少带外泄漏。</p>
+
+                  <p>操作流程：检测到超过门限的峰值 → 在该位置乘以一个窗函数（宽度通常为几个样本）→ 窗与信号做乘性衰减。</p>
+
+                  <p>相比于硬限幅，峰值加窗的带外辐射显著减小，但代价是”削得不够狠”——同一门限下 PAPR 抑制效果略逊于硬限幅。实际实现中，峰值加窗通常无需额外滤波，因为窗函数自身就是限带的。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="coding" class="level2">
+                <h2>二、信号编码类——”换个说法，峰值就小了”</h2>
+
+                <section id="slm" class="level3">
+                  <h3>2.1 <span class="ofdm-term">选择性映射<span class="ofdm-mark">✦</span></span>（SLM, Selected Mapping）</h3>
+
+                  <p>SLM 的核心思想很巧妙：<strong>同一个数据，用不同的“随机种子”生成多个等效的 OFDM 符号，挑 PAPR 最小的那个发出去。</strong></p>
+
+                  <p>具体操作：</p>
+
+                  <ol>
+                    <li>准备 $U$ 组不同的相位旋转序列 $P_u=[P_u(1),P_u(2),\ldots,P_u(N)]$，其中 $P_u(k)=e^{j\phi_{u,k}}$</li>
+                    <li>将原始频域数据 $X[k]$ 乘以每一组相位序列，得到 $U$ 个”变体”：$X_u[k]=X[k]\cdot P_u(k)$</li>
+                    <li>对这 $U$ 组数据分别做 IFFT，得到 $U$ 个时域候选信号</li>
+                    <li>选择 PAPR 最小的那个发送</li>
+                  </ol>
+
+                  <pre><code>┌─ P_1 × ─▶ IFFT ─▶ 算PAPR ─┐
+│                           │
+X[k] ─┬─ P_2 × ─▶ IFFT ─▶ 算PAPR ─┤
+      │          ...
+      └─ P_U × ─▶ IFFT ─▶ 算PAPR ─┘ ─▶ 选最小PAPR的路</code></pre>
+
+                  <p><strong>为什么要用相位旋转？</strong> 改变各子载波的相位，可以破坏“多子载波同相叠加”的条件，从而以较高概率获得低 PAPR 的候选信号。</p>
+
+                  <p>以 $U$ 个候选信号独立选择，PAPR 的 CCDF 为：</p>
+
+                  <p><span class="math display">\[
+\Pr[\mathrm{PAPR}_{\mathrm{SLM}}>\gamma]
+=\left(1-\left(1-e^{-\gamma}\right)^N\right)^U
+\]</span></p>
+
+                  <p>相比原始 OFDM，CCDF 被整体“压缩”了 $U$ 次——$U$ 越大，高 PAPR 概率越低。</p>
+
+                  <p>MATLAB示例（$U=4$，QPSK）：</p>
+
+                  <pre><code class="language-matlab">% SLM法PAPR抑制
+N = 256;              % 子载波数
+U = 4;                % 候选分支数
+N_sym = 1000;         % 仿真符号数
+
+% 生成U组随机相位旋转序列（BPSK：相位为0或π）
+P = 2 * (randi([0 1], N, U) - 0.5) * 2; % 取值为+1或-1
+
+papr_slm = zeros(N_sym, 1);
+for i = 1:N_sym
+    X = qammod(randi([0 15], N, 1), 16, 'UnitAveragePower', true);
+
+    papr_candidates = zeros(U, 1);
+    for u = 1:U
+        X_u = X .* P(:, u);          % 相位旋转
+        x_u = ifft(X_u) * sqrt(N);   % IFFT
+        papr_candidates(u) = 10*log10(max(abs(x_u).^2) / mean(abs(x_u).^2));
+    end
+
+    [papr_slm(i), ~] = min(papr_candidates);
+end
+
+fprintf('SLM (U=%d): 平均PAPR = %.2f dB\n', U, mean(papr_slm));</code></pre>
+
+                  <p><strong>SLM的代价：</strong></p>
+
+                  <ul>
+                    <li>需要做 $U$ 次 IFFT（计算量翻 $U$ 倍）</li>
+                    <li>接收端需要知道用的是哪组相位序列，因此需要<strong>传输边信息（Side Information）</strong>——通常占用 $\log_2 U$ 个比特</li>
+                  </ul>
+                </section>
+
+                <section id="pts" class="level3">
+                  <h3>2.2 <span class="ofdm-term">部分传输序列<span class="ofdm-mark">✦</span></span>（PTS, Partial Transmit Sequences）</h3>
+
+                  <p>PTS是 SLM 的”精细化升级版”。不是对整个频域数据旋转，而是<strong>把 N 个子载波分成 V 组”子块”，每组独立旋转，然后组合</strong>：</p>
+
+                  <p><span class="math display">\[
+x=\sum_{v=1}^{V} b_v\cdot x_v,\qquad b_v=e^{j\phi_v}
+\]</span></p>
+
+                  <p>其中 $x_v$ 是第 $v$ 个分组的 IFFT 输出，$b_v$ 是复数旋转因子。优化目标：</p>
+
+                  <p><span class="math display">\[
+\{\phi_1^{\star},\ldots,\phi_V^{\star}\}
+=\arg\min\left(
+\max_n\left|
+\sum_{v=1}^{V} e^{j\phi_v}\cdot x_v[n]
+\right|
+\right)
+\]</span></p>
+
+                  <p>子块划分策略：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>策略</th>
+                          <th>说明</th>
+                          <th>特点</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>相邻分组（Adjacent）</td>
+                          <td>相邻子载波分入同一组</td>
+                          <td>实现简单，效果一般</td>
+                        </tr>
+                        <tr>
+                          <td>交织分组（Interleaved）</td>
+                          <td>子载波轮流分配到各组</td>
+                          <td>PAPR抑制效果较好</td>
+                        </tr>
+                        <tr>
+                          <td>伪随机分组（Pseudo-random）</td>
+                          <td>随机分配到各组</td>
+                          <td>效果最好</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p><strong>PTS vs SLM 对比：</strong></p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>维度</th>
+                          <th>SLM</th>
+                          <th>PTS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>核心操作</td>
+                          <td>全频域相位旋转</td>
+                          <td>分组旋转+最优组合</td>
+                        </tr>
+                        <tr>
+                          <td>IFFT次数</td>
+                          <td>U次</td>
+                          <td>V次（$V \lt U$ 可达类似效果）</td>
+                        </tr>
+                        <tr>
+                          <td>搜索空间</td>
+                          <td>U个候选</td>
+                          <td>$W^V$（若相位取 W 个值）</td>
+                        </tr>
+                        <tr>
+                          <td>边信息开销</td>
+                          <td>$\log_2 U$ bit</td>
+                          <td>$(V-1)\log_2 W$ bit</td>
+                        </tr>
+                        <tr>
+                          <td>效果</td>
+                          <td>中等</td>
+                          <td>优于SLM（同计算量）</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </section>
+
+              <section id="probabilistic" class="level2">
+                <h2>三、概率类方法——”预留后门，曲线救国”</h2>
+
+                <section id="tr" class="level3">
+                  <h3>3.1 预留子载波（TR, Tone Reservation）</h3>
+
+                  <p>TR 的思路非常讨巧：<strong>留出一小部分子载波不传数据，专门用来放“消峰信号”。</strong></p>
+
+                  <p><span class="math display">\[
+x[n]=
+\underbrace{\frac{1}{\sqrt{N}}\sum_{k\in\mathcal{D}}X[k]e^{j2\pi kn/N}}_{\text{数据子载波（好信号）}}
++
+\underbrace{\frac{1}{\sqrt{N}}\sum_{k\in\mathcal{R}}C[k]e^{j2\pi kn/N}}_{\text{预留子载波（消峰信号）}}
+\]</span></p>
+
+                  <p>其中 $\mathcal{D}$ 是数据子载波集合，$\mathcal{R}$ 是预留子载波集合，$\mathcal{D}\cap\mathcal{R}=\emptyset$。</p>
+
+                  <p>核心优化问题：寻找最优的 $C[k]$，使得时域峰值最小。</p>
+
+                  <p>这本质是一个<strong>凸优化问题</strong>，可以用迭代方法求解。最简单的是<strong>TR-Clipping</strong>：检测超过门限的峰值 → 用预留子载波生成一个“反向脉冲”抵消它 → 反复迭代。</p>
+
+                  <pre><code>时域信号： ↑ 峰值
+           |  /\
+           | /  \___      ← 超过门限
+      ____ |/___________ 门限 A
+           |
+消峰脉冲： |
+           |   ]          ← 在峰值位置叠加
+           |   |          ← 一个反向脉冲
+           |   L
+           ▼
+补偿后：   |  _
+           | / \___
+      ____ |/___________ 门限 A</code></pre>
+
+                  <p><strong>TR的优点：</strong></p>
+
+                  <ul>
+                    <li><strong>接收端完全无感知</strong>——预留子载波上的信号对数据子载波不造成任何干扰（正交的！）</li>
+                    <li>无需传边信息</li>
+                  </ul>
+
+                  <p><strong>TR的代价：</strong></p>
+
+                  <ul>
+                    <li>频谱效率损失：预留子载波不能传数据，预留比例通常为 5%~10%</li>
+                    <li>发送功率增加：消峰信号消耗额外功率</li>
+                    <li>迭代收敛速度是工程挑战</li>
+                  </ul>
+                </section>
+
+                <section id="ti" class="level3">
+                  <h3>3.2 <span class="ofdm-term">时域注入<span class="ofdm-mark">✦</span></span>（TI, Tone Injection）</h3>
+
+                  <p>TI 是 TR 的“扩星座版”。不预留空子载波，而是在某些子载波上<strong>故意把 QAM 点映射到等价星座点的扩展位置上</strong>，利用星座扩展产生的自由度来抵消时域峰值。</p>
+
+                  <p>以 QPSK 为例：4个星座点 $\pm1\pm j$。TI 允许把某个点的幅度略微“拉伸”到更远的位置（如从 $1\to1.5$），这个拉伸量就可以用来抵消峰值。</p>
+
+                  <p>TI不会损失频谱效率（所有子载波都可以传数据），但会略微增加平均发送功率（拉伸幅度要消耗额外功率），且实现复杂度显著高于TR。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="comparison" class="level2">
+                <h2>四、技术权衡全景对比</h2>
+
+                <p>一张表看清所有主流 PAPR 抑制技术的优缺点：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>方法</th>
+                        <th>PAPR抑制</th>
+                        <th>计算复杂度</th>
+                        <th>数据率损失</th>
+                        <th>EVM</th>
+                        <th>需边信息</th>
+                        <th>成熟度</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>限幅+滤波</td>
+                        <td>★★★★★</td>
+                        <td>★☆☆☆☆</td>
+                        <td>无</td>
+                        <td>有</td>
+                        <td>否</td>
+                        <td>极高</td>
+                      </tr>
+                      <tr>
+                        <td>峰值加窗</td>
+                        <td>★★★★☆</td>
+                        <td>★★☆☆☆</td>
+                        <td>无</td>
+                        <td>有</td>
+                        <td>否</td>
+                        <td>高</td>
+                      </tr>
+                      <tr>
+                        <td>SLM</td>
+                        <td>★★★★☆</td>
+                        <td>★★★★☆</td>
+                        <td>极小</td>
+                        <td>无</td>
+                        <td>是</td>
+                        <td>中</td>
+                      </tr>
+                      <tr>
+                        <td>PTS</td>
+                        <td>★★★★★</td>
+                        <td>★★★★★</td>
+                        <td>极小</td>
+                        <td>无</td>
+                        <td>是</td>
+                        <td>中</td>
+                      </tr>
+                      <tr>
+                        <td>TR</td>
+                        <td>★★★☆☆</td>
+                        <td>★★★☆☆</td>
+                        <td>有(5-10%)</td>
+                        <td>无</td>
+                        <td>否</td>
+                        <td>中高</td>
+                      </tr>
+                      <tr>
+                        <td>TI</td>
+                        <td>★★★☆☆</td>
+                        <td>★★★★☆</td>
+                        <td>无</td>
+                        <td>无</td>
+                        <td>否</td>
+                        <td>低</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section id="engineering" class="level2">
+                <h2>五、工程实践：混合方案才是正解</h2>
+
+                <p>实际系统中，<strong>几乎不存在只用一种PAPR抑制技术的情况</strong>。工程上的套路通常是：</p>
+
+                <section id="base-station" class="level3">
+                  <h3>5.1 典型基站发端方案</h3>
+
+                  <pre><code>基带 IFFT输出
+    |
+    ▼
+[限幅滤波（轻度）] ──▶ 粗砍大峰值，降3~4dB
+    |
+    ▼
+[TR（预留子载波）] ──▶ 精细消峰，再降1~2dB
+    |
+    ▼
+[DPD（数字预失真）] ──▶ 补偿PA非线性，而非PAPR本身
+    |
+    ▼
+发送至 DAC/PA</code></pre>
+
+                  <p>限幅负责粗粒度削峰（计算量小、效果显著），TR负责精修（不引入带内失真），DPD则是最后一道防线——补偿PA的非线性失真而非降低PAPR。三者配合，5G基站PA的回退量可以从纯OFDM的12dB压缩到约6~7dB，PA效率翻倍。</p>
+                </section>
+
+                <section id="sc-fdma" class="level3">
+                  <h3>5.2 终端方案：<span class="ofdm-term">SC-FDMA<span class="ofdm-mark">✦</span></span>的根本性解决</h3>
+
+                  <p>LTE/NR上行采用 SC-FDMA（又称 DFT-s-OFDM），本质上在IFFT之前加了一步 DFT 预编码：</p>
+
+                  <pre><code>QAM映射 → DFT(N点) → 子载波映射 → IFFT(M点，M>N) → 加CP</code></pre>
+
+                  <p>加上DFT这一步后，时域信号从”多载波叠加”变回了”单载波”的特性，PAPR直接降到3~5dB以内，大幅降低了手机PA的设计难度。</p>
+
+                  <p>当然，SC-FDMA 也有代价：均衡复杂度增加（频域均衡后需要IDFT转回时域做判决），这是基站端能承受但手机端要省电的经典“链路预算”取舍。</p>
+                </section>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>六、小结</h2>
+
+                <p>PAPR抑制不是一个刚性问题（没有唯一最优解），而是一个<strong>多目标优化</strong>——你要在 PAPR降低量、计算复杂度、数据率损失、EVM恶化 这几个维度之间做权衡。</p>
+
+                <p>实用建议：</p>
+
+                <ol>
+                  <li><strong>低成本场景（WiFi/终端）：</strong> 限幅+滤波就够，简单有效</li>
+                  <li><strong>高性能场景（基站）：</strong> 限幅 + TR + DPD 三级联动</li>
+                  <li><strong>对EVM要求极严（256QAM/1024QAM）：</strong> 优先用 TR/TI 等无失真方法，避免信号预畸变引入的EVM代价</li>
+                  <li><strong>上行链路：</strong> 直接用 SC-FDMA，从根本上解决问题</li>
+                </ol>
+
+                <p>下一讲将进入 Module 3，开始聊无线信道建模——毕竟OFDM之所以需要这么多”花活”（CP、同步、均衡......），归根到底都是信道惹的祸。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="questions" class="level2">
+                <blockquote>
+                  <p>思考题</p>
+                </blockquote>
+
+                <ol>
+                  <li>为什么限幅滤波需要多次迭代？峰值再生（Peak Regrowth）的物理原因是什么？</li>
+                  <li>SLM中相位旋转序列 $P_u$ 通常取±1（BPSK），为什么很少用连续相位值？提示：从实现复杂度和性能增益的关系考虑。</li>
+                  <li>当 $U$（SLM分支数）趋近于无穷大时，SLM能达到的理想PAPR是多少？是否可能做到 $0\,\mathrm{dB}$?</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 13 讲：载波频率同步——消除频偏的影响 | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 13 讲：复刻载波频率同步内容，覆盖 CFO 来源、CPE 与 ICI 影响、CP/Moose/导频频偏估计、时域和频域补偿、5G NR PT-RS 与工程调试经验。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 34ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 13 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 13</div>
+          <h1>第 13 讲：载波频率同步——消除频偏的影响</h1>
+          <p>从晶振和多普勒引入 CFO，复刻 CFO 对 CPE/ICI 的影响、频偏估计、两级补偿和 5G NR 工程实践。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>CFO</span>
+          <span>CPE</span>
+          <span>ICI</span>
+          <span>Moose</span>
+          <span>PT-RS</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>按截图顺序复刻 CFO 来源、正交性破坏、估计算法、补偿流程和 5G NR 工程经验。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#cfo-source">一、CFO从哪里来？</a>
+              <a class="level-2" href="#orthogonality">二、CFO如何破坏OFDM的正交性</a>
+              <a class="level-3" href="#cpe">公共相位误差</a>
+              <a class="level-3" href="#ici">子载波间干扰</a>
+              <a class="level-2" href="#estimation">三、频偏估计算法</a>
+              <a class="level-3" href="#cp-estimation">3.1 基于CP的粗估计</a>
+              <a class="level-3" href="#moose">3.2 Moose算法</a>
+              <a class="level-3" href="#pilot-tracking">3.3 基于导频的频偏跟踪</a>
+              <a class="level-2" href="#compensation">四、频偏补偿实现</a>
+              <a class="level-3" href="#time-compensation">4.1 时域频旋转</a>
+              <a class="level-3" href="#frequency-compensation">4.2 频域相位补偿</a>
+              <a class="level-3" href="#two-stage-flow">4.3 两级补偿流程</a>
+              <a class="level-2" href="#nr-cfo">五、5G NR中的CFO与相位噪声补偿</a>
+              <a class="level-2" href="#debugging">六、工程调试中的CFO问题</a>
+              <a class="level-2" href="#summary">总结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="carrier-frequency-synchronization" class="level1">
+              <h1>第13讲：载波频率同步——消除频偏的影响</h1>
+
+              <section id="cfo-source" class="level2">
+                <h2>一、CFO从哪里来？</h2>
+
+                <p>载波频偏（Carrier Frequency Offset，CFO）是指接收机本振频率 $f_r$ 与发射机载波频率 $f_c$ 之间的差值：</p>
+
+                <p><span class="math display">\[
+\Delta f=f_r-f_c
+\]</span></p>
+
+                <p>实际系统中，CFO主要来自两个来源：</p>
+
+                <p><strong>1. 晶振（本振）频率偏差</strong></p>
+
+                <p>无论是发射机还是接收机，本振都由<span class="ofdm-term">石英晶振<span class="ofdm-mark">✦</span></span>产生。受工艺误差、温度变化等影响，晶振频率不可避免地存在偏差，典型量级用 <strong>ppm（百万分之一）</strong> 表示。</p>
+
+                <p>例如，LTE系统中：</p>
+
+                <ul>
+                  <li>基站本振精度要求：$\le \pm 0.05\,\mathrm{ppm}$</li>
+                  <li>终端本振精度要求：$\le \pm 0.1\,\mathrm{ppm}$</li>
+                </ul>
+
+                <p>在2.6 GHz（Band 38）载波频率下，0.1 ppm对应的绝对频偏为：</p>
+
+                <p><span class="math display">\[
+\Delta f=2.6\times 10^9\times 0.1\times 10^{-6}=260\,\mathrm{Hz}
+\]</span></p>
+
+                <p>而LTE 15 kHz子载波间隔意味着这一频偏已达子载波间隔的 $260/15000\approx 1.7\%$，如果是收发两端误差相叠加，总偏差可达数百Hz量级。</p>
+
+                <p><strong>2. <span class="ofdm-term">多普勒频移<span class="ofdm-mark">✦</span></span></strong></p>
+
+                <p>当发射机或接收机处于运动状态（如高速列车、车载通信）时，会产生多普勒频移：</p>
+
+                <p><span class="math display">\[
+f_d=\frac{v}{c}\cdot f_c
+\]</span></p>
+
+                <p>以速度 $v=120\,\mathrm{km/h}\;(\approx 33.3\,\mathrm{m/s})$，$f_c=2.6\,\mathrm{GHz}$为例：</p>
+
+                <p><span class="math display">\[
+f_d=\frac{33.3}{3\times 10^8}\times 2.6\times 10^9\approx 288\,\mathrm{Hz}
+\]</span></p>
+
+                <p>同样是十几个kHz级别的子载波间隔面前，这已经是相当显著的频偏。</p>
+              </section>
+
+              <section id="orthogonality" class="level2">
+                <h2>二、CFO如何破坏OFDM的正交性</h2>
+
+                <p>这是本讲最核心的内容。我们来定量分析CFO对接收信号的影响。</p>
+
+                <p>设发送的第 $k$ 个子载波符号为 $X_k$，经过无噪声 AWGN 信道后，接收端时域信号（去除CP后）为：</p>
+
+                <p><span class="math display">\[
+r(n)=\sum_{k=0}^{N-1}X_k\cdot e^{j2\pi\frac{k}{N}n}\cdot e^{j2\pi\frac{\Delta f}{f_s}n},
+\qquad n=0,1,\ldots,N-1
+\]</span></p>
+
+                <p>其中 $f_s$ 为采样率，$\varepsilon=\Delta f/\Delta f_{sc}$ 为归一化频偏（以子载波间隔为单位，$\Delta f_{sc}=f_s/N$）。</p>
+
+                <p>接收端对第 $l$ 个子载波做FFT解调：</p>
+
+                <p><span class="math display">\[
+\hat{X}_l=\frac{1}{N}\sum_{n=0}^{N-1}r(n)\cdot e^{-j2\pi\frac{l}{N}n}
+\]</span></p>
+
+                <p>代入 $r(n)$ 并化简（令 $m=k-l+\varepsilon$）：</p>
+
+                <p><span class="math display">\[
+\hat{X}_l=
+X_l\cdot
+\underbrace{\frac{\sin(\pi\varepsilon)}{N\sin(\pi\varepsilon/N)}
+e^{j\pi\varepsilon(N-1)/N}}_{\text{信号幅度衰减 + 公共相位旋转（CPE）}}
++\underbrace{\sum_{k\ne l}X_k\cdot \mathrm{ICI}_{kl}}_{\text{子载波间干扰（ICI）}}
+\]</span></p>
+
+                <p>这个表达式揭示了CFO的两重影响：</p>
+
+                <section id="cpe" class="level3">
+                  <h3>①公共相位误差（CPE，Common Phase Error）</h3>
+
+                  <p>每个子载波上的信号都乘以相同的复数相位因子，导致整个星座图发生<strong>同向旋转</strong>。CPE与OFDM符号序号成比例增加，表现为星座图的整体旋转。</p>
+
+                  <p><span class="math display">\[
+\mathrm{CPE}_m=e^{j2\pi\varepsilon m},\qquad m\text{ 为符号序号}
+\]</span></p>
+                </section>
+
+                <section id="ici" class="level3">
+                  <h3>②子载波间干扰（ICI，Inter-Carrier Interference）</h3>
+
+                  <p>CFO破坏了子载波之间的正交性，导致相邻子载波的能量“泄漏”到目标子载波上。当 $\varepsilon=0$ 时，ICI项完全消失；当 $\varepsilon$ 增大时，ICI迅速增强。</p>
+
+                  <p>ICI的信噪比损失可用如下近似公式估算：</p>
+
+                  <p><span class="math display">\[
+\mathrm{SINR}\approx \frac{3}{(\pi\varepsilon)^2}
+\]</span></p>
+
+                  <p>例如 $\varepsilon=0.1$（频偏为子载波间隔的10%），SINR损失约为：</p>
+
+                  <p><span class="math display">\[
+\mathrm{SINR}\approx \frac{3}{(\pi\times 0.1)^2}\approx 30.4\,\mathrm{dB}
+\]</span></p>
+
+                  <p>这个数字说明，只要频偏控制在子载波间隔的5%以内，ICI的影响就相对可接受；一旦超过10%，信号质量将显著恶化。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="estimation" class="level2">
+                <h2>三、频偏估计算法</h2>
+
+                <p>工程中的CFO估计分为两个阶段：<strong>粗估计</strong>（捕获阶段）和<strong>精估计</strong>（跟踪阶段）。</p>
+
+                <section id="cp-estimation" class="level3">
+                  <h3>3.1 基于CP的粗估计</h3>
+
+                  <p>利用CP与符号末尾部分的相关性（见第12讲），不仅可以做定时同步，还可以提取粗频偏信息。</p>
+
+                  <p>设CP长度为 $L_{cp}$，同一OFDM符号中CP部分与尾部的相关值为：</p>
+
+                  <p><span class="math display">\[
+P=\sum_{n=0}^{L_{cp}-1}r^*(n)\cdot r(n+N)
+\]</span></p>
+
+                  <p>频偏估计：</p>
+
+                  <p><span class="math display">\[
+\hat{\varepsilon}_{\mathrm{rough}}=\frac{\angle P}{2\pi}
+\]</span></p>
+
+                  <p>此方法的频偏估计范围限制在 $|\varepsilon|\le 0.5$（即半个子载波间隔），适用于粗估计。</p>
+                </section>
+
+                <section id="moose" class="level3">
+                  <h3>3.2 Moose算法<span class="ofdm-term">✦</span>（训练符号法）</h3>
+
+                  <p>Moose算法（1994年提出）是频偏估计的经典方法，广泛应用于IEEE 802.11a/g/n WiFi系统。</p>
+
+                  <p><strong>基本思想：</strong> 发送两个完全相同的OFDM训练符号，利用它们在时域上的相位差推断频偏。</p>
+
+                  <p>设两个相邻训练符号的时域序列为 $r_1(n)$ 和 $r_2(n)$（去CP后），频偏 $\Delta f$ 导致第二个符号相对第一个符号有额外相位旋转：</p>
+
+                  <p><span class="math display">\[
+r_2(n)=r_1(n)\cdot e^{j2\pi\Delta f T_{sym}}
+=r_1(n)\cdot e^{j2\pi\varepsilon}
+\]</span></p>
+
+                  <p>其中 $T_{sym}=N/f_s$ 为FFT窗长。</p>
+
+                  <p>Moose估计量：</p>
+
+                  <p><span class="math display">\[
+\hat{\varepsilon}=
+\frac{1}{2\pi}\angle
+\left(
+\sum_{n=0}^{N-1}r_1^*(n)\cdot r_2(n)
+\right)
+\]</span></p>
+
+                  <p>Moose算法的估计范围为 $|\varepsilon|\le 0.5$，若频偏超过半个子载波间隔，需先做整数倍频偏检测再精估计。</p>
+
+                  <p>对于大频偏场景（如多普勒严重的高速移动场景），可将训练符号分为更短的重复段，牺牲一些精度来换取更大的估计范围：</p>
+
+                  <p><span class="math display">\[
+\hat{\varepsilon}_{\mathrm{large}}=
+\frac{N}{2\cdot L}\cdot
+\frac{1}{2\pi}\angle
+\left(
+\sum_{n=0}^{L-1}r_1^*(n)\cdot r_1(n+L)
+\right)
+\]</span></p>
+
+                  <p>其中 $L$ 为重复段长度，估计范围扩大到 $|\varepsilon|\le N/(2L)$。</p>
+                </section>
+
+                <section id="pilot-tracking" class="level3">
+                  <h3>3.3 基于导频的频偏跟踪</h3>
+
+                  <p>在帧数据传输阶段（无训练符号），利用已知位置的导频子载波持续跟踪残余频偏变化。</p>
+
+                  <p>OFDM接收端每个符号后，导频子载波的相位旋转量为：</p>
+
+                  <p><span class="math display">\[
+\Delta\phi_m=2\pi\varepsilon\cdot m
+\]</span></p>
+
+                  <p>其中 $m$ 为符号序号。通过连续符号的导频相位差分，可以估计并跟踪残余频偏：</p>
+
+                  <p><span class="math display">\[
+\hat{\varepsilon}_{\mathrm{track}}=
+\frac{\angle\left(P_{\mathrm{pilot}}^{(m)}\cdot P_{\mathrm{pilot}}^{*(m-1)}\right)}{2\pi}
+\]</span></p>
+
+                  <p>这就是LTE/NR系统中<strong>相位跟踪参考信号（PT-RS<span class="ofdm-mark">✦</span>）</strong>的核心思想，我们将在第20讲专门讨论。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="compensation" class="level2">
+                <h2>四、频偏补偿实现</h2>
+
+                <p>估计到频偏 $\hat{\varepsilon}$ 后，补偿分为两个层面：</p>
+
+                <section id="time-compensation" class="level3">
+                  <h3>4.1 时域频旋转（整体CFO补偿）</h3>
+
+                  <p>在FFT之前，对时域采样序列逐点乘以共轭相位项：</p>
+
+                  <p><span class="math display">\[
+\tilde{r}(n)=r(n)\cdot e^{-j2\pi\hat{\varepsilon}n/N}
+\]</span></p>
+
+                  <p>这是最直接的补偿方式，计算量为每采样点一次复数乘法。</p>
+
+                  <p>MATLAB实现如下：</p>
+
+                  <pre><code class="language-matlab">function r_comp = cfo_compensate(r, epsilon_hat, N)
+% r: 接收时域序列（去CP后，长度N）
+% epsilon_hat: 归一化频偏估计值
+% N: FFT长度
+
+n = (0:N-1).';
+phase_correction = exp(-1j * 2 * pi * epsilon_hat * n / N);
+r_comp = r .* phase_correction;
+end</code></pre>
+                </section>
+
+                <section id="frequency-compensation" class="level3">
+                  <h3>4.2 频域相位补偿（CPE补偿）</h3>
+
+                  <p>时域补偿之后，若仍有残余CPE（来自相位噪声或残余CFO），可在FFT之后对各子载波做统一相位旋转：</p>
+
+                  <p><span class="math display">\[
+\hat{X}_k^{\mathrm{comp}}=\hat{X}_k\cdot e^{-j\hat{\phi}_{\mathrm{CPE}}}
+\]</span></p>
+
+                  <p>其中 $\hat{\phi}_{\mathrm{CPE}}$ 通过已知导频子载波估计：</p>
+
+                  <p><span class="math display">\[
+\hat{\phi}_{\mathrm{CPE}}=
+\frac{1}{|\mathcal{P}|}\sum_{k\in\mathcal{P}}
+\angle\left(\hat{X}_k\cdot X_k^{*,\mathrm{pilot}}\right)
+\]</span></p>
+
+                  <p>$\mathcal{P}$ 为导频子载波集合，$X_k^{\mathrm{pilot}}$ 为已知导频符号。</p>
+                </section>
+
+                <section id="two-stage-flow" class="level3">
+                  <h3>4.3 两级补偿的完整流程</h3>
+
+                  <pre><code>时域接收信号 r(n)
+        |
+        ▼
+[粗CFO估计] ← 基于CP相关 / 训练符号Moose算法
+        |
+        ▼ ε̂_rough
+[时域粗补偿] r_comp(n) = r(n)·exp(-j2πε̂n/N)
+        |
+        ▼
+[去CP] -> [FFT]
+        |
+        ▼
+[导频提取] -> [精CFO估计 / CPE估计]
+        |
+        ▼ φ̂_CPE
+[频域CPE补偿] X̂_k^comp = X̂_k · exp(-jφ̂_CPE)
+        |
+        ▼
+[信道估计 -> 均衡 -> 解调]</code></pre>
+                </section>
+              </section>
+
+              <section id="nr-cfo" class="level2">
+                <h2>五、5G NR<span class="ofdm-term">✦</span>中的CFO与相位噪声补偿</h2>
+
+                <p>5G NR引入了更高的载波频率（毫米波，最高52.6 GHz）和更大的子载波间隔（最高240 kHz），CFO问题更加突出：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>频段</th>
+                        <th>子载波间隔</th>
+                        <th>典型多普勒 @120km/h</th>
+                        <th>归一化频偏 $\varepsilon$</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>FR1（低于6GHz）</td>
+                        <td>15/30 kHz</td>
+                        <td>288 Hz</td>
+                        <td>0.019~0.010</td>
+                      </tr>
+                      <tr>
+                        <td>FR2（毫米波，28GHz）</td>
+                        <td>60/120 kHz</td>
+                        <td>3.1 kHz</td>
+                        <td>0.052~0.026</td>
+                      </tr>
+                      <tr>
+                        <td>FR2（毫米波，52GHz）</td>
+                        <td>120/240 kHz</td>
+                        <td>5.8 kHz</td>
+                        <td>0.048~0.024</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>可以看到，5G NR毫米波频段的归一化频偏仍然控制在5%以内，这也是5G选择更大子载波间隔的重要原因之一——让相同的绝对频偏对应更小的归一化频偏，从而降低ICI。</p>
+
+                <p>此外，毫米波本振的相位噪声更大（与载波频率的平方成正比），NR引入了<strong>相位跟踪参考信号（PT-RS）</strong>专门用于CPE的逐符号补偿，这部分将在第20讲详细讲解。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="debugging" class="level2">
+                <h2>六、工程调试中的CFO问题</h2>
+
+                <p>做过基带算法调试的同学对CFO一定不陌生。以下是几个实际工程经验：</p>
+
+                <p><strong>经验1：先看星座图的旋转模式</strong></p>
+
+                <ul>
+                  <li>所有子载波星座点<strong>整体均匀旋转</strong>，且随时间呈线性相位增加 → 典型的残余CFO特征</li>
+                  <li>不同子载波旋转方向不一致，或旋转随子载波编号变化 → 可能是ICI或信道估计问题</li>
+                </ul>
+
+                <p><strong>经验2：频偏估计精度要求</strong></p>
+
+                <p>一般要求残余归一化频偏 $|\varepsilon_{\mathrm{residual}}|&lt;1\%$，对应SINR损失不超过约0.1 dB。对于高阶调制（256QAM），要求更严格，需达到0.1%以内。</p>
+
+                <p><strong>经验3：高速场景下的频偏跟踪</strong></p>
+
+                <p>在高铁（$v&gt;200\,\mathrm{km/h}$）场景下，多普勒不仅带来静态CFO，还会导致频偏随时间漂移（符号间频偏变化）。此时单次估计不够，需要实现<strong>环路滤波器</strong>（类似PLL）对CFO进行连续跟踪，防止系统失同步。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>本讲核心要点：</p>
+
+                <ol>
+                  <li><strong>CFO来源：</strong>晶振频率偏差（ppm级）+ 多普勒频移，典型量级数百Hz</li>
+                  <li><strong>CFO影响：</strong>公共相位误差（CPE，使整个星座图旋转）+ 子载波间干扰（ICI，破坏正交性），归一化频偏超过10%时SINR损失明显</li>
+                  <li><strong>估计算法：</strong></li>
+                </ol>
+
+                <ul>
+                  <li>粗估计：基于CP自相关，范围 $\pm 0.5$ 子载波间隔</li>
+                  <li>精估计：Moose算法（训练符号），基于导频的跟踪</li>
+                </ul>
+
+                <ol>
+                  <li><strong>补偿方式：</strong>时域频旋转（粗补偿）+ 频域CPE补偿（精校正）</li>
+                  <li><strong>5G NR增强：</strong>更大子载波间隔降低归一化频偏，PT-RS专门补偿CPE</li>
+                </ol>
+
+                <p>下一讲我们将继续同步模块的最后一环：<strong>采样时钟偏差（SCO）的估计与补偿</strong>——当采样频率本身也在漂移时，系统该如何应对？</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="questions" class="level2">
+                <p><strong>思考题：</strong></p>
+
+                <ol>
+                  <li>如果归一化频偏 $\varepsilon=0.05$，用上文公式估算此时OFDM系统的ICI导致的SINR上限约为多少dB?</li>
+                  <li>Moose算法的估计范围为 $|\varepsilon|\le 0.5$，如果实际频偏为 $\varepsilon=0.7$，估计结果会是多少？<br>（提示：$\angle$函数的值域是 $(-\pi,\pi]$）</li>
+                  <li>5G NR使用更大的子载波间隔（如120 kHz vs LTE的15 kHz），对CFO鲁棒性有何定性影响？请结合归一化频偏的定义分析。</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

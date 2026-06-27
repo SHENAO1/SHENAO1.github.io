@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 11 讲：无线信道建模——多径、多普勒与信道模型 | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 11 讲：复刻无线信道建模内容，整理多径信道、时延扩展、相干带宽、瑞利/莱斯衰落、标准信道模型和多普勒效应。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 34ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 11 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 11</div>
+          <h1>第 11 讲：无线信道建模——多径、多普勒与信道模型</h1>
+          <p>从多径冲激响应、四个关键参数、统计衰落模型、标准信道模型和多普勒效应理解 OFDM 的信道约束。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>无线信道</span>
+          <span>多径</span>
+          <span>多普勒</span>
+          <span>Rayleigh / Rician</span>
+          <span>3GPP ETU</span>
+          <span>CDL / TDL</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>按截图顺序复刻无线信道、多径参数、统计模型、标准模型和多普勒映射。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#channel-stage">一、无线信道：工程师的噩梦与舞台</a>
+              <a class="level-2" href="#multipath-model">二、多径信道的数学模型</a>
+              <a class="level-3" href="#impulse-response">2.1 冲激响应描述</a>
+              <a class="level-3" href="#key-parameters">2.2 四个关键参数</a>
+              <a class="level-3" href="#flat-vs-selective">2.3 平坦衰落 vs 频率选择性衰落</a>
+              <a class="level-2" href="#statistical-fading">三、统计衰落模型</a>
+              <a class="level-3" href="#rayleigh-rician">3.1 瑞利衰落与莱斯衰落</a>
+              <a class="level-3" href="#matlab-simulation">3.2 MATLAB仿真：瑞利衰落信道冲激响应</a>
+              <a class="level-2" href="#standard-channel-models">四、标准信道模型</a>
+              <a class="level-3" href="#legacy-3gpp">4.1 3GPP 传统模型（4G时代）</a>
+              <a class="level-3" href="#nr-cdl-tdl">4.2 5G NR标准模型：CDL/TDL</a>
+              <a class="level-3" href="#which-model">4.3 选哪个模型?</a>
+              <a class="level-2" href="#doppler">五、多普勒效应：信道的“时间脸”</a>
+              <a class="level-2" href="#design-mapping">六、从信道模型到系统设计参数</a>
+              <a class="level-2" href="#summary">七、小结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="wireless-channel-modeling" class="level1">
+              <h1>第11讲：无线信道建模——多径、多普勒与信道模型</h1>
+
+              <section id="channel-stage" class="level2">
+                <h2>一、无线信道：工程师的噩梦与舞台</h2>
+
+                <p>问任何一个做<span class="ofdm-term">基带算法<span class="ofdm-mark">✦</span></span>的工程师：“你最头疼什么？” 十有八九会说：信道。</p>
+
+                <p>发射机的每一个模块，从 IFFT 到加窗，都是可预期的确定性操作，调通了就是调通了。但信道不一样——它是随机的、时变的、环境相关的。同一栋楼里，从走廊换到会议室，信道特性可能判若云泥。</p>
+
+                <p>理解无线信道，不是为了“对付”它，而是为了<strong>针对信道特性，设计出真正有效的算法</strong>。OFDM 本身的诞生，就是对频率选择性信道的一次深刻应答。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="multipath-model" class="level2">
+                <h2>二、<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>的数学模型</h2>
+
+                <section id="impulse-response" class="level3">
+                  <h3>2.1 冲激响应描述</h3>
+
+                  <p>现实中的无线传播路径不止一条。信号从发射天线出发，经过建筑物、地面、树木的反射、散射、绕射，以多条路径、不同延迟、不同相位到达接收天线。</p>
+
+                  <p>这种多径效应用<span class="ofdm-term">时变冲激响应<span class="ofdm-mark">✦</span></span>（Time-Varying Impulse Response）来描述：</p>
+
+                  <p><span class="math display">\[
+h(\tau,t)=\sum_{l=0}^{L-1}\alpha_l(t)\cdot\delta(\tau-\tau_l)
+\]</span></p>
+
+                  <p>其中：</p>
+
+                  <ul>
+                    <li>$L$：多径数量（Path数）</li>
+                    <li>$\alpha_l(t)$：第 $l$ 条路径的复数增益（包含幅度衰减和相位旋转），随时间 $t$ 缓慢变化</li>
+                    <li>$\tau_l$：第 $l$ 条路径的传播时延</li>
+                    <li>$\delta(\cdot)$：狄拉克冲激函数</li>
+                  </ul>
+
+                  <p>接收信号 $r(t)$ 是发送信号 $s(t)$ 与信道冲激响应的卷积：</p>
+
+                  <p><span class="math display">\[
+r(t)=\int h(\tau,t)\cdot s(t-\tau)\,d\tau+n(t)
+\]</span></p>
+
+                  <p>其中 $n(t)$ 是加性高斯白噪声（AWGN）。</p>
+                </section>
+
+                <section id="key-parameters" class="level3">
+                  <h3>2.2 四个关键参数</h3>
+
+                  <p>无线信道有四个必须掌握的“描述子”：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>参数</th>
+                          <th>定义</th>
+                          <th>典型量级</th>
+                          <th>工程含义</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>时延扩展 $T_d$</td>
+                          <td>多径时延的均方根（RMS DS）</td>
+                          <td>室内 10-50 ns，室外 0.1-5 μs</td>
+                          <td>决定 CP 长度下限</td>
+                        </tr>
+                        <tr>
+                          <td>相干带宽 $B_c$</td>
+                          <td>$\approx 1/(5T_d)$</td>
+                          <td>室内 &gt;1 MHz，室外 50-200 kHz</td>
+                          <td>子载波带宽 $\Delta f \ll B_c$</td>
+                        </tr>
+                        <tr>
+                          <td>多普勒扩展 $f_D$</td>
+                          <td>移动速度引起的频率展宽</td>
+                          <td>步行 5 Hz，高铁 1000+ Hz</td>
+                          <td>决定信道的变速率</td>
+                        </tr>
+                        <tr>
+                          <td>相干时间 $T_c$</td>
+                          <td>$\approx 0.423/f_D$</td>
+                          <td>静止 &gt;10 s，高铁 ms</td>
+                          <td>信道估计更新周期设计依据</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p><strong>物理直觉：</strong></p>
+
+                  <ul>
+                    <li>时延扩展大 → 频率选择性强 → OFDM 子载波要更窄（$\Delta f$ 更小，或 CP 更长）</li>
+                    <li>多普勒扩展大 → 信道变化快 → 需要更密集的导频、更快的同步更新</li>
+                  </ul>
+                </section>
+
+                <section id="flat-vs-selective" class="level3">
+                  <h3>2.3 平坦衰落 vs 频率选择性衰落</h3>
+
+                  <p>这是一个高频考点，也是工程设计中的判决条件：</p>
+
+                  <pre><code>信号带宽 W  vs  相干带宽 Bc
+
+W &lt;&lt; Bc  →  平坦衰落（Flat Fading）：整个信号带宽内 H(f) ≈ 常数
+W &gt;&gt; Bc  →  频率选择性衰落（Frequency-Selective Fading）：H(f) 随 f 剧烈变化</code></pre>
+
+                  <p>OFDM 的精髓正在于此：虽然系统总带宽 $W$ 远大于 $B_c$，但<strong>每个子载波的带宽 $\Delta f \ll B_c$</strong>，从而每个子载波经历的是平坦衰落——均衡问题退化为一个复数乘法！</p>
+                </section>
+              </section>
+
+              <section id="statistical-fading" class="level2">
+                <h2>三、统计衰落模型</h2>
+
+                <section id="rayleigh-rician" class="level3">
+                  <h3>3.1 瑞利衰落与<span class="ofdm-term">莱斯衰落<span class="ofdm-mark">✦</span></span></h3>
+
+                  <p>当多径分量数量很多、且<strong>无主导路径（直射径LOS）</strong>时，每条路径的实部和虚部各自服从高斯分布，信道包络服从<strong>瑞利分布</strong>（Rayleigh Distribution）：</p>
+
+                  <p><span class="math display">\[
+p(r)=\frac{r}{\sigma^2}e^{-r^2/(2\sigma^2)},\qquad r\ge 0
+\]</span></p>
+
+                  <p>当存在强直射径（LOS component）时，信道包络服从<strong>莱斯分布</strong>（Rician Distribution），由莱斯因子 $K$ 刻画 LOS 功率与散射功率之比：</p>
+
+                  <p><span class="math display">\[
+K=\frac{A^2}{2\sigma^2}
+\]</span></p>
+
+                  <p>$K\to0$ 时退化为瑞利衰落，$K\to\infty$ 时退化为 AWGN 信道。</p>
+
+                  <p><strong>实际场景对照：</strong></p>
+
+                  <ul>
+                    <li>室外宏蜂窝：无LOS，多用瑞利模型</li>
+                    <li>室内、毫米波：常有LOS，用莱斯模型（$K=5\sim15\,\mathrm{dB}$）</li>
+                    <li>卫星链路：强LOS，$K\gt20\,\mathrm{dB}$</li>
+                  </ul>
+                </section>
+
+                <section id="matlab-simulation" class="level3">
+                  <h3>3.2 MATLAB仿真：瑞利衰落信道冲激响应</h3>
+
+                  <p>下面用 MATLAB 生成一个典型的多径瑞利衰落信道，参数参考 3GPP ETU（Extended Typical Urban）模型：</p>
+
+                  <pre><code class="language-matlab">%% 多径瑞利衰落信道仿真（参考3GPP ETU）
+clear; clc;
+
+% ETU信道参数（部分路径）
+delays_us = [0, 0.05, 0.12, 0.2, 0.23, 0.5] * 1e-6;  % 时延 [s]
+power_dB = [-1.0, -1.0, -1.0, 0.0, 0.0, 0.0];        % 功率 [dB]
+power_lin = 10.^(power_dB/10);
+power_lin = power_lin / sum(power_lin);               % 归一化
+
+Fs = 30.72e6;   % 采样率（LTE 20MHz）
+numPaths = length(delays_us);
+numSamples = 1024;
+
+% 生成各路径的复高斯增益（瑞利模型）
+h_paths = zeros(numPaths, numSamples);
+for k = 1:numPaths
+    h_paths(k,:) = sqrt(power_lin(k)/2) * (randn(1,numSamples) + 1j*randn(1,numSamples));
+end
+
+% 构建信道冲激响应（离散延迟）
+delay_samples = round(delays_us * Fs);
+maxDelay = max(delay_samples) + 1;
+h_cir = zeros(maxDelay + 1, numSamples);
+for k = 1:numPaths
+    h_cir(delay_samples(k)+1, :) = h_paths(k,:);
+end
+
+% 绘制单个时刻的功率延迟谱（PDP）
+figure;
+stem(delay_samples/Fs*1e6, 10*log10(power_lin), 'filled');
+xlabel('时延 (\mus)'); ylabel('功率 (dB)');
+title('ETU 功率延迟谱 (PDP)');
+grid on;</code></pre>
+
+                  <p>运行上述代码，可以看到 ETU 信道在 $0\sim0.5\,\mu\mathrm{s}$ 范围内的 6 条多径，覆盖时延远短 LTE 中 CP 长度（$4.7\,\mu\mathrm{s}$，约144个采样点），因此 LTE 中 CP 长度的设计对 ETU 信道有充裕的保护余量。</p>
+                </section>
+              </section>
+
+              <section id="standard-channel-models" class="level2">
+                <h2>四、标准信道模型</h2>
+
+                <p>仿真结果只有在业界认可的<strong>标准信道模型</strong>下才具有可比性。主要有两个体系：</p>
+
+                <section id="legacy-3gpp" class="level3">
+                  <h3>4.1 3GPP 传统模型（4G时代）</h3>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>模型名称</th>
+                          <th>全称</th>
+                          <th>时延扩展</th>
+                          <th>典型场景</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>AWGN</td>
+                          <td>加性高斯白噪声</td>
+                          <td>0</td>
+                          <td>无衰落基准</td>
+                        </tr>
+                        <tr>
+                          <td>EPA</td>
+                          <td>Extended Pedestrian A</td>
+                          <td>45 ns</td>
+                          <td>低速步行，室内/郊区</td>
+                        </tr>
+                        <tr>
+                          <td>EVA</td>
+                          <td>Extended Vehicular A</td>
+                          <td>357 ns</td>
+                          <td>中速车载</td>
+                        </tr>
+                        <tr>
+                          <td>ETU</td>
+                          <td>Extended Typical Urban</td>
+                          <td>991 ns</td>
+                          <td>高速城市宏蜂窝</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>这些模型规定了多径时延和相对功率，每条路径的复增益为独立瑞利随机过程，多普勒频率设置对应不同移动速度（EPA：5 km/h，EVA：70 km/h，ETU：300 km/h）。</p>
+                </section>
+
+                <section id="nr-cdl-tdl" class="level3">
+                  <h3>4.2 5G NR标准模型：CDL/TDL</h3>
+
+                  <p>5G NR引入了两类新模型（TR 38.901）：</p>
+
+                  <p><strong>TDL（Tapped Delay Line）：</strong>非空间信道，适合链路级仿真，有 TDL-A/B/C/D/E 五类</p>
+
+                  <p><strong>CDL（Clustered Delay Line）：</strong>带角度扩展的空间信道，适合MIMO系统评估，有 CDL-A/B/C/D/E 五类</p>
+
+                  <p>以<strong>CDL-A</strong>为例（NLOS城市宏蜂窝）：</p>
+
+                  <pre><code>CDL-A 关键参数:
+- 多径数：23 clusters × 20 rays
+- RMS DS：归一化后约 5~300 ns（可缩放）
+- RMS ASA（方位角扩展）：65°
+- 路径损耗模型：UMa-NLOS</code></pre>
+
+                  <p>CDL模型支持<strong>时延缩放</strong>，可以通过一个缩放因子 $D_s$ 调整时延扩展以适应不同频段（如FR1 的 6 GHz以下 vs FR2的毫米波）：</p>
+
+                  <p><span class="math display">\[
+\tau_l^{\mathrm{scaled}}=D_s\cdot\tau_l^{\mathrm{nominal}}
+\]</span></p>
+                </section>
+
+                <section id="which-model" class="level3">
+                  <h3>4.3 选哪个模型?</h3>
+
+                  <pre><code>研究目的                    推荐模型
+────────────────────────────────────
+算法基础性能验证（无衰落）  AWGN
+4G LTE链路仿真             EPA / EVA / ETU
+5G NR链路级仿真（单天线）   TDL-A/B/C
+5G NR系统级/MIMO仿真       CDL-A/B/C/D/E
+毫米波/mmWave专项研究      CDL with FR2缩放</code></pre>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="doppler" class="level2">
+                <h2>五、<span class="ofdm-term">多普勒效应<span class="ofdm-mark">✦</span></span>：信道的“时间脸”</h2>
+
+                <p>前面说的多径主要影响频域（频率选择性），而多普勒效应影响的是时域（时间选择性）。</p>
+
+                <p>当移动台以速度 $v$ 运动时，从方位角 $\theta$ 方向来的散射分量产生的多普勒频移为：</p>
+
+                <p><span class="math display">\[
+f_d=\frac{v}{\lambda}\cos\theta=\frac{vf_c}{c}\cos\theta
+\]</span></p>
+
+                <p>其中 $\lambda=c/f_c$ 为波长，$c$ 为光速，$f_c$ 为载波频率。</p>
+
+                <p><strong>几个典型数值</strong>（$f_c=3.5\,\mathrm{GHz}$，5G NR Sub-6G频段）：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>移动速度</th>
+                        <th>最大多普勒频移 $f_{D,\text{max}}$</th>
+                        <th>相干时间 $T_c$</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>步行 3 km/h</td>
+                        <td>9.7 Hz</td>
+                        <td>43.6 ms</td>
+                      </tr>
+                      <tr>
+                        <td>车速 120 km/h</td>
+                        <td>389 Hz</td>
+                        <td>1.09 ms</td>
+                      </tr>
+                      <tr>
+                        <td>高铁 360 km/h</td>
+                        <td>1167 Hz</td>
+                        <td>0.36 ms</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>在 OFDM 系统中，子载波间隔 $\Delta f$ 必须远大于多普勒频移，否则子载波间正交性被破坏（产生 ICI）。5G NR FR1 的最大子载波间隔是 60 kHz，对应相干时间约 0.36 ms，正好能覆盖高铁场景（需配合 DMRS 密度加密）。</p>
+              </section>
+
+              <section id="design-mapping" class="level2">
+                <h2>六、从信道模型到系统设计参数</h2>
+
+                <p>建立了信道模型的直觉之后，我们可以把信道参数直接映射到 OFDM 系统的关键设计决策：</p>
+
+                <pre><code>信道特性                    OFDM设计对应
+──────────────────────────────────────────
+时延扩展 T_d              → CP长度 &gt; T_d（LTE：4.7μs，5G NR：多种SCS配置）
+相干带宽 B_c              → 子载波间隔 Δf &lt;&lt; B_c（每子载波看到平坦衰落）
+多普勒扩展 f_D            → OFDM符号持续时间 T_s &lt;&lt; 1/f_D（信道在一符号内近似静止）
+相干时间 T_c              → 导频密度：每 T_c 内至少一个导频符号
+信道阶数 L（多径数）       → 信道估计算法复杂度 O(L^2) 或 O(L log L)</code></pre>
+
+                <p>这张映射表非常实用——它解释了为什么5G NR引入了 <strong>Flexible Numerology</strong>（15/30/60/120/240 kHz五种子载波间隔）：不同场景下信道的时延/多普勒特性差异极大，一套固定参数无法兼顾所有场景，必须灵活配置。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>七、小结</h2>
+
+                <p>本讲从物理机制出发，系统梳理了无线信道建模的核心框架：</p>
+
+                <ol>
+                  <li><strong>多径信道模型：</strong>冲激响应 $h(\tau,t)$，包含时延、幅度、相位三个维度</li>
+                  <li><strong>四大描述参数：</strong>时延扩展、相干带宽、多普勒扩展、相干时间——它们是信道的“DNA”</li>
+                  <li><strong>统计衰落模型：</strong>无LOS用瑞利衰落，有LOS用莱斯衰落，莱斯因子 $K$ 刻画LOS强度</li>
+                  <li><strong>标准信道模型：</strong>4G时代的EPA/EVA/ETU，5G NR的CDL/TDL，不同仿真目的选不同模型</li>
+                  <li><strong>多普勒效应：</strong>移动速度越快，相干时间越短，导频更新越频繁</li>
+                  <li><strong>信道→系统设计映射：</strong>时延扩展决定CP长度，多普勒扩展影响子载波间隔选择</li>
+                </ol>
+
+                <p>信道建模是整个接收机算法设计的基石。下一讲，我们把这个抽象的信道模型“接”进真实系统：讲<strong>符号定时同步</strong>——接收机如何在一片噪声中找到OFDM符号的起点。</p>
+              </section>
+
+              <section id="questions" class="level2">
+                <blockquote>
+                  <p>思考题</p>
+                </blockquote>
+
+                <ol>
+                  <li>若某室内信道的RMS时延扩展为 $T_d=30\,\mathrm{ns}$，你设计的 OFDM 系统子载波间隔 $\Delta f$ 应不大于多少？（提示：参考相干带宽与子载波间隔的关系）</li>
+                  <li>5G NR FR1在60 kHz子载波间隔下，单个OFDM符号时长约为 $T_s=1/\Delta f+T_{CP}$。若使用高铁场景（360 km/h，3.5 GHz），验证在一个符号持续时间内信道是否可以近似为时不变信道？</li>
+                  <li>你的仿真代码使用ETU信道，移动速度设为5 km/h，但误把多普勒设置成了300 km/h的参数。从信道的时变性角度，这会带来什么问题？</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 9 讲：峰均比 PAPR 问题（上）——为什么 OFDM 信号“峰”很多？ | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 9 讲：复刻峰均比 PAPR 问题上篇内容，覆盖 PAPR 定义、来源、统计特性、PA/ADC/DAC/EVM 影响、MATLAB CCDF 仿真和工程典型值。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 34ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 9 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 9</div>
+          <h1>第 9 讲：峰均比 PAPR 问题（上）——为什么 OFDM 信号“峰”很多？</h1>
+          <p>从 PAPR 的定义、最坏情况、统计分布和 CCDF 仿真出发，解释高峰均比为什么会压低 PA 效率、抬高 ADC/DAC 动态范围并恶化 EVM。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>PAPR</span>
+          <span>CCDF</span>
+          <span>PA Back-off</span>
+          <span>EVM</span>
+          <span>MATLAB</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>按截图顺序复刻 PAPR 的定义、来源、影响、仿真和工程典型值。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#intro">引言</a>
+              <a class="level-2" href="#definition">一、PAPR 的定义：峰值有多“高”？</a>
+              <a class="level-2" href="#source">二、PAPR 从哪里来？</a>
+              <a class="level-3" href="#worst-case">2.1 最坏情况：所有子载波同相叠加</a>
+              <a class="level-3" href="#statistics">2.2 实际 PAPR：统计特性</a>
+              <a class="level-2" href="#impact">三、高 PAPR 对系统的影响</a>
+              <a class="level-3" href="#pa-impact">3.1 对功放（PA）的影响</a>
+              <a class="level-3" href="#adc-dac-impact">3.2 对 ADC/DAC 的影响</a>
+              <a class="level-3" href="#evm-analysis">3.3 EVM 恶化量化分析</a>
+              <a class="level-2" href="#matlab">四、MATLAB 仿真：不同子载波数下的 PAPR 分布</a>
+              <a class="level-2" href="#engineering">五、PAPR 问题的严重程度：工程视角</a>
+              <a class="level-2" href="#summary">六、小结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-papr-problem" class="level1">
+              <h1>第9讲：峰均比PAPR问题（上）——为什么OFDM信号“峰”很多？</h1>
+
+              <section id="intro" class="level2">
+                <p>OFDM有一个出了名的“心病”——<strong>高峰均比（PAPR）</strong>。</p>
+
+                <p>做过射频硬件的同学可能会有这样的抱怨： PA（<span class="ofdm-term">功率放大器<span class="ofdm-mark">✦</span></span>）效率低、散热严重、成本贵……追根溯源，很多时候锅都得OFDM来背。本讲我们来深入剖析这个问题：OFDM信号的PAPR到底从哪里来？有多严重？对系统影响几何？</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="definition" class="level2">
+                <h2>一、PAPR的定义：峰值有多”高”？</h2>
+
+                <p><strong>峰均比（Peak-to-Average Power Ratio，PAPR）</strong> 定义为：</p>
+
+                <p><span class="math display">\[
+\mathrm{PAPR}=\frac{\max_{0\le t&lt;T_{sym}} |x(t)|^2}{E\left[|x(t)|^2\right]}
+\]</span></p>
+
+                <p>其中 $x(t)$ 是OFDM时域信号，分子是信号功率的峰值，分母是平均功率。工程中常用dB表示：</p>
+
+                <p><span class="math display">\[
+\mathrm{PAPR}_{dB}=10\log_{10}\mathrm{PAPR}
+\]</span></p>
+
+                <p>对于离散时域OFDM符号（IFFT输出），PAPR定义为：</p>
+
+                <p><span class="math display">\[
+\mathrm{PAPR}=\frac{\max_{0\le n&lt;N}|x[n]|^2}{\frac{1}{N}\sum_{n=0}^{N-1}|x[n]|^2}
+\]</span></p>
+
+                <p><strong>直觉理解：</strong> PAPR = 20，即PAPR = 13 dB，意味着峰值功率是平均功率的20倍。PA必须能承受这个峰值，而大部分时间信号功率却远低于峰值——这就造成了极大的效率浪费。</p>
+              </section>
+
+              <section id="source" class="level2">
+                <h2>二、PAPR从哪里来？——多载波叠加的“共振”</h2>
+
+                <p>理解PAPR的本质，先看OFDM时域信号的表达式：</p>
+
+                <p><span class="math display">\[
+x[n]=\frac{1}{\sqrt{N}}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\ldots,N-1
+\]</span></p>
+
+                <p>这是 $N$ 个子载波的叠加。每个子载波携带一个复数符号 $X[k]$（如QAM点），各自以不同的频率旋转，最终在时域叠加。</p>
+
+                <section id="worst-case" class="level3">
+                  <h3>2.1 最坏情况：所有子载波同相叠加</h3>
+
+                  <p>想象极端情况：某个时刻，$N$ 个子载波全部在同一相位对齐，叠加出一个超级大峰值：</p>
+
+                  <p><span class="math display">\[
+|x[n]|_{\max}=\frac{1}{\sqrt{N}}\sum_{k=0}^{N-1}|X[k]|\le \frac{1}{\sqrt{N}}\cdot N\cdot A=\sqrt{N}\cdot A
+\]</span></p>
+
+                  <p>若每个子载波幅度均为 $A$，则理论最大PAPR为：</p>
+
+                  <p><span class="math display">\[
+\mathrm{PAPR}_{\max}=\frac{(\sqrt{N}\cdot A)^2}{A^2}=N
+\]</span></p>
+
+                  <p>换算成dB：$\mathrm{PAPR}_{\max}=10\log_{10}N$</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>子载波数 N</th>
+                          <th>理论最大PAPR</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>64</td>
+                          <td>18.1 dB</td>
+                        </tr>
+                        <tr>
+                          <td>512</td>
+                          <td>27.1 dB</td>
+                        </tr>
+                        <tr>
+                          <td>1024</td>
+                          <td>30.1 dB</td>
+                        </tr>
+                        <tr>
+                          <td>2048</td>
+                          <td>33.1 dB</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>LTE 20MHz带宽用了 2048点IFFT，理论上 PAPR可达 33 dB！当然这是极端情况，实际远不会如此，但已经足够说明问题的严重性。</p>
+                </section>
+
+                <section id="statistics" class="level3">
+                  <h3>2.2 实际PAPR：统计特性</h3>
+
+                  <p>实际OFDM信号的子载波符号是随机的QAM点，各子载波相位随机独立。根据<span class="ofdm-term">中心极限定理<span class="ofdm-mark">✦</span></span>，当 $N$ 较大时，时域样本 $x[n]$ 的实部和虚部分别趋近于高斯分布：</p>
+
+                  <p><span class="math display">\[
+\operatorname{Re}\{x[n]\}\sim\mathcal{N}(0,\sigma^2/2),\qquad
+\operatorname{Im}\{x[n]\}\sim\mathcal{N}(0,\sigma^2/2)
+\]</span></p>
+
+                  <p>因此 $|x[n]|^2$ 服从自由度为 2 的卡方分布（即指数分布），而PAPR的统计特性用<span class="ofdm-term">互补累计分布函数（CCDF）</span> 来描述：</p>
+
+                  <p><span class="math display">\[
+\mathrm{CCDF}(\gamma)=\Pr[\mathrm{PAPR}&gt;\gamma]
+\]</span></p>
+
+                  <p>对于 $N$ 个独立同分布的子载波，PAPR的CCDF近似为：</p>
+
+                  <p><span class="math display">\[
+\Pr[\mathrm{PAPR}&gt;\gamma]\approx 1-(1-e^{-\gamma})^N
+\]</span></p>
+
+                  <p>以 $N=1024$，目标概率 $10^{-3}$ 为例：</p>
+
+                  <p><span class="math display">\[
+1-(1-e^{-\gamma})^{1024}=10^{-3}
+\]</span></p>
+
+                  <p>解得 $\gamma\approx 11.3\,\mathrm{dB}$。也就是说，对于1024子载波OFDM，<strong>约有0.1%的时间PAPR超过11.3 dB</strong>——这正是PA设计中必须留出“回退量（Back-off）”的根本原因。</p>
+                </section>
+              </section>
+
+              <section id="impact" class="level2">
+                <h2>三、高PAPR对系统的影响</h2>
+
+                <section id="pa-impact" class="level3">
+                  <h3>3.1 对功放（PA）的影响</h3>
+
+                  <p>PA的输入-输出特性在大信号下呈现非线性（饱和区）。若OFDM信号的峰值进入非线性区：</p>
+
+                  <pre><code>输入功率（dBm）
+     |
+     |          ▲ 理想线性区
+     |         /
+     |        /   ← 峰值进入此区域：非线性失真
+     |       /
+     |------/--------- 1dB压缩点（P1dB）
+     |     /
+     |    /
+     |___/_________</code></pre>
+
+                  <p>非线性失真会导致：</p>
+
+                  <ol>
+                    <li><strong>信号内部失真：</strong> EVM（<span class="ofdm-term">误差矢量幅度<span class="ofdm-mark">✦</span></span>）恶化，高阶调制（256QAM）无法解调</li>
+                    <li><strong>带外辐射（OOB）：</strong> 产生谐波和互调分量，干扰相邻信道，违反频谱模板</li>
+                    <li><strong>PA效率大幅下降：</strong> 为保证线性工作，PA必须回退（Back-off）工作点</li>
+                  </ol>
+
+                  <p>PA效率与回退量的关系（A类放大器为例）：</p>
+
+                  <p><span class="math display">\[
+\eta=\eta_{\max}\cdot\frac{P_{out}}{P_{sat}}\approx \frac{\eta_{\max}}{\mathrm{PAPR}_{\text{linear}}}
+\]</span></p>
+
+                  <p>若PAPR = 10 dB，PA须回退10 dB，A类PA的理论最大效率50%直接降到约5%——这是灾难性的。</p>
+                </section>
+
+                <section id="adc-dac-impact" class="level3">
+                  <h3>3.2 对ADC/DAC的影响</h3>
+
+                  <p>接收端ADC（模数转换器）的动态范围有限。高PAPR信号要求ADC具备足够的位宽以覆盖峰值，否则峰值被削波（Clipping），产生非线性失真。</p>
+
+                  <p>以一个简化估算为例：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>PAPR (dB)</th>
+                          <th>所需ADC额外位数</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>6</td>
+                          <td>1 bit</td>
+                        </tr>
+                        <tr>
+                          <td>12</td>
+                          <td>2 bits</td>
+                        </tr>
+                        <tr>
+                          <td>18</td>
+                          <td>3 bits</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>每增加1 bit量化位数，ADC面积和功耗大约翻倍。这在大规模天线（Massive MIMO）系统中尤为突出——64根天线，每根天线都需要高位宽ADC，功耗压力巨大。</p>
+                </section>
+
+                <section id="evm-analysis" class="level3">
+                  <h3>3.3 EVM恶化量化分析</h3>
+
+                  <p>PA非线性可以用3阶截断点（IIP3）模型描述。当输入功率相对IIP3有 $\Delta$ dB 的回退时，<span class="ofdm-term">三阶互调失真<span class="ofdm-mark">✦</span></span>（IMD3）功率与信号之比为：</p>
+
+                  <p><span class="math display">\[
+\mathrm{IMD3}\approx -2\Delta\ \mathrm{dBc}
+\]</span></p>
+
+                  <p>对于PAPR = 10 dB 的OFDM 信号，PA工作在平均功率时，瞬时峰值会导致IMD3强度约为 $-20\,\mathrm{dBc}$，对应EVM约为10%——对于64QAM（要求EVM &lt; 8%）已经超标！</p>
+                </section>
+              </section>
+
+              <section id="matlab" class="level2">
+                <h2>四、MATLAB仿真：不同子载波数下的PAPR分布</h2>
+
+                <p>用MATLAB验证PAPR的CCDF曲线，直观感受子载波数对PAPR的影响：</p>
+
+                <pre><code class="language-matlab">% OFDM PAPR CCDF仿真
+clear; close all;
+
+N_list = [64, 256, 1024];       % 子载波数
+M = 16;                         % 16QAM
+N_sym = 10000;                  % 蒙特卡洛符号数
+papr_threshold = 0:0.1:15;      % PAPR阈值（dB）
+
+figure; hold on;
+colors = {'b', 'r', 'k'};
+
+for idx = 1:length(N_list)
+    N = N_list(idx);
+    papr_all = zeros(N_sym, 1);
+
+    for i = 1:N_sym
+        % 生成随机16QAM符号
+        bits = randi([0, 1], N, 4);
+        syms = qammod(bi2de(bits, 'left-msb'), M, 'UnitAveragePower', true);
+
+        % IFFT调制（过采样4倍提高精度）
+        x_fd = [syms; zeros(3*N, 1)];   % 频域零填充（4倍过采样）
+        x_td = ifft(x_fd) * sqrt(4*N);  % 时域信号
+
+        % 计算PAPR
+        P_peak = max(abs(x_td).^2);
+        P_avg  = mean(abs(x_td).^2);
+        papr_all(i) = 10*log10(P_peak / P_avg);
+    end
+
+    % 计算CCDF
+    ccdf = zeros(size(papr_threshold));
+    for j = 1:length(papr_threshold)
+        ccdf(j) = mean(papr_all > papr_threshold(j));
+    end
+
+    semilogy(papr_threshold, ccdf, colors{idx}, 'LineWidth', 1.5);
+end
+
+xlabel('PAPR_0 (dB)'); ylabel('Pr[PAPR > PAPR_0]');
+title('OFDM PAPR CCDF (16QAM, 4倍过采样)');
+legend('N=64', 'N=256', 'N=1024', 'Location', 'southwest');
+grid on; ylim([1e-4, 1]);</code></pre>
+
+                <p>运行上述代码，你会得到三条CCDF曲线，观察规律：</p>
+
+                <ul>
+                  <li><strong>子载波数越多，CCDF曲线整体右移</strong>——高PAPR出现概率更大</li>
+                  <li>在 $\Pr=10^{-3}$ 处，$N=64$ 约为 9.5 dB，$N=1024$ 约为 11.5 dB</li>
+                  <li>增加过采样倍数（4×）能更准确捕获时域峰值（Nyquist频率处的峰值不会被低估）</li>
+                </ul>
+
+                <blockquote>
+                  <p>工程提醒： 仅用IFFT直接输出（1倍采样）计算PAPR会低估实际值约0.5~1 dB，建议至少用4倍过采样。</p>
+                </blockquote>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="engineering" class="level2">
+                <h2>五、PAPR问题的严重程度：工程视角</h2>
+
+                <p>下表总结了几种常见通信标准的PAPR典型值，以及设计应对措施：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>标准</th>
+                        <th>子载波数</th>
+                        <th>典型PAPR<br>(CCDF 0.1%)</th>
+                        <th>PA回退量</th>
+                        <th>应对措施</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>WiFi 802.11a</td>
+                        <td>52</td>
+                        <td>~9 dB</td>
+                        <td>~8 dB</td>
+                        <td>限幅 + 前向纠错</td>
+                      </tr>
+                      <tr>
+                        <td>LTE FDD</td>
+                        <td>1200</td>
+                        <td>~11.5 dB</td>
+                        <td>~8 dB</td>
+                        <td>限幅滤波 + 数字预失真</td>
+                      </tr>
+                      <tr>
+                        <td>5G NR FR1</td>
+                        <td>3300</td>
+                        <td>~12 dB</td>
+                        <td>~8 dB</td>
+                        <td>限幅滤波 + DPD + PT-RS</td>
+                      </tr>
+                      <tr>
+                        <td>WiFi 802.11ax</td>
+                        <td>2048</td>
+                        <td>~12.5 dB</td>
+                        <td>~8 dB</td>
+                        <td>TR + 限幅</td>
+                      </tr>
+                      <tr>
+                        <td>LTE 上行</td>
+                        <td>1200</td>
+                        <td>~3.5 dB (<span class="ofdm-term">SC-FDMA<span class="ofdm-mark">✦</span></span>)</td>
+                        <td>~3 dB</td>
+                        <td>单载波结构天然低PAPR</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>注意到LTE上行采用 <strong>SC-FDMA（单载波频分多址）</strong>，而非OFDMA，正是为了降低UE（用户终端）的PA成本——手机电池有限，PA效率至关重要。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>六、小结</h2>
+
+                <p>本讲深入分析了 OFDM 高PAPR问题的来龙去脉：</p>
+
+                <ol>
+                  <li><strong>根源：</strong> $N$ 个子载波在时域叠加，最坏情况（同相）可达 $10\log_{10}N$ dB</li>
+                  <li><strong>统计特性：</strong> 实际PAPR服从类高斯分布，通常用CCDF描述；1024子载波下，0.1%概率对应约11.5 dB</li>
+                  <li><strong>系统影响：</strong> PA非线性失真（EVM恶化 + 带外辐射）、ADC动态范围需求增加、整机功耗效率低下</li>
+                  <li><strong>工程现实：</strong> 5G NR基站PA须留 8 dB以上回退量，这直接推高了基站成本和能耗</li>
+                </ol>
+
+                <p><strong>下讲预告：</strong> 问题已经清楚了，那么怎么解决？第10讲将系统讲解PAPR抑制的主流技术——限幅滤波、SLM、PTS、预留子载波……看看工程师们是怎么跟”峰值”斗智斗勇的。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="questions" class="level2">
+                <blockquote>
+                  <p>思考题</p>
+                </blockquote>
+
+                <ol>
+                  <li>若OFDM系统使用QPSK调制（4QAM），理论上PAPR上界与子载波数 $N$ 的关系是什么？与64QAM相比有区别吗？</li>
+                  <li>LTE下行为什么不使用SC-FDMA，而坚持用OFDMA？</li>
+                  <li>在MATLAB仿真中，为什么过采样倍数会影响PAPR的估计值？</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

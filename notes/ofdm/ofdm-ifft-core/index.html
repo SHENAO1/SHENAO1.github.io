@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 4 讲：从傅里叶变换理解 OFDM——IFFT 为什么是核心？ | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 4 讲：从 DFT/IDFT、矩阵形式、FFT 复杂度、蝶形运算、Python 演示和 LTE 20MHz 参数理解 IFFT 为什么是 OFDM 的核心。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 26ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose figure + p,
+    .ofdm-source-note .note-prose blockquote + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 17px;
+      line-height: 1.6;
+      white-space: pre;
+    }
+
+    .ofdm-source-note .note-prose pre code .ofdm-term,
+    .ofdm-source-note .note-prose pre code .ofdm-mark {
+      color: #004996;
+      font-weight: 400;
+    }
+
+    .ofdm-source-note .note-prose figure {
+      margin: 28px 0;
+    }
+
+    .ofdm-source-note .note-prose figure img {
+      width: min(100%, 860px);
+      margin: 0 auto;
+      border-radius: 6px;
+      box-shadow: none;
+      background: #fff;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 760px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 15px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "ams"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 4 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 4</div>
+          <h1>第 4 讲：从傅里叶变换理解 OFDM——IFFT 为什么是核心？</h1>
+          <p>从 DFT/IDFT 的数学定义出发，解释为什么 OFDM 的时域采样序列就是频域 QAM 符号的 IDFT。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>DFT / IDFT</span>
+          <span>IFFT</span>
+          <span>FFT</span>
+          <span>Butterfly</span>
+          <span>LTE 20MHz</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从 IDFT 等价性、矩阵形式、FFT 复杂度和 LTE 参数理解 IFFT 的核心地位。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#introduction">引言：发射机里最关键的那一步</a>
+              <a class="level-2" href="#dft-idft">一、DFT/IDFT：离散时间信号的频域工具</a>
+              <a class="level-3" href="#dft-definition">1.1 DFT 的定义</a>
+              <a class="level-3" href="#ofdm-idft-relation">1.2 OFDM 发送信号与 IDFT 的关系</a>
+              <a class="level-2" href="#matrix-form">二、矩阵形式：看清 OFDM 的线性结构</a>
+              <a class="level-2" href="#fft-engine">三、FFT：让 OFDM 在实际中可行的加速引擎</a>
+              <a class="level-3" href="#direct-dft-cost">3.1 直接 DFT 的计算量</a>
+              <a class="level-3" href="#fft-divide-conquer">3.2 FFT 的分治思想</a>
+              <a class="level-3" href="#butterfly">3.3 蝶形运算：FFT 的基本单元</a>
+              <a class="level-2" href="#python-demo">四、用 Python 演示 8 点 IFFT 的时域叠加</a>
+              <a class="level-2" href="#lte-parameters">五、LTE 参数实例：算一算 IFFT 的规模</a>
+              <a class="level-2" href="#receiver">六、接收端：FFT 与 DFT 的对偶关系</a>
+              <a class="level-2" href="#summary">总结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-ifft-core" class="level1">
+              <h1>第 4 讲：从傅里叶变换理解 OFDM——IFFT 为什么是核心？</h1>
+
+              <section id="introduction" class="level2">
+                <h2>引言：发射机里最关键的那一步</h2>
+
+                <p>在上一讲，我们走过了完整的 OFDM 发射机框图：<span class="ofdm-term">QAM<span class="ofdm-mark">✦</span></span> 映射 → <span class="ofdm-term">串并转换<span class="ofdm-mark">✦</span></span> → <span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span> → 加 CP → <span class="ofdm-term">并串转换<span class="ofdm-mark">✦</span></span> → DAC → <span class="ofdm-term">上变频<span class="ofdm-mark">✦</span></span>。如果让我在这条流水线里圈出最核心的模块，我会毫不犹豫地圈住 IFFT。</p>
+
+                <p>为什么？因为正是这个模块，让”<span class="ofdm-term">多载波调制<span class="ofdm-mark">✦</span></span>”这件事情在工程上变成了可能。</p>
+
+                <p>没有 IFFT，要同时发送 $N$ 路子载波，你需要 $N$ 个独立的振荡器和<span class="ofdm-term">混频器<span class="ofdm-mark">✦</span></span>——这是上世纪模拟<span class="ofdm-term">多载波系统<span class="ofdm-mark">✦</span></span>的做法，复杂度、成本、<span class="ofdm-term">功耗<span class="ofdm-mark">✦</span></span>都高得离谱。而有了 IFFT，$N$ 路子载波的<span class="ofdm-term">时域<span class="ofdm-mark">✦</span></span>叠加，被一个算法、几百个<span class="ofdm-term">加法器<span class="ofdm-mark">✦</span></span>轻松搞定。</p>
+
+                <p>这一讲，我们从数学本质出发，把 DFT/IDFT<span class="ofdm-mark">✦</span> 与 OFDM <span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>的关系彻底讲清楚。理解了这个，你就理解了 OFDM 的灵魂。</p>
+              </section>
+
+              <section id="dft-idft" class="level2">
+                <h2>一、 DFT/IDFT：<span class="ofdm-term">离散时间信号<span class="ofdm-mark">✦</span></span>的频域工具</h2>
+
+                <section id="dft-definition" class="level3">
+                  <h3>1.1 DFT 的定义</h3>
+
+                  <p>设一个长度为 $N$ 的<span class="ofdm-term">离散时间序列<span class="ofdm-mark">✦</span></span> $x[n]$，$n=0,1,\cdots,N-1$，其<span class="ofdm-term">离散傅里叶变换<span class="ofdm-mark">✦</span></span>（DFT）定义为：</p>
+
+                  <p><span class="math display">\[
+X[k]=\sum_{n=0}^{N-1}x[n]\cdot e^{-j\frac{2\pi}{N}kn},\qquad k=0,1,\cdots,N-1
+\]</span></p>
+
+                  <p>直觉上，$X[k]$ 就是”信号 $x[n]$ 在频率 $f_k=k/(NT_s)$ 处的复振幅”，其中 $T_s$ 是<span class="ofdm-term">采样间隔<span class="ofdm-mark">✦</span></span>。</p>
+
+                  <p>对应地，<span class="ofdm-term">逆离散傅里叶变换<span class="ofdm-mark">✦</span></span>（IDFT）为：</p>
+
+                  <p><span class="math display">\[
+x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn},\qquad n=0,1,\cdots,N-1
+\]</span></p>
+
+                  <p>注意这里的对称性：DFT 是”时域 → 频域”，IDFT 是”频域 → 时域”，两者互为逆运算，差一个<span class="ofdm-term">归一化系数<span class="ofdm-mark">✦</span></span> $1/N$。</p>
+                </section>
+
+                <section id="ofdm-idft-relation" class="level3">
+                  <h3>1.2 OFDM 发送信号与 IDFT 的关系</h3>
+
+                  <p>现在来看 OFDM。设第 $k$ 个子载波上映射的 QAM 符号为 $X[k]$，OFDM 符号的<span class="ofdm-term">连续时域<span class="ofdm-mark">✦</span></span>信号为：</p>
+
+                  <p><span class="math display">\[
+s(t)=\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi k\Delta f\cdot t},\qquad 0\le t&lt;T
+\]</span></p>
+
+                  <p>其中 $\Delta f=1/T$ 是<span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span>，$T=NT_s$ 是 OFDM 符号持续时间。</p>
+
+                  <p>在 $t=nT_s$ 处采样，得到<span class="ofdm-term">离散时域<span class="ofdm-mark">✦</span></span>序列：</p>
+
+                  <p><span class="math display">\[
+s[n]=s(nT_s)=\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi k\Delta f\cdot nT_s}
+=\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn}
+\]</span></p>
+
+                  <p>把这个和 IDFT 公式对比一下：</p>
+
+                  <p><span class="math display">\[
+x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn}
+\]</span></p>
+
+                  <p>完全一致（相差一个常数归一化因子）！</p>
+
+                  <p><strong>结论：OFDM 符号的时域采样序列，就是频域 QAM 符号序列的 IDFT。</strong> 发送一个 OFDM 符号 = 对 $N$ 个频域复数做 IDFT。</p>
+
+                  <p>这就是 IFFT 处于核心地位的数学根源。</p>
+                </section>
+              </section>
+
+              <section id="matrix-form" class="level2">
+                <h2>二、 <span class="ofdm-term">矩阵<span class="ofdm-mark">✦</span></span>形式：看清 OFDM 的线性结构<span class="ofdm-mark">✦</span></h2>
+
+                <p>用矩阵语言写出来会更清晰。定义 $N\times N$ 的 DFT 矩阵 $\mathbf{F}$，其 $(n,k)$ 元素为：</p>
+
+                <p><span class="math display">\[
+[\mathbf{F}]_{n,k}=e^{-j\frac{2\pi}{N}nk},\qquad n,k=0,1,\cdots,N-1
+\]</span></p>
+
+                <p>则：</p>
+
+                <ul>
+                  <li><strong>DFT（分析）：</strong>$\mathbf{X}=\mathbf{F}\mathbf{x}$</li>
+                  <li><strong>IDFT（综合）：</strong>$\mathbf{x}=\mathbf{F}^{H}\mathbf{X}/N$</li>
+                </ul>
+
+                <p>其中 $\mathbf{F}^{H}$ 是 $\mathbf{F}$ 的<span class="ofdm-term">共轭转置<span class="ofdm-mark">✦</span></span>（Hermitian 转置）。</p>
+
+                <p>OFDM 发射机发送信号：</p>
+
+                <p><span class="math display">\[
+\mathbf{s}=\mathbf{F}^{H}\mathbf{X}
+\]</span></p>
+
+                <p>（忽略归一化系数）</p>
+
+                <p>在接收端，去掉 CP 后做 FFT：</p>
+
+                <p><span class="math display">\[
+\hat{\mathbf{X}}=\mathbf{F}\mathbf{r}
+\]</span></p>
+
+                <p>对于理想信道（$\mathbf{r}=\mathbf{s}$），恢复出 $\hat{\mathbf{X}}=\mathbf{F}\mathbf{F}^{H}\mathbf{X}=\mathbf{X}$，完美还原。</p>
+
+                <p>这个矩阵视角非常有用——后续讲信道估计和均衡时，你会频繁看到 $\mathbf{F}$、$\mathbf{F}^{H}$ 的身影。</p>
+              </section>
+
+              <section id="fft-engine" class="level2">
+                <h2>三、 FFT：让 OFDM 在实际中可行的加速引擎</h2>
+
+                <section id="direct-dft-cost" class="level3">
+                  <h3>3.1 直接 DFT 的计算量</h3>
+
+                  <p>如果暴力计算 $N$ 点 IDFT，需要：</p>
+
+                  <ul>
+                    <li>复数乘法：$N^2$ 次</li>
+                    <li><span class="ofdm-term">复数加法<span class="ofdm-mark">✦</span></span>：$N(N-1)$ 次</li>
+                  </ul>
+
+                  <p>对于 LTE 20MHz 系统，$N=2048$，直接 DFT 需要约 <strong>400 万次复数乘法</strong>——每个 OFDM 符号都要算一遍，以 LTE 14 个符号/ms 计算，每秒需要 560 亿次复数乘法。这在 2000 年代的<span class="ofdm-term">数字芯片<span class="ofdm-mark">✦</span></span>里根本不可能实时跑起来。</p>
+                </section>
+
+                <section id="fft-divide-conquer" class="level3">
+                  <h3>3.2 FFT 的分治思想</h3>
+
+                  <p><span class="ofdm-term">快速傅里叶变换<span class="ofdm-mark">✦</span></span>（FFT），核心是 Cooley-Tukey <span class="ofdm-term">算法<span class="ofdm-mark">✦</span></span>，利用 DFT 的对称性和周期性，将 $N$ 点 DFT 分解为两个 $N/2$ 点 DFT：</p>
+
+                  <p><span class="math display">\[
+X[k]=\sum_{n\ \text{偶}}x[n]W_N^{kn}+W_N^k\sum_{n\ \text{奇}}x[n]W_N^{kn}
+\]</span></p>
+
+                  <p>其中 $W_N=e^{-j2\pi/N}$ 为<span class="ofdm-term">旋转因子<span class="ofdm-mark">✦</span></span>（Twiddle Factor）。</p>
+
+                  <p><span class="ofdm-term">递归<span class="ofdm-mark">✦</span></span>应用这个分解（当 $N=2^m$ 时最优），计算复杂度降为：</p>
+
+                  <p><span class="math display">\[
+\text{复数乘法次数}\approx\frac{N}{2}\log_2N
+\]</span></p>
+
+                  <p>对比一下 $N=2048$ 的情况：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>方法</th>
+                          <th>复数乘法次数</th>
+                          <th>相对倍数<span class="ofdm-mark">✦</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>直接 DFT</td>
+                          <td>$N^2=4,194,304$</td>
+                          <td>1×</td>
+                        </tr>
+                        <tr>
+                          <td>Radix-2 FFT</td>
+                          <td>$\frac{N}{2}\log_2N\approx11,264$</td>
+                          <td>1/372×</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>372倍的加速！这就是为什么现代<span class="ofdm-term">基带芯片<span class="ofdm-mark">✦</span></span>能实时处理 5G NR 的 1 个 OFDM 符号（3296个子载波 @120kHz SCS）的底气。</p>
+                </section>
+
+                <section id="butterfly" class="level3">
+                  <h3>3.3 <span class="ofdm-term">蝶形运算<span class="ofdm-mark">✦</span></span>：FFT 的基本单元</h3>
+
+                  <p>FFT 的基本计算单元是<strong>蝶形（Butterfly）运算</strong>：</p>
+
+                  <pre><code>a ───────┬──── a + W·b
+         │
+         ×W
+         │
+b ───────┴──── a - W·b</code></pre>
+
+                  <p>一个蝶形运算完成 1 次复数乘法 + 2 次复数加法。 $N=2^m$ 点 FFT 共有 $m$ 级，每级 $N/2$ 个蝶形，总计 $\frac{N}{2}\log_2N$ 次蝶形运算。</p>
+
+                  <p>对应到硬件实现，这些蝶形运算可以流水线化——这是后续第 7 讲会详细讨论的话题。</p>
+                </section>
+              </section>
+
+              <section id="python-demo" class="level2">
+                <h2>四、 用 Python 演示 8 点 IFFT 的时域叠加</h2>
+
+                <p>下面用代码直观展示 IFFT 是如何把频域符号合成<span class="ofdm-term">时域波形<span class="ofdm-mark">✦</span></span>的：</p>
+
+                <pre><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+
+# ===== 8点IFFT演示：OFDM符号时域合成 =====
+
+N = 8  # <span class="ofdm-term">子载波数<span class="ofdm-mark">✦</span></span>（IFFT点数）
+
+# 频域：每个子载波上的QAM符号（这里用简单的+1/-1示意）
+X = np.array([1+0j, -1+0j, 1+0j, -1+0j, 0+0j, 0+0j, 0+0j, 0+0j])
+
+
+# 方法1：直接用<span class="ofdm-term">numpy<span class="ofdm-mark">✦</span></span>的 IFFT
+x_ifft = np.fft.ifft(X)
+
+
+# 方法2：手动叠加各子载波时域波形（验证等价性）
+t_samples = np.arange(N)
+x_manual = np.zeros(N, dtype=complex)
+
+print("子载波时域波形叠加过程：")
+for k in range(N):
+    if X[k] != 0:
+        subcarrier_k = X[k] * np.exp(1j * 2 * np.pi * k * t_samples / N) / N
+        x_manual += subcarrier_k
+        print(f"  子载波 {k}: X[{k}] = {X[k]:.1f}, 频率 = {k}/{N} * fs")
+
+
+# 验证两种方法结果一致
+print(f"\n差异最大值：{np.max(np.abs(x_ifft - x_manual)):.2e}")  # 应接近0
+
+# 打印时域输出
+print("\n时域采样点 s[n]:")
+for n in range(N):
+    print(f"  s[{n}] = {x_manual[n].real:.4f} + {x_manual[n].imag:.4f}j")</code></pre>
+
+                <p>运行这段代码，你会看到 4 个非零子载波（$k=0,1,2,3$）的时域分量被逐一叠加，最终形成 OFDM 符号的时域波形——这就是 IFFT 在做的事情，只不过用了高效的<span class="ofdm-term">蝶形算法<span class="ofdm-mark">✦</span></span>替代了逐项求和。</p>
+
+                <figure>
+                  <img src="assets/figures/subcarrier-superposition-ifft-output.png" alt="子载波时域分量叠加等于 IFFT 输出示意图">
+                </figure>
+              </section>
+
+              <section id="lte-parameters" class="level2">
+                <h2>五、 LTE 参数实例：算一算 IFFT 的规模</h2>
+
+                <p>理论讲完，来看真实系统里的数字。</p>
+
+                <p>以 <strong>LTE 20MHz 系统</strong>（这是目前 4G 部署最广的配置）为例：</p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>参数</th>
+                        <th>数值</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>子载波间隔 $\Delta f$</td>
+                        <td>15 kHz</td>
+                        <td>所有 LTE 配置统一</td>
+                      </tr>
+                      <tr>
+                        <td>OFDM 符号持续时间 $T$</td>
+                        <td>$1/\Delta f=66.67\,\mu s$</td>
+                        <td>不含 CP</td>
+                      </tr>
+                      <tr>
+                        <td>系统带宽</td>
+                        <td>20 MHz</td>
+                        <td>——</td>
+                      </tr>
+                      <tr>
+                        <td>可用子载波数</td>
+                        <td>1200</td>
+                        <td>资源网格中 100 个 RB × 12 子载波</td>
+                      </tr>
+                      <tr>
+                        <td>IFFT 点数 $N$</td>
+                        <td>2048</td>
+                        <td>$=f_s/\Delta f=30.72\text{ MHz}/15\text{ kHz}$</td>
+                      </tr>
+                      <tr>
+                        <td><span class="ofdm-term">采样率<span class="ofdm-mark">✦</span></span> $f_s$</td>
+                        <td>30.72 MHz</td>
+                        <td>$=2048\times15\text{ kHz}$</td>
+                      </tr>
+                      <tr>
+                        <td>FFT 级数 $\log_2N$</td>
+                        <td>11</td>
+                        <td>$2048=2^{11}$</td>
+                      </tr>
+                      <tr>
+                        <td>每符号蝶形运算数</td>
+                        <td>$N/2\cdot\log_2N=11264$</td>
+                        <td>约1.1万次</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <p>注意：2048 点 IFFT 中只有中间 1200 个子载波承载数据/导频，两侧 848 个子载波置零（保护带），防止相邻信道干扰。</p>
+
+                <pre><code>频域子载波排布（示意）：
+|← 424 个零子载波 →|← 600 个子载波 →|DC|← 600 个子载波 →|← 424 个零子载波 →|
+^                 ^               ^                ^                 ^
+k=0              k=424           k=1024           k=1424            k=2047
+                                  (DC 载波不使用)</code></pre>
+
+                <p>这种“两侧归零”的处理，也是为什么 OFDM 信号在频谱上看起来像一个平顶的梯形——只有中间的资源块在发射能量。</p>
+              </section>
+
+              <section id="receiver" class="level2">
+                <h2>六、 接收端：FFT 与 DFT 的对偶关系</h2>
+
+                <p>发送端做 IFFT（频域 → 时域），接收端对称地做 FFT（时域 → 频域）。在理想信道下：</p>
+
+                <p><span class="math display">\[
+\hat{X}[k]=\operatorname{FFT}\{r[n]\}=\operatorname{FFT}\{s[n]\}=X[k]
+\]</span></p>
+
+                <p>在实际<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>下，接收信号为：</p>
+
+                <p><span class="math display">\[
+r[n]=h[n]\circledast s[n]+w[n]
+\]</span></p>
+
+                <p>其中 $\circledast$ 表示循环卷积（这正是 CP 存在的意义，后续第 5 讲详细讲），$w[n]$ 为噪声。</p>
+
+                <p>FFT 之后，循环卷积变成<strong>频域逐点相乘</strong>：</p>
+
+                <p><span class="math display">\[
+\hat{X}[k]=H[k]\cdot X[k]+W[k]
+\]</span></p>
+
+                <p>均衡只需要逐子载波做一次<span class="ofdm-term">复数除法<span class="ofdm-mark">✦</span></span>：$\hat{X}[k]/H[k]$，复杂度仅 $O(N)$——这就是 OFDM 把频率选择性<span class="ofdm-term">均衡<span class="ofdm-mark">✦</span></span>化繁为简<span class="ofdm-mark">✦</span>的核心机制。</p>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>这一讲的核心逻辑可以用一句话概括：</p>
+
+                <blockquote>
+                  <p>OFDM 的时域信号 = 频域QAM符号的 IDFT，IFFT让这个操作在计算上可行。</p>
+                </blockquote>
+
+                <p>具体来说：</p>
+
+                <ol>
+                  <li><strong>数学等价性：</strong>OFDM 符号时域采样序列就是频域符号向量的 IDFT，这是 IFFT 是核心模块的根本原因</li>
+                  <li><strong>复杂度革命：</strong>FFT 将 $O(N^2)$ 的直接 DFT 计算压缩到 $O(N\log N)$，对于 $N=2048$ 有约 372 倍的加速</li>
+                  <li><strong>矩阵视角：</strong>发送 $\mathbf{s}=\mathbf{F}^{H}\mathbf{X}$，接收 $\hat{\mathbf{X}}=\mathbf{F}\mathbf{r}$，FFT/IFFT 就是乘 $\mathbf{F}$ 或 $\mathbf{F}^{H}$</li>
+                  <li><strong>实际参数：</strong>LTE 20MHz 使用 2048 点 IFFT，每个 OFDM 符号约需 11264 次蝶形运算</li>
+                </ol>
+
+                <p>下一讲（第5讲），我们会聚焦另一个关键模块——<span class="ofdm-term">循环前缀 CP<span class="ofdm-mark">✦</span></span>，理解为什么 OFDM 必须在 IFFT 输出前”头尾相接”地拼上一段尾巴，以及这件事如何让多径信道的频域均衡成为可能。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="questions" class="level2">
+                <h2>思考题</h2>
+
+                <ol>
+                  <li>【基础】对于 5G NR 的 $\mu=1$ 参数集（子载波间隔 30kHz），若采样率为 61.44 MHz，IFFT 点数应为多少？</li>
+                  <li>【计算】比较 $N=64$（WiFi 802.11a）和 $N=2048$（LTE 20MHz）的复杂度：直接 DFT 与 FFT 的运算量之比各是多少？</li>
+                  <li>【思考】为什么 LTE 的 IFFT 点数是 2048 而不是 1200（实际使用的子载波数）？如果直接用 1200 点 IFFT 会有什么问题？</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

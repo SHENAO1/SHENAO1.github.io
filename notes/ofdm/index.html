@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>OFDM 从算法到实现 | SHENAO1 的学习主页</title>
-  <meta name="description" content="OFDM 从算法到实现专栏：整理 OFDM 的设计动机、子载波正交性、FFT/IFFT 实现、循环前缀、均衡与工程参数。">
+  <meta name="description" content="OFDM 从算法到实现专栏：整理 OFDM 的设计动机、子载波正交性、FFT/IFFT 实现、循环前缀、PAPR、无线信道建模、符号定时同步、载波频率同步、均衡与工程参数。">
   <link rel="stylesheet" href="../../assets/styles/site.css">
 </head>
 <body class="page-topic">
@@ -40,20 +40,19 @@
           <div class="index-copy">
             <div class="eyeline">OFDM from algorithm to implementation</div>
             <h1>OFDM 从算法到实现。</h1>
-            <p>这个专栏把 OFDM 的设计动机、关键参数、FFT/IFFT 实现、循环前缀、均衡和工程权衡放在同一条学习线上。前三篇先从单载波困境、子载波正交性和发射机框架说起。</p>
+            <p>这个专栏把 OFDM 的设计动机、关键参数、FFT/IFFT 实现、循环前缀、QAM 映射、子载波映射、PAPR、无线信道建模、符号定时同步、载波频率同步、均衡和工程权衡放在同一条学习线上。前十三篇先从单载波困境、子载波正交性、发射机框架、IFFT 核心原理、CP 保护机制、频域输入向量、IFFT 硬件实现、循环前缀加窗、峰均比问题、PAPR 抑制技术、无线信道模型、接收机同步和载波频偏补偿说起。</p>
           </div>
 
           <article class="index-feature">
             <div class="eyeline">Current focus</div>
-            <h2>第 3 讲：OFDM 发射机框架总览</h2>
-            <p>从比特流到射频信号，第 3 讲沿 QAM 映射、串并转换、IFFT、循环前缀、DAC 和上变频，把发射机链路一次走完。</p>
+            <h2>第 13 讲：载波频率同步——消除频偏的影响</h2>
+            <p>第 13 讲从 CFO 来源讲到 CPE/ICI 影响、CP 与 Moose 频偏估计、导频跟踪、时域频旋转、频域 CPE 补偿和 5G NR PT-RS 实践。</p>
             <div class="chip-row">
-              <span>QAM</span>
-              <span>S/P</span>
-              <span>IFFT</span>
-              <span>CP</span>
-              <span>DAC</span>
-              <span>Upconversion</span>
+              <span>CFO</span>
+              <span>CPE</span>
+              <span>ICI</span>
+              <span>Moose</span>
+              <span>PT-RS</span>
             </div>
           </article>
         </div>
@@ -140,9 +139,289 @@
               </div>
             </div>
           </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <img src="ofdm-ifft-core/assets/figures/subcarrier-superposition-ifft-output.png" alt="子载波时域分量叠加等于 IFFT 输出示意图">
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 4</span>
+                <span>IFFT as OFDM core</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 4 讲：从傅里叶变换理解 OFDM——IFFT 为什么是核心？</h3>
+              <p>从 DFT/IDFT 定义、OFDM 连续信号采样、矩阵形式、FFT 复杂度、蝶形运算和 LTE 20MHz 参数，解释 IFFT 为什么处在 OFDM 发射机的核心位置。</p>
+              <ul>
+                <li>保留原截图的正文顺序、蓝色术语标记、核心公式、复杂度表、代码块和思考题。</li>
+                <li>用 MathJax 重排 DFT/IDFT、OFDM 时域采样、矩阵表达、FFT 分解和接收端均衡公式。</li>
+                <li>裁出子载波叠加示意图放在第 4 讲资产目录下，便于后续继续追加 CP、均衡和硬件实现内容。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>DFT/IDFT</span>
+                  <span>IFFT</span>
+                  <span>FFT 复杂度</span>
+                  <span>LTE 参数</span>
+                </div>
+                <a class="text-link" href="ofdm-ifft-core/">阅读第 4 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 5</span>
+                <span>Cyclic prefix guard interval</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 5 讲：循环前缀 CP——OFDM 的”护城河”</h3>
+              <p>从没有 CP 时多径造成的 ISI/ICI 出发，解释 CP 如何把线性卷积变成循环卷积，使频域均衡退化为简单的逐点复数除法。</p>
+              <ul>
+                <li>保留原截图的作者行、正文顺序、蓝色术语标记、ASCII 示意图、表格和思考题。</li>
+                <li>用 MathJax 重排多径接收模型、子载波积分、循环卷积均衡和 CP 开销公式。</li>
+                <li>补齐 LTE/5G NR 的 CP 配置、接收端去 CP 流程、替代前缀方案和工程实现要点。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>CP</span>
+                  <span>ISI/ICI</span>
+                  <span>循环卷积</span>
+                  <span>频域均衡</span>
+                </div>
+                <a class="text-link" href="ofdm-cyclic-prefix/">阅读第 5 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 6</span>
+                <span>QAM and subcarrier mapping</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 6 讲：QAM 调制与子载波映射——比特怎么变成子载波？</h3>
+              <p>从比特流映射到 QAM 复数星座点开始，继续讲子载波映射如何把数据、导频、保护子载波组织成 IFFT 输入向量。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、蓝色术语标记、表格、MATLAB 代码和思考题。</li>
+                <li>用 MathJax 重排星座点功率归一化、LTE 参数计算、吞吐量估算和频率索引公式。</li>
+                <li>补入 LTE 20MHz 资源网格示例，承接前面发射机链路、IFFT 和 CP 的内容。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>QAM</span>
+                  <span>格雷码</span>
+                  <span>子载波映射</span>
+                  <span>资源网格</span>
+                </div>
+                <a class="text-link" href="qam-subcarrier-mapping/">阅读第 6 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 7</span>
+                <span>IFFT hardware implementation</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 7 讲：IFFT 的硬件实现——从算法到电路</h3>
+              <p>从 Cooley-Tukey FFT 算法走到流水线架构、并行架构、定点量化、EVM 影响和芯片调试验证。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、代码块、表格和工程经验总结。</li>
+                <li>用 MathJax 重排 IDFT、FFT 分治、复杂度、量化噪声、EVM 和 guard bit 公式。</li>
+                <li>把表格中原本容易裸露的 LaTeX 片段改成可渲染的内联公式。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>IFFT</span>
+                  <span>FFT硬件</span>
+                  <span>定点量化</span>
+                  <span>RTL验证</span>
+                </div>
+                <a class="text-link" href="ofdm-ifft-hardware/">阅读第 7 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 8</span>
+                <span>CP windowing and OOB emission</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 8 讲：循环前缀与加窗——降低带外泄漏</h3>
+              <p>从矩形脉冲的 sinc 旁瓣出发，解释升余弦窗如何利用 CP 冗余做平滑过渡，并权衡 EVM、频谱模板和 5G NR 参数配置。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、ASCII 示意图、MATLAB 代码、表格和总结。</li>
+                <li>用 MathJax 重排矩形窗频响、升余弦分段窗函数、CP 约束、时延扩展和 NR numerology 公式。</li>
+                <li>把表格中原本裸露的 LaTeX 片段改成可渲染的内联公式，避免公式显示异常。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>CP加窗</span>
+                  <span>升余弦窗</span>
+                  <span>带外泄漏</span>
+                  <span>5G NR</span>
+                </div>
+                <a class="text-link" href="ofdm-cp-windowing/">阅读第 8 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 9</span>
+                <span>PAPR problem and CCDF</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 9 讲：峰均比 PAPR 问题（上）——为什么 OFDM 信号“峰”很多？</h3>
+              <p>从 PAPR 的定义和多载波同相叠加的最坏情况出发，解释实际 OFDM 峰值的 CCDF 统计特性，以及它对 PA、ADC/DAC、EVM 和整机功耗的工程影响。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、ASCII 示意图、MATLAB 代码、表格、小结和思考题。</li>
+                <li>用 MathJax 重排连续/离散 PAPR、OFDM 时域叠加、理论最大 PAPR、CCDF、PA 效率和 IMD3 公式。</li>
+                <li>把表格和正文中的裸露符号改成可渲染的内联公式，避免 LaTeX 在浏览器中显示异常。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>PAPR</span>
+                  <span>CCDF</span>
+                  <span>PA回退</span>
+                  <span>EVM</span>
+                </div>
+                <a class="text-link" href="ofdm-papr-problem-part-1/">阅读第 9 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 10</span>
+                <span>PAPR reduction techniques</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 10 讲：峰均比 PAPR 问题（下）——主流抑制技术详解</h3>
+              <p>从信号预畸变、信号编码和概率类方法三条路线出发，整理限幅滤波、峰值加窗、SLM、PTS、TR、TI、DPD 和 SC-FDMA 的工程取舍。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、ASCII 示意图、MATLAB 代码、表格、小结和思考题。</li>
+                <li>用 MathJax 重排限幅函数、CR、SLM 的 CCDF、PTS 优化目标和 TR 子载波分解公式。</li>
+                <li>把表格和正文中的裸露 LaTeX 片段改成可渲染的内联公式，避免公式显示异常。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>PAPR抑制</span>
+                  <span>限幅滤波</span>
+                  <span>SLM/PTS</span>
+                  <span>TR/TI</span>
+                </div>
+                <a class="text-link" href="ofdm-papr-problem-part-2/">阅读第 10 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 11</span>
+                <span>Wireless channel modeling</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 11 讲：无线信道建模——多径、多普勒与信道模型</h3>
+              <p>从无线信道的随机、时变和环境相关特性出发，整理多径冲激响应、时延扩展、相干带宽、统计衰落、3GPP 标准模型和多普勒效应。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、MATLAB 代码、表格、小结和思考题。</li>
+                <li>用 MathJax 重排时变冲激响应、卷积接收模型、瑞利分布、莱斯因子、多普勒频移和时延缩放公式。</li>
+                <li>把表格和正文中的裸露 LaTeX 片段改成可渲染的内联公式，避免公式显示异常。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>无线信道</span>
+                  <span>多径</span>
+                  <span>多普勒</span>
+                  <span>CDL/TDL</span>
+                </div>
+                <a class="text-link" href="wireless-channel-modeling/">阅读第 11 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 12</span>
+                <span>Symbol timing synchronization</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 12 讲：符号定时同步——找到 OFDM 符号的“起点”</h3>
+              <p>从符号定时偏差 STO 的相位旋转与 ISI 风险讲起，整理基于 CP 的滑动相关、Schmidl &amp; Cox 训练符号、粗频偏估计和 5G NR 同步实践。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、ASCII 示意图、MATLAB 代码、表格、总结和思考题。</li>
+                <li>用 MathJax 重排 STO 定义、子载波相位旋转、CP 相关度量、Schmidl &amp; Cox 定时度量和 CFO 估计公式。</li>
+                <li>把表格中的裸露 LaTeX 片段改成可渲染的内联公式，确保浏览器中公式显示正常。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>符号同步</span>
+                  <span>STO</span>
+                  <span>CP相关</span>
+                  <span>Schmidl &amp; Cox</span>
+                </div>
+                <a class="text-link" href="ofdm-symbol-timing-sync/">阅读第 12 讲</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="catalog-card catalog-card--feature">
+            <div class="catalog-art" aria-hidden="true"></div>
+            <div class="catalog-card-body">
+              <div class="catalog-status">已整理为专栏笔记</div>
+              <div class="catalog-meta">
+                <span>Lecture 13</span>
+                <span>Carrier frequency synchronization</span>
+                <span>形式：截图内容复刻 + 公式/表格重排</span>
+              </div>
+              <h3>第 13 讲：载波频率同步——消除频偏的影响</h3>
+              <p>从晶振频率偏差和多普勒频移讲起，整理 CFO 对公共相位误差 CPE、子载波间干扰 ICI 的影响，以及 CP 相关、Moose 算法、导频跟踪和两级补偿流程。</p>
+              <ul>
+                <li>保留原截图的正文顺序、标题层级、MATLAB 代码、表格、总结和思考题。</li>
+                <li>用 MathJax 重排 CFO 定义、多普勒频移、接收信号模型、ICI 近似 SINR、CP/Moose/导频估计和 CPE 补偿公式。</li>
+                <li>把表格和正文中的裸露 LaTeX 片段改成可渲染的内联公式，确保浏览器中公式显示正常。</li>
+              </ul>
+              <div class="catalog-footer">
+                <div class="chip-row">
+                  <span>CFO</span>
+                  <span>CPE</span>
+                  <span>ICI</span>
+                  <span>PT-RS</span>
+                </div>
+                <a class="text-link" href="ofdm-carrier-frequency-synchronization/">阅读第 13 讲</a>
+              </div>
+            </div>
+          </article>
         </div>
 
-        <p class="catalog-section-note">后续循环前缀细节、信道估计、频域均衡和同步误差可以继续放在这个专栏下，保持“算法原理 → 工程实现”的顺序。</p>
+        <p class="catalog-section-note">后续采样时钟偏差、信道估计、频域均衡、同步误差和接收机实现可以继续放在这个专栏下，保持“算法原理 → 工程实现”的顺序。</p>
       </section>
     </main>
 

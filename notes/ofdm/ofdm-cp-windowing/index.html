@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 8 讲：循环前缀与加窗——降低带外泄漏 | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 8 讲：复刻循环前缀与加窗内容，覆盖矩形脉冲带外泄漏、升余弦窗、EVM 权衡、5G NR CP/SCS 配置和工程实现。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 30ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 8 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 8</div>
+          <h1>第 8 讲：循环前缀与加窗——降低带外泄漏</h1>
+          <p>从矩形脉冲的 sinc 旁瓣讲到升余弦加窗、EVM 权衡、5G NR 的 CP/SCS 配置和发射侧重叠相加实现。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>CP</span>
+          <span>Windowing</span>
+          <span>Raised Cosine</span>
+          <span>OOB Emission</span>
+          <span>5G NR</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>从带外泄漏的根源、加窗公式和 EVM 权衡进入 5G NR 的工程配置。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#introduction">引言</a>
+              <a class="level-2" href="#rectangular-pulse">1. 矩形脉冲与频谱旁瓣：问题的根源</a>
+              <a class="level-3" href="#time-domain-shape">1.1 OFDM 符号的时域形态</a>
+              <a class="level-3" href="#rectangular-window-spectrum">1.2 矩形窗的频域特性</a>
+              <a class="level-2" href="#windowing">2. 加窗：让边缘平滑</a>
+              <a class="level-3" href="#core-idea">2.1 加窗的核心思想</a>
+              <a class="level-3" href="#raised-cosine">2.2 升余弦（Raised Cosine）窗</a>
+              <a class="level-3" href="#window-comparison">2.3 各种窗函数的频域性能对比</a>
+              <a class="level-3" href="#matlab-simulation">2.4 MATLAB 仿真：加窗前后频谱对比</a>
+              <a class="level-2" href="#evm-tradeoff">3. EVM 与频谱模板的权衡</a>
+              <a class="level-3" href="#evm-impact">3.1 加窗对 EVM 的影响</a>
+              <a class="level-3" href="#design-space">3.2 EVM vs. 带外抑制的设计空间</a>
+              <a class="level-2" href="#nr-cp-scs">4. 5G NR 中的 CP 与 SCS 配置</a>
+              <a class="level-3" href="#numerology">4.1 灵活参数集（Flexible Numerology）</a>
+              <a class="level-3" href="#nr-windowing">4.2 5G NR 中的加窗实现</a>
+              <a class="level-3" href="#lte-comparison">4.3 与 LTE 加窗的对比</a>
+              <a class="level-2" href="#implementation">5. 工程实现要点</a>
+              <a class="level-3" href="#tx-flow">5.1 发射侧加窗的实现流程</a>
+              <a class="level-3" href="#overlap-add">5.2 符号拼接时的重叠相加</a>
+              <a class="level-2" href="#summary">总结</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-cp-windowing" class="level1">
+              <h1>第8讲： 循环前缀与加窗——降低带外泄漏</h1>
+
+              <section id="introduction" class="level2">
+                <h2>引言</h2>
+
+                <p>上一讲我们聊了 <span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span> 的硬件实现，搞清楚了如何把频域数据高效地变成时域的 OFDM 信号。那么现在信号已经生成了，接下来就面临一个”看似简单、实则棘手”的工程问题——<strong>带外泄漏</strong>。</p>
+
+                <p>什么是带外泄漏？简单说，就是你的信号跑到了别人的”地盘”上。无线通信里频谱是稀缺资源，运营商花了几十亿买来的一块频谱，如果信号跑出去干扰隔壁频段，那就是违反监管规定的大事。3GPP 对每个频段都有严苛的<span class="ofdm-term">频谱模板<span class="ofdm-mark">✦</span></span>（Spectrum Emission Mask）要求，信号功率在带外必须衰减到规定值以下。</p>
+
+                <p>造成带外泄漏的主要原因，出乎意料地简单：<span class="ofdm-term">矩形脉冲<span class="ofdm-mark">✦</span></span>。</p>
+
+                <p>这一讲，我们就来彻底搞清楚：矩形脉冲为什么旁瓣高？加窗如何解决这个问题？以及5G NR是怎么配置 CP 和加窗的？</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="rectangular-pulse" class="level2">
+                <h2>1. 矩形脉冲与频谱旁瓣：问题的根源</h2>
+
+                <section id="time-domain-shape" class="level3">
+                  <h3>1.1 OFDM 符号的时域形态</h3>
+
+                  <p>一个标准的OFDM符号由两部分组成：<span class="ofdm-term">循环前缀<span class="ofdm-mark">✦</span></span>（CP）+ 有效数据段。加入 CP 之后，时域信号大致如下：</p>
+
+                  <pre><code>|&lt;--- CP (Ncp samples) ---&gt;|&lt;-------- 有效数据 (N samples) ---------&gt;|
+|        复制自数据末尾     |          IFFT输出                       |
+|__________________________|_________________________________________|
+        CP区域                         数据区域</code></pre>
+
+                  <p>在时域上，这段信号被一个<strong>矩形窗截断</strong>——信号突然从 0 开始、突然截止。这个突变就是带外泄漏的元凶。</p>
+                </section>
+
+                <section id="rectangular-window-spectrum" class="level3">
+                  <h3>1.2 矩形窗的频域特性</h3>
+
+                  <p>一个长度为 $N$ 的矩形窗，其频域响应是 sinc 函数：</p>
+
+                  <p><span class="math display">\[
+W_{\text{rect}}(f)=\frac{\sin(\pi fNT_s)}{\pi fT_s}e^{-j\pi f(N-1)T_s}
+\]</span></p>
+
+                  <p>sinc 函数的旁瓣衰减极其缓慢：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>旁瓣编号</th>
+                          <th>距主瓣距离</th>
+                          <th>旁瓣峰值</th>
+                          <th>相对衰减</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>第1旁瓣</td>
+                          <td>$1.5/(NT_s)$</td>
+                          <td>-13.3 dB</td>
+                          <td>仅 13 dB</td>
+                        </tr>
+                        <tr>
+                          <td>第2旁瓣</td>
+                          <td>$2.5/(NT_s)$</td>
+                          <td>-17.8 dB</td>
+                          <td>仅 18 dB</td>
+                        </tr>
+                        <tr>
+                          <td>第5旁瓣</td>
+                          <td>$5.5/(NT_s)$</td>
+                          <td>-26.3 dB</td>
+                          <td>仅 26 dB</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>而3GPP要求的带外衰减往往需要 <strong>-30 dB 乃至 -50 dB</strong> 以上，矩形窗远远不够。</p>
+                </section>
+              </section>
+
+              <section id="windowing" class="level2">
+                <h2>2. 加窗：让边缘平滑</h2>
+
+                <section id="core-idea" class="level3">
+                  <h3>2.1 加窗的核心思想</h3>
+
+                  <p>加窗的本质是：把时域信号的起始和结束边缘从”硬切断”变成“软过渡”。原来信号是<br>1 → 1 →... → 1 → 0（矩形），加窗后变成<br>0 → 0.2 → 0.7 → 1 → 1 →... → 1 → 0.7 → 0.2 → 0（平滑）。</p>
+
+                  <p><strong>代价：</strong> 加窗会让 OFDM 符号的”上升沿”和”下降沿”变长，如果处理不当会引入符号间干扰（ISI）。</p>
+
+                  <p><strong>解决方案：</strong> 利用 CP 的冗余来”藏”住过渡段，过渡段与相邻符号的 CP 部分重叠，不占用额外时频资源。</p>
+                </section>
+
+                <section id="raised-cosine" class="level3">
+                  <h3>2.2 升余弦（Raised Cosine）窗</h3>
+
+                  <p>最常用的窗函数之一是<span class="ofdm-term">升余弦窗<span class="ofdm-mark">✦</span></span>，其过渡段的形状由余弦曲线定义：</p>
+
+                  <p><span class="math display">\[
+w[n]=
+\begin{cases}
+\dfrac{1}{2}\left(1-\cos\dfrac{\pi n}{\beta}\right), & 0\le n&lt;\beta \\
+1, & \beta\le n&lt;N+N_{cp}-\beta \\
+\dfrac{1}{2}\left(1+\cos\dfrac{\pi(n-N-N_{cp}+\beta)}{\beta}\right), & N+N_{cp}-\beta\le n\le N+N_{cp}
+\end{cases}
+\]</span></p>
+
+                  <p>其中 $\beta$ 是过渡段长度（单位：采样点），通常取 $\beta=0.1\times N_{cp}$ 到 $0.25\times N_{cp}$。</p>
+                </section>
+
+                <section id="window-comparison" class="level3">
+                  <h3>2.3 各种窗函数的频域性能对比</h3>
+
+                  <p>除了升余弦窗，工程中还常用以下窗函数：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>窗函数</th>
+                          <th>主瓣宽度</th>
+                          <th>第一旁瓣</th>
+                          <th>旁瓣衰减速率</th>
+                          <th>典型应用</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>矩形窗</td>
+                          <td>$2/N$</td>
+                          <td>-13.3 dB</td>
+                          <td>-6 dB/oct</td>
+                          <td>无加窗</td>
+                        </tr>
+                        <tr>
+                          <td>汉宁窗</td>
+                          <td>$4/N$</td>
+                          <td>-31.5 dB</td>
+                          <td>-18 dB/oct</td>
+                          <td>通用场景</td>
+                        </tr>
+                        <tr>
+                          <td>汉明窗</td>
+                          <td>$4/N$</td>
+                          <td>-41.0 dB</td>
+                          <td>-6 dB/oct</td>
+                          <td>旁瓣一致性好</td>
+                        </tr>
+                        <tr>
+                          <td>升余弦窗</td>
+                          <td>$\sim3.5/N$</td>
+                          <td>-23 dB</td>
+                          <td>-18 dB/oct</td>
+                          <td>OFDM 加窗首选</td>
+                        </tr>
+                        <tr>
+                          <td>高斯窗</td>
+                          <td>可变</td>
+                          <td>-55 dB+</td>
+                          <td>极快</td>
+                          <td>对主瓣宽度不敏感场景</td>
+                        </tr>
+                        <tr>
+                          <td>Blackman窗</td>
+                          <td>$6/N$</td>
+                          <td>-57.5 dB</td>
+                          <td>-18 dB/oct</td>
+                          <td>高衰减需求</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p>对于 OFDM 系统，升余弦窗是<strong>首选</strong>：它的过渡段与 CP 重叠实现方式天然契合，实现简单，频谱模板表现良好。</p>
+                </section>
+
+                <section id="matlab-simulation" class="level3">
+                  <h3>2.4 MATLAB仿真：加窗前后频谱对比</h3>
+
+                  <pre><code class="language-matlab">%% MATLAB: OFDM加窗前后频谱对比
+clear; clc;
+
+%--- 参数设置 ---
+N     = 2048;      % FFT点数（LTE 20MHz）
+Ncp   = 144;       % CP长度（长CP，首符号）
+beta  = 32;        % 加窗过渡段（采样点数）
+
+%--- 生成随机OFDM符号 ---
+X = (randn(N,1) + 1i*randn(N,1)) / sqrt(2); % 随机频域数据
+x = ifft(X);                                % IFFT
+
+%--- 添加循环前缀 ---
+x_cp = [x(end-Ncp+1:end); x];  % 长度 N + Ncp
+
+%--- 矩形窗（不加窗） ---
+x_rect = x_cp;
+
+%--- 升余弦窗 ---
+win = ones(N+Ncp, 1);
+% 上升沿（利用CP区域）
+win(1:beta) = 0.5 * (1 - cos(pi*(0:beta-1)'/beta));
+% 下降沿
+win(end-beta+1:end) = 0.5 * (1 + cos(pi*(0:beta-1)'/beta));
+
+x_win = x_cp .* win;
+
+%--- 计算功率谱 ---
+NFFT = 16384;
+Prect = 20*log10(abs(fftshift(fft(x_rect, NFFT))));
+Pwin  = 20*log10(abs(fftshift(fft(x_win, NFFT))));
+
+%--- 归一化到最大值 ---
+Prect = Prect - max(Prect);
+Pwin  = Pwin - max(Pwin);
+
+%--- 绘图 ---
+f = linspace(-0.5, 0.5, NFFT);
+figure; hold on;
+plot(f, Prect, 'b', 'LineWidth', 1, 'DisplayName', '矩形窗');
+plot(f, Pwin, 'r', 'LineWidth', 1.5, 'DisplayName', '升余弦窗');
+ylim([-80 5]); xlim([-0.7 0.7]);
+xlabel('归一化频率'); ylabel('功率谱 (dB)');
+title('OFDM加窗前后频谱对比'); legend; grid on;</code></pre>
+
+                  <p>运行上述代码，你会看到一个典型结果：在带外频率偏移约1.5倍子载波间隔处，升余弦窗相比矩形窗能够提供约 <strong>20~25 dB</strong> 的旁瓣抑制。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="evm-tradeoff" class="level2">
+                <h2>3. EVM 与频谱模板的权衡</h2>
+
+                <p>加窗是“双刃剑”，用得好解决泄漏问题，用过头会损害 EVM。</p>
+
+                <section id="evm-impact" class="level3">
+                  <h3>3.1 加窗对EVM的影响</h3>
+
+                  <p>窗函数施加在时域信号的边缘，理论上不影响有效数据区间的 EVM。但实际中有两个问题：</p>
+
+                  <p><strong>问题1： 过渡段对相邻符号的污染</strong></p>
+
+                  <p>如果窗的上升沿和下降沿超出 CP 范围，就会侵入前一个或后一个符号的有效数据区间，引入 ISI，直接拉高 EVM。</p>
+
+                  <p><strong>设计约束：</strong></p>
+
+                  <p><span class="math display">\[
+2\beta\le N_{cp}
+\]</span></p>
+
+                  <p>过渡段总长度不得超过 CP 长度。这是加窗设计的铁律。</p>
+
+                  <p><strong>问题2： <span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>下的影响</strong></p>
+
+                  <p>在多径信道中，由于信号存在时延扩展，CP能抵御的最大时延为 $N_{cp}$ 个采样点。加窗后，实际可用的CP”保护区间”缩短为 $N_{cp}-2\beta$，因此：</p>
+
+                  <p><span class="math display">\[
+\tau_{\max}\le (N_{cp}-2\beta)\cdot T_s
+\]</span></p>
+
+                  <p><strong>实际设计建议：</strong></p>
+
+                  <ul>
+                    <li>$\beta$ 取 $N_{cp}$ 的 10%~15% 是较为保守的安全选择</li>
+                    <li>对于短CP（$N_{cp}=72$，LTE普通符号），$\beta=8\sim 10$个采样点即可</li>
+                    <li>对于长CP（$N_{cp}=512$，LTE特殊子帧），$\beta$ 可放宽至 40 ~ 60</li>
+                  </ul>
+                </section>
+
+                <section id="design-space" class="level3">
+                  <h3>3.2 EVM vs. 带外抑制的设计空间</h3>
+
+                  <pre><code>高 | •矩形窗（EVM好，带外差）
+   |
+带 |          •升余弦窗（β=Ncp/8）
+外 |
+抑 |                 •升余弦窗（β=Ncp/4）
+制 |
+低 |                        •汉宁窗（EVM受损，带外最好）
+   |____________________________
+    好        EVM表现        差</code></pre>
+
+                  <p>工程中，<strong>升余弦窗</strong> + $\beta=N_{cp}/8$ 这个参数点是性价比最高的选择，既能满足3GPP频谱模板，又不会明显劣化EVM。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="nr-cp-scs" class="level2">
+                <h2>4. 5G NR中的CP与SCS配置</h2>
+
+                <section id="numerology" class="level3">
+                  <h3>4.1 <span class="ofdm-term">灵活参数集<span class="ofdm-mark">✦</span></span>（Flexible Numerology）</h3>
+
+                  <p>5G NR引入了灵活参数集（Numerology），子载波间隔（SCS）可以是 15/30/60/120/240 kHz，对应关系为：</p>
+
+                  <p><span class="math display">\[
+\Delta f=2^\mu\times 15\,\text{kHz},\qquad \mu\in\{0,1,2,3,4\}
+\]</span></p>
+
+                  <p>不同 SCS 下，OFDM 符号时长和 CP 长度也随之缩放：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>SCS $\Delta f$</th>
+                          <th>$\mu$</th>
+                          <th>符号时长 $T_u$</th>
+                          <th>普通 CP $N_{cp}$</th>
+                          <th>长 CP $N_{cp}^{(E)}$</th>
+                          <th>典型场景</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>15 kHz</td>
+                          <td>0</td>
+                          <td>66.67 μs</td>
+                          <td>4.69 μs<br>(144采样)</td>
+                          <td>5.21 μs<br>(160采样)</td>
+                          <td>eMBB低速</td>
+                        </tr>
+                        <tr>
+                          <td>30 kHz</td>
+                          <td>1</td>
+                          <td>33.33 μs</td>
+                          <td>2.34 μs<br>(144采样)</td>
+                          <td>2.60 μs<br>(160采样)</td>
+                          <td>eMBB高速</td>
+                        </tr>
+                        <tr>
+                          <td>60 kHz</td>
+                          <td>2</td>
+                          <td>16.67 μs</td>
+                          <td>1.17 μs<br>(144采样)</td>
+                          <td>—</td>
+                          <td>eMBB超高速</td>
+                        </tr>
+                        <tr>
+                          <td>120 kHz</td>
+                          <td>3</td>
+                          <td>8.33 μs</td>
+                          <td>0.586 μs</td>
+                          <td>—</td>
+                          <td>mmWave</td>
+                        </tr>
+                        <tr>
+                          <td>240 kHz</td>
+                          <td>4</td>
+                          <td>4.17 μs</td>
+                          <td>0.293 μs</td>
+                          <td>—</td>
+                          <td>参考信号专用</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <blockquote>
+                    <p>注意： SCS翻倍时，时域所有参数（符号时长、CP时长）均减半，但采样点数不变——因为带宽也翻倍了，采样率同步翻倍。</p>
+                  </blockquote>
+                </section>
+
+                <section id="nr-windowing" class="level3">
+                  <h3>4.2 5G NR中的加窗实现</h3>
+
+                  <p>5G NR规范（3GPP TS 38.104）对带外辐射有严格要求，实际设备中会结合以下手段：</p>
+
+                  <ol>
+                    <li><strong>CP加窗：</strong>如前所述，利用 CP 边缘做升余弦过渡</li>
+                    <li><strong>数字滤波：</strong>发射滤波器对整个带宽做成形滤波（<span class="ofdm-term">Root-Raised Cosine<span class="ofdm-mark">✦</span></span> 或 FIR滤波）</li>
+                    <li><strong>功放线性化：</strong>通过数字预失真（DPD）减小非线性造成的带外泄漏</li>
+                  </ol>
+
+                  <p>其中 <strong>CP加窗</strong> 是最轻量的方案，不增加额外延迟，实现简单，是5G基站基带芯片的标配。</p>
+                </section>
+
+                <section id="lte-comparison" class="level3">
+                  <h3>4.3 与LTE加窗的对比</h3>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>特性</th>
+                          <th>LTE</th>
+                          <th>5G NR</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>SCS</td>
+                          <td>固定 15 kHz</td>
+                          <td>灵活 15/30/60/120 kHz</td>
+                        </tr>
+                        <tr>
+                          <td>CP长度</td>
+                          <td>普通 4.69 μs / 长 5.21 μs</td>
+                          <td>随SCS缩放</td>
+                        </tr>
+                        <tr>
+                          <td>加窗策略</td>
+                          <td>可选</td>
+                          <td>强烈推荐（频谱模板更严格）</td>
+                        </tr>
+                        <tr>
+                          <td>带外要求</td>
+                          <td>$-30\sim -45\,\text{dBc}$</td>
+                          <td>$-35\sim -55\,\text{dBc}$</td>
+                        </tr>
+                        <tr>
+                          <td>典型 $\beta$</td>
+                          <td>8~16 采样点</td>
+                          <td>4~8 采样点（高SCS下）</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="implementation" class="level2">
+                <h2>5. 工程实现要点</h2>
+
+                <section id="tx-flow" class="level3">
+                  <h3>5.1 发射侧加窗的实现流程</h3>
+
+                  <pre><code>频域数据 X[k]
+      |
+      ▼
+   IFFT （N点）
+      |
+      ▼
+添加循环前缀 → x_cp[n]（长度 N + Ncp）
+      |
+      ▼
+乘以升余弦窗 → x_win[n] = w[n] × x_cp[n]
+      |
+      ▼
+符号拼接（相邻符号的过渡区域重叠相加）
+      |
+      ▼
+DAC → 射频前端</code></pre>
+                </section>
+
+                <section id="overlap-add" class="level3">
+                  <h3>5.2 符号拼接时的重叠相加</h3>
+
+                  <p>加窗后的符号不能简单地首尾拼接，而需要”重叠相加（Overlap-Add）”：</p>
+
+                  <pre><code class="language-matlab">%% 符号拼接（Overlap-Add）实现
+% 假设两个连续OFDM符号已加窗: sym1_win, sym2_win
+% beta = 过渡段长度，overlap区域在符号末尾/开头各beta个采样
+
+output_len = N + Ncp + beta;  % 每符号实际占用的时间槽
+
+% 拼接时，sym1末尾beta个点 与 sym2开头beta个点 相加
+frame(1 : N+Ncp)             = sym1_win(1 : N+Ncp);  % sym1主体
+frame(N+Ncp-beta+1 : end)   = frame(N+Ncp-beta+1:end) + sym2_win(1:beta);  % 重叠相加</code></pre>
+
+                  <p>这个操作确保了边缘平滑过渡，同时不引入额外的时频资源占用。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>这一讲我们深入剖析了 OFDM 带外泄漏的根源和解决方案：</p>
+
+                <ol>
+                  <li><strong>问题根源：</strong> 矩形脉冲的 sinc 频域响应旁瓣衰减仅 13 dB，无法满足无线通信频谱模板要求</li>
+                  <li><strong>加窗原理：</strong> 在 OFDM 符号边缘施加平滑过渡，将硬截断变为软过渡，有效压制旁瓣</li>
+                  <li><strong>升余弦窗：</strong> OFDM 系统的首选窗函数，过渡段自然嵌入 CP 区间，不额外消耗资源</li>
+                  <li><strong>设计约束：</strong> 过渡段长度 $2\beta\le N_{cp}$，且需为多径保留足够的 CP 保护</li>
+                  <li><strong>5G NR 实践：</strong> 灵活 SCS 下加窗参数随符号时长动态调整，结合数字滤波满足更严苛的频谱模板</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>

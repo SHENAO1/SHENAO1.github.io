@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第 12 讲：符号定时同步——找到 OFDM 符号的“起点” | OFDM 从算法到实现</title>
+  <meta name="description" content="OFDM 从算法到实现第 12 讲：复刻符号定时同步内容，覆盖 STO 影响、基于 CP 的滑动相关、Schmidl &amp; Cox 算法、CFO 估计和工程实现要点。">
+  <link rel="stylesheet" href="../../../assets/styles/site.css">
+  <link rel="stylesheet" href="../../../assets/styles/article-note.css">
+  <link rel="stylesheet" href="../../../assets/styles/equation-tools.css?v=20260618-hover-copy">
+  <style>
+    .ofdm-source-note .note-intro-copy,
+    .ofdm-source-note .note-prose {
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .ofdm-source-note .note-intro-copy h1,
+    .ofdm-source-note .note-prose section.level1 > h1,
+    .ofdm-source-note .note-prose h2,
+    .ofdm-source-note .note-prose h3 {
+      letter-spacing: 0;
+    }
+
+    .ofdm-source-note .note-intro-copy h1 {
+      max-width: 32ch;
+    }
+
+    .ofdm-source-note .note-article {
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .ofdm-source-note .note-prose section.level1 > h1 {
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1.25;
+    }
+
+    .ofdm-source-note .note-prose section.level2 {
+      margin-top: 34px;
+    }
+
+    .ofdm-source-note .note-prose h2 {
+      margin-bottom: 22px;
+      font-size: clamp(22px, 3vw, 28px);
+      line-height: 1.38;
+    }
+
+    .ofdm-source-note .note-prose h3 {
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+
+    .ofdm-source-note .note-prose p,
+    .ofdm-source-note .note-prose li {
+      color: #061626;
+      font-size: 18px;
+      line-height: 1.85;
+    }
+
+    .ofdm-source-note .note-prose p + p,
+    .ofdm-source-note .note-prose ul + p,
+    .ofdm-source-note .note-prose ol + p,
+    .ofdm-source-note .note-prose table + p,
+    .ofdm-source-note .note-prose pre + p,
+    .ofdm-source-note .note-prose blockquote + p,
+    .ofdm-source-note .note-prose .ofdm-table + p {
+      margin-top: 22px;
+    }
+
+    .ofdm-source-note .note-prose ul,
+    .ofdm-source-note .note-prose ol {
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose li + li {
+      margin-top: 4px;
+    }
+
+    .ofdm-term {
+      color: #004996;
+      font-weight: 700;
+    }
+
+    .ofdm-mark {
+      color: #004996;
+      font-weight: 800;
+    }
+
+    .ofdm-source-note .note-prose blockquote {
+      margin: 18px 0 0;
+      padding: 8px 0 8px 20px;
+      border: 0;
+      border-left: 4px solid #b8c0c9;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .ofdm-source-note .note-prose blockquote p {
+      color: #374b60;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ofdm-source-note .note-prose pre {
+      overflow: auto;
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 6px;
+      background: #f6f6f8;
+      box-shadow: none;
+      scrollbar-color: #8d8d8d transparent;
+    }
+
+    .ofdm-source-note .note-prose pre code {
+      color: #020b15;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .ofdm-table {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table table {
+      min-width: 720px;
+      font-size: 16px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table thead th {
+      color: #061626;
+      background: #e8e9eb;
+      font-weight: 500;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table th,
+    .ofdm-source-note .note-prose .ofdm-table td {
+      padding: 8px 16px;
+      border: 1px solid #c3c8cf;
+      color: #061626;
+      background: #fff;
+      vertical-align: middle;
+    }
+
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(odd) td,
+    .ofdm-source-note .note-prose .ofdm-table tbody tr:nth-child(even) td {
+      background: #fff;
+    }
+
+    .ofdm-source-note .note-prose mjx-container[display="true"] {
+      padding: 10px 0;
+    }
+
+    .ofdm-divider {
+      width: min(330px, 52%);
+      margin: 56px auto 0;
+      border: 0;
+      border-top: 1px solid #c7ced6;
+    }
+
+    @media (max-width: 760px) {
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose blockquote p {
+        font-size: 16px;
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        font-size: 14px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .ofdm-source-note .note-article {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .ofdm-source-note .note-prose p,
+      .ofdm-source-note .note-prose li,
+      .ofdm-source-note .note-prose .ofdm-table th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        color: #e7f8ff;
+      }
+
+      .ofdm-source-note .note-prose pre,
+      .ofdm-source-note .note-prose .ofdm-table thead th,
+      .ofdm-source-note .note-prose .ofdm-table td {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .ofdm-source-note .note-prose pre code {
+        color: #eff8fb;
+      }
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+        tags: "none"
+      },
+      svg: { fontCache: "global" }
+    };
+  </script>
+  <script defer src="../../../assets/scripts/equation-tools.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body class="page-note">
+  <div class="site-shell note-page ofdm-source-note">
+    <header class="site-nav" aria-label="主导航">
+      <a class="brand-lockup" href="../../../index.html">
+        <span class="brand-mark">GN</span>
+        <span class="brand-copy">
+          <small>GNSS notebook and project archive</small>
+          <strong>SHENAO1 的学习主页</strong>
+        </span>
+      </a>
+      <nav class="nav-links">
+        <a href="../../../index.html">Home</a>
+        <a class="is-current" href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </header>
+
+    <main class="page-grid">
+      <section class="panel note-intro">
+        <div class="breadcrumb">
+          <a href="../../../index.html">Home</a>
+          <span>/</span>
+          <a href="../../index.html">Notes</a>
+          <span>/</span>
+          <a href="../index.html">OFDM</a>
+          <span>/</span>
+          <span>第 12 讲</span>
+        </div>
+
+        <div class="note-intro-copy">
+          <div class="eyeline">OFDM 从算法到实现 / Lecture 12</div>
+          <h1>第 12 讲：符号定时同步——找到 OFDM 符号的“起点”</h1>
+          <p>从 STO 对相位和 ISI 的影响讲起，复刻基于 CP 的滑动相关和 Schmidl &amp; Cox 训练符号同步方案。</p>
+        </div>
+
+        <div class="note-meta" aria-label="页面标签">
+          <span>OFDM</span>
+          <span>Symbol Timing Offset</span>
+          <span>CP Correlation</span>
+          <span>Schmidl &amp; Cox</span>
+          <span>CFO</span>
+          <span>5G NR</span>
+        </div>
+
+        <div class="note-actions">
+          <a class="button-primary" href="../index.html">返回 OFDM 专栏</a>
+          <a class="button-secondary" href="../../index.html">返回 Notes 索引</a>
+        </div>
+      </section>
+
+      <section class="note-layout">
+        <aside class="panel note-sidebar" aria-label="章节目录">
+          <div>
+            <div class="eyeline">On this page</div>
+            <h2>章节目录</h2>
+            <p>按截图顺序复刻 STO 影响、CP 相关同步、Schmidl &amp; Cox 算法和工程关键问题。</p>
+          </div>
+          <details class="note-toc-shell" open>
+            <summary>目录</summary>
+            <nav class="note-toc" aria-label="本文目录">
+              <a class="level-2" href="#intro">引言</a>
+              <a class="level-2" href="#sto-impact">一、符号定时偏差的影响分析</a>
+              <a class="level-3" href="#time-structure">1.1 OFDM 符号的时域结构回顾</a>
+              <a class="level-3" href="#two-effects">1.2 STO 的两种影响：相位旋转 vs ISI</a>
+              <a class="level-3" href="#quantified-impact">1.3 STO 对系统性能的量化影响</a>
+              <a class="level-2" href="#cp-correlation">二、基于 CP 的定时同步：相关法原理</a>
+              <a class="level-3" href="#cp-anchor">2.1 CP 结构是天然的同步锚点</a>
+              <a class="level-3" href="#sliding-correlation">2.2 滑动相关窗口时检测</a>
+              <a class="level-2" href="#schmidl-cox">三、Schmidl &amp; Cox 算法</a>
+              <a class="level-3" href="#algorithm-background">3.1 算法背景</a>
+              <a class="level-3" href="#training-symbol">3.2 训练符号设计</a>
+              <a class="level-3" href="#metric-cfo">3.3 定时度量与频偏估计</a>
+              <a class="level-3" href="#matlab">3.4 MATLAB 实现示例</a>
+              <a class="level-2" href="#engineering">四、工程实现中的关键问题</a>
+              <a class="level-3" href="#peak-robustness">4.1 峰值检测的鲁棒性</a>
+              <a class="level-3" href="#multipath">4.2 多径对同步的影响</a>
+              <a class="level-3" href="#nr-sync">4.3 5G NR 中的定时同步</a>
+              <a class="level-2" href="#channel-estimation">五、与信道估计的协同设计</a>
+              <a class="level-2" href="#summary">总结</a>
+              <a class="level-2" href="#questions">思考题</a>
+            </nav>
+          </details>
+        </aside>
+
+        <article class="panel note-article">
+          <div class="note-prose">
+            <section id="ofdm-symbol-timing-sync" class="level1">
+              <h1>第12讲：符号定时同步——找到 OFDM 符号的“起点”</h1>
+
+              <section id="intro" class="level2">
+                <h2>引言：时间，精确到“采样点”</h2>
+
+                <p>想象一下，你正在收听一段话，对方说：“开——始”，但你没听到“开”字，只听到了“——始”。断章取义，意思全变了。</p>
+
+                <p>OFDM 接收机面临的<span class="ofdm-term">符号定时同步<span class="ofdm-mark">✦</span></span>问题，就是这么一回事。</p>
+
+                <p>接收端每个 OFDM 符号都有一个精确的“起点”，FFT 窗口必须恰好对准这个起点，才能正确地从时域转换到频域，还原出发端的调制数据。如果起点找偏了——哪怕只偏了一两个采样点——轻则每个子载波都多出一个相位偏转，重则相邻符号互相干扰（ISI），解调彻底失败。</p>
+
+                <p>这一讲，我们就来搞清楚：</p>
+
+                <ol>
+                  <li>符号定时偏差（STO）到底会造成什么影响？</li>
+                  <li>如何利用 CP 的结构特性，设计高效的定时同步算法？</li>
+                  <li>Schmidl &amp; Cox 算法为什么能成为业界标准？</li>
+                </ol>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="sto-impact" class="level2">
+                <h2>一、符号定时偏差（STO）的影响分析</h2>
+
+                <section id="time-structure" class="level3">
+                  <h3>1.1 OFDM 符号的时域结构回顾</h3>
+
+                  <p>一个完整的 OFDM 符号在时域的结构如下：</p>
+
+                  <pre><code>|&lt;-- CP（Ncp个采样）--&gt;|&lt;-- 有效符号（N个采样）--&gt;|</code></pre>
+
+                  <p>接收端 FFT 窗口应取“有效符号”对应的 $N$ 个采样点。设正确起点为 $n_0$，实际检测到的起点为 $\hat{n}_0$，定义符号定时偏差（Symbol Timing Offset, STO）为：</p>
+
+                  <p><span class="math display">\[
+\varepsilon=\hat{n}_0-n_0
+\]</span></p>
+                </section>
+
+                <section id="two-effects" class="level3">
+                  <h3>1.2 STO的两种影响：相位旋转 vs ISI</h3>
+
+                  <p><strong>情形一：STO 在 CP 保护范围内（$0\le\varepsilon\le N_{cp}-L_{max}$）</strong></p>
+
+                  <p>只要 STO 不超过 CP 扣除最大多径时延后的“安全裕量”，多径不会溢出 CP 保护范围。此时 FFT 输出的第 $k$ 个子载波为：</p>
+
+                  <p><span class="math display">\[
+Y_k=H_k\cdot X_k\cdot e^{j2\pi k\varepsilon/N}+W_k
+\]</span></p>
+
+                  <p>相比于理想情况，每个子载波多了一个线性相位项 $e^{j2\pi k\varepsilon/N}$。这个相位与子载波编号 $k$ 成正比，在星座图上表现为各子载波不同程度的相位旋转，但子载波之间仍然正交，不会引入 ICI。</p>
+
+                  <p>在信道估计阶段，这个相位旋转会被导频估计“吸收”进信道响应估计里，通常不造成严重问题——<strong>这就是 CP 带来的“容错区间”。</strong></p>
+
+                  <p><strong>情形二：STO 超出安全裕量（$\varepsilon&gt;N_{cp}-L_{max}$）</strong></p>
+
+                  <p>FFT 窗口开始“吃进”上一个符号的数据，相邻符号互相干扰，产生 <strong>ISI（符号间干扰）</strong>，同时正交性被破坏，出现 <strong>ICI（子载波间干扰）</strong>。此时解调性能急剧恶化，基本无法可靠工作。</p>
+
+                  <p>用一个 ASCII 示意图描述两种情形：</p>
+
+                  <pre><code>理想对齐：
+|   CP   |&lt;====== 有效符号 N点 ======&gt;|
+
+情形一（轻微偏移，仍在CP内）：
+        |   CP   |&lt;== 有效符号 N点 ==&gt;|
+     &lt;--&gt;（偏移量 ε &lt; Ncp - Lmax）
+     → 子载波相位旋转，无ISI
+
+情形二（超出CP范围）：
+                  |CP|&lt;== 有效符号 N点 ==&gt;|
+       &lt;-------ε-------&gt;（ε &gt; Ncp - Lmax）
+       → 前一符号泄漏进FFT窗口，产生ISI+ICI</code></pre>
+                </section>
+
+                <section id="quantified-impact" class="level3">
+                  <h3>1.3 STO对系统性能的量化影响</h3>
+
+                  <p>下表总结了不同 STO 范围对系统性能的影响：</p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>STO范围</th>
+                          <th>是否产生ISI</th>
+                          <th>子载波相位</th>
+                          <th>对BER影响</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>$\varepsilon=0$</td>
+                          <td>无</td>
+                          <td>零</td>
+                          <td>理想</td>
+                        </tr>
+                        <tr>
+                          <td>$0&lt;\varepsilon&lt;N_{cp}-L_{max}$</td>
+                          <td>无</td>
+                          <td>线性相位偏转</td>
+                          <td>轻微（信道估计可补偿）</td>
+                        </tr>
+                        <tr>
+                          <td>$N_{cp}-L_{max}\le\varepsilon&lt;N_{cp}$</td>
+                          <td>有（轻微）</td>
+                          <td>严重偏转</td>
+                          <td>明显恶化</td>
+                        </tr>
+                        <tr>
+                          <td>$\varepsilon\ge N_{cp}$</td>
+                          <td>严重</td>
+                          <td>完全破坏</td>
+                          <td>不可工作</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="cp-correlation" class="level2">
+                <h2>二、基于 CP 的定时同步：相关法原理</h2>
+
+                <section id="cp-anchor" class="level3">
+                  <h3>2.1 CP 结构是天然的“同步锚点”</h3>
+
+                  <p>前面讲过，CP 是有效符号尾部的拷贝：</p>
+
+                  <p><span class="math display">\[
+r[n]=r[n+N],\qquad n=0,1,\ldots,N_{cp}-1
+\]</span></p>
+
+                  <p>（以符号起始点为基准，$r[n]$ 为 CP 部分，$r[n+N]$ 为有效符号尾部对应采样）</p>
+
+                  <p>这个冗余结构意味着：<strong>只要能找到接收信号中“这两段高度相似”的位置，就找到了符号边界。</strong></p>
+                </section>
+
+                <section id="sliding-correlation" class="level3">
+                  <h3>2.2 滑动相关窗口时检测</h3>
+
+                  <p>定义一个滑动窗相关度量（不含信道影响的简化形式）：</p>
+
+                  <p><span class="math display">\[
+P(d)=\sum_{m=0}^{N_{cp}-1}r^*(d+m)\cdot r(d+m+N)
+\]</span></p>
+
+                  <p><span class="math display">\[
+M(d)=\frac{|P(d)|^2}{\left(\sum_{m=0}^{N_{cp}-1}|r(d+m+N)|^2\right)^2}
+\]</span></p>
+
+                  <p>其中 $d$ 是滑动窗的起始位置，$r(\cdot)$ 是接收信号。$M(d)$ 在符号真实起始位置附近会出现平台型峰值（宽度约为 $N_{cp}-L_{max}$）。</p>
+
+                  <p><strong>为什么是平台而非尖峰？</strong></p>
+
+                  <p>因为在“安全区间”内，CP 和符号尾部的相关性都成立，$P(d)$ 的模保持稳定。这个平台的<strong>右边沿才是真正的符号起始点</strong>（再晚就会有 ISI）。工程上通常取平台中点作为同步点，留出对称余量。</p>
+
+                  <hr class="ofdm-divider">
+                </section>
+              </section>
+
+              <section id="schmidl-cox" class="level2">
+                <h2>三、Schmidl &amp; Cox算法——业界标准方案</h2>
+
+                <section id="algorithm-background" class="level3">
+                  <h3>3.1 算法背景</h3>
+
+                  <p>1997 年，Timothy Schmidl 和 Donald Cox 在 IEEE Transactions on Communications 上发表了一篇经典论文，提出了一种基于特殊训练序列（Training Symbol）的同步方案，至今仍被 IEEE 802.11a/g/n、DAB、DVB-T 等多种标准采用。</p>
+                </section>
+
+                <section id="training-symbol" class="level3">
+                  <h3>3.2 训练符号设计</h3>
+
+                  <p>Schmidl &amp; Cox 方案要求在数据帧头部插入一个<strong>特殊的 OFDM 符号</strong>（Training Symbol），其频域特征为：<strong>只有偶数子载波上有数据，奇数子载波为零。</strong></p>
+
+                  <p>这样的训练符号经过 IFFT 后，时域波形具有<strong>周期性：前半段与后半段完全相同：</strong></p>
+
+                  <p><span class="math display">\[
+s[n]=s[n+N/2],\qquad n=0,1,\ldots,N/2-1
+\]</span></p>
+
+                  <p>（可由 IFFT 下采样性质证明）</p>
+
+                  <p>加上 CP 后，整个训练符号结构为：</p>
+
+                  <pre><code>|&lt;-- CP (Ncp) --&gt;|&lt;-- 前半段 N/2 --&gt;|&lt;-- 后半段 N/2 --&gt;|
+                 ↑                   ↑
+              完全相同（半周期性）</code></pre>
+                </section>
+
+                <section id="metric-cfo" class="level3">
+                  <h3>3.3 定时度量与频偏估计</h3>
+
+                  <p><strong>步骤一：定时检测</strong></p>
+
+                  <p>利用训练符号内部的半周期性，计算滑动相关：</p>
+
+                  <p><span class="math display">\[
+P(d)=\sum_{m=0}^{N/2-1}r^*(d+m)\cdot r(d+m+N/2)
+\]</span></p>
+
+                  <p><span class="math display">\[
+R(d)=\sum_{m=0}^{N/2-1}|r(d+m+N/2)|^2
+\]</span></p>
+
+                  <p>定时度量：</p>
+
+                  <p><span class="math display">\[
+M(d)=\frac{|P(d)|^2}{|R(d)|^2}
+\]</span></p>
+
+                  <p>$M(d)$ 在训练符号起始处出现峰值，峰值为 1（AWGN 信道下，信噪比足够高时）。</p>
+
+                  <p><strong>步骤二：整数/小数频偏粗估计</strong></p>
+
+                  <p>利用相关相位提取频偏：</p>
+
+                  <p><span class="math display">\[
+\hat{\varepsilon}_{CFO}=\frac{1}{\pi}\angle P(\hat{d})
+\]</span></p>
+
+                  <p>其中 $\angle$ 表示取相位角。这个估计给出的是归一化频偏，范围为 $(-1,+1)$（对应 $\pm\Delta f/2$ 的频偏范围）。</p>
+
+                  <p><strong>步骤三：整数倍频偏估计（第二个训练符号）</strong></p>
+
+                  <p>单个训练符号只能估计 $|\hat{\varepsilon}|&lt;1$ 的小数倍频偏，超出范围需要第二个训练符号（频域内容不同）来消除模糊，完成整数倍频偏估计。</p>
+                </section>
+
+                <section id="matlab" class="level3">
+                  <h3>3.4 MATLAB实现示例</h3>
+
+                  <pre><code class="language-matlab">function [timing_offset, cfo_estimate] = schmidl_cox_sync(r, N, Ncp)
+% Schmidl &amp; Cox 定时同步与粗频偏估计
+% r: 接收信号（列向量）
+% N: FFT点数
+% Ncp: CP长度
+
+L = N / 2;  % 训练符号半段长度
+num_samples = length(r) - N - Ncp;
+
+P = zeros(num_samples, 1);
+R = zeros(num_samples, 1);
+
+% 计算滑动相关
+for d = 1:num_samples
+    seg1 = r(d : d+L-1);
+    seg2 = r(d+L : d+2*L-1);
+    P(d) = seg1' * seg2;            % 共轭相关
+    R(d) = sum(abs(seg2).^2);       % 能量归一化
+end
+
+% 定时度量
+M = (abs(P).^2) ./ (R.^2 + eps);
+
+% 找峰值（定时起点）
+[~, timing_offset] = max(M);
+
+% 粗频偏估计
+cfo_estimate = angle(P(timing_offset)) / pi;
+
+fprintf('定时偏移估计: %d 采样点\n', timing_offset);
+fprintf('归一化CFO估计: %.4f (对子载波间隔)\n', cfo_estimate);
+end</code></pre>
+
+                  <p><strong>参数配置示例（LTE 20MHz）：</strong></p>
+
+                  <div class="ofdm-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>参数</th>
+                          <th>LTE 20MHz值</th>
+                          <th>含义</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>N (FFT点数)</td>
+                          <td>2048</td>
+                          <td>IFFT/FFT大小</td>
+                        </tr>
+                        <tr>
+                          <td>Ncp (正常CP)</td>
+                          <td>144</td>
+                          <td>正常CP采样数</td>
+                        </tr>
+                        <tr>
+                          <td>采样率</td>
+                          <td>30.72 MHz</td>
+                          <td>基带采样率</td>
+                        </tr>
+                        <tr>
+                          <td>训练符号半段 L</td>
+                          <td>1024</td>
+                          <td>N/2</td>
+                        </tr>
+                        <tr>
+                          <td>最大估计CFO范围</td>
+                          <td>±7.5 kHz</td>
+                          <td>±0.5×子载波间隔</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </section>
+
+              <section id="engineering" class="level2">
+                <h2>四、工程实现中的关键问题</h2>
+
+                <section id="peak-robustness" class="level3">
+                  <h3>4.1 峰值检测的鲁棒性</h3>
+
+                  <p>实际信道中，$M(d)$ 的峰值会因噪声和多径而展宽、降低，出现平台型响应。工程上常用的改进策略：</p>
+
+                  <p><strong>1. 窗内积累（Averaging Window）：</strong> 对 $M(d)$ 在时间窗内做滑动平均，平滑噪声波动。</p>
+
+                  <p><strong>2. 差分检测（Differential Detection）：</strong> 计算 $M(d)-M(d-1)$，找到平台的上升沿而非峰值点，减小因平台宽度导致的偏移不确定性。</p>
+
+                  <p><strong>3. 能量检测门限：</strong> 设置信噪比门限，低于门限时不判定为有效帧头，避免噪声触发假同步。</p>
+                </section>
+
+                <section id="multipath" class="level3">
+                  <h3>4.2 多径对同步的影响</h3>
+
+                  <p>在频率选择性信道中，多径会导致 CP 和符号尾部的相关性下降（因为各径到达时间不同）。主要影响：</p>
+
+                  <ul>
+                    <li>相关峰出现“毛刺”，峰值降低</li>
+                    <li>定时估计偏向最强径的到达时刻</li>
+                  </ul>
+
+                  <p>工程实践中通常在 CP 的安全裕量内<strong>稍微提前取 FFT 窗口</strong>（取平台左沿附近），确保多径不溢出 CP 范围。</p>
+                </section>
+
+                <section id="nr-sync" class="level3">
+                  <h3>4.3 5G NR中的定时同步</h3>
+
+                  <p>5G NR 的定时同步依赖<strong>主同步信号（PSS）</strong>和<strong>辅同步信号（SSS）</strong>：</p>
+
+                  <ul>
+                    <li><strong>PSS：</strong>144 个采样的 Zadoff-Chu（ZC）序列，自相关特性极佳，用于粗定时和小区 ID 检测</li>
+                    <li><strong>SSS：</strong>用于区分同一小区 ID 组内的 504 个小区 ID，配合 PSS 做精确定时</li>
+                  </ul>
+
+                  <p>ZC序列的完美自相关特性（旁瓣为零）使得 5G 的定时同步比基于 CP 的方案更精确，这也是 5G 相比于 LTE 的一项关键改进。</p>
+                </section>
+              </section>
+
+              <section id="channel-estimation" class="level2">
+                <h2>五、与信道估计的协同设计</h2>
+
+                <p>定时同步不是孤立的模块，它与信道估计紧密耦合：</p>
+
+                <pre><code>接收信号 → [粗定时同步] → [去CP] → [FFT] → [精确定时/频偏补偿] → [信道估计] → [均衡]
+              ↑                         |
+              └──────────── 反馈精调 ────────────┘</code></pre>
+
+                <p><strong>粗同步：</strong> 基于 CP 相关或训练序列，精度在几个采样点以内，目的是让 FFT 窗口落在 CP 安全区间内。</p>
+
+                <p><strong>精同步：</strong> 利用信道估计结果中的相位斜率，进一步估计残余 STO（对应子载波间的线性相位差），并通过时域内插或频域相位补偿消除。</p>
+
+                <p>这种“粗粗+精”的两级同步结构，是现代 OFDM 接收机的标准设计范式。</p>
+
+                <hr class="ofdm-divider">
+              </section>
+
+              <section id="summary" class="level2">
+                <h2>总结</h2>
+
+                <p>本讲聚焦于 OFDM 接收机的第一道关卡——符号定时同步。</p>
+
+                <p><strong>核心要点回顾：</strong></p>
+
+                <ol>
+                  <li><strong>STO 的危害：</strong>轻则导致子载波相位旋转（CP 安全区内），重则引发 ISI+ICI（超出 CP 范围），必须精确检测和补偿。</li>
+                  <li><strong>基于 CP 的相关法：</strong>利用 CP 与符号尾部的相关性，滑动相关度量 $M(d)$ 在符号边界处出现平台峰值，是最常用的盲同步方法。</li>
+                  <li><strong>Schmidl &amp; Cox 算法：</strong>利用半周期训练符号，同时实现定时检测和粗频偏估计，在 IEEE 802.11 等标准中广泛应用。</li>
+                  <li><strong>工程实现要点：</strong>峰值检测需要鲁棒性设计，多径环境下宜取平台左沿，5G NR 采用 ZC 序列进一步提升同步精度。</li>
+                </ol>
+
+                <p>定时同步是接收机的“地基”。地基打不好，后面的信道估计、均衡都是空中楼阁。</p>
+              </section>
+
+              <section id="questions" class="level2">
+                <p><strong>思考题：</strong></p>
+
+                <ol>
+                  <li>若 OFDM 系统的 CP 长度为 $N_{cp}=160$，最大多径时延为 100 个采样点，则 STO 的“安全区间”宽度是多少？</li>
+                  <li>为什么 Schmidl &amp; Cox 训练符号只用偶数子载波？如果改用奇数子载波，时域波形会有什么变化？</li>
+                  <li>在高速移动场景（多普勒频移显著）下，基于 CP 的定时同步精度会受到哪些影响？</li>
+                </ol>
+              </section>
+            </section>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer-panel">
+      <span>© <span data-site-year></span> SHENAO1 · GNSS 学习与项目主页</span>
+      <nav>
+        <a href="../../../index.html">Home</a>
+        <a href="../../index.html">Notes</a>
+        <a href="../../../video-notes/">Video Notes</a>
+        <a href="../../../index.html#projects">Projects</a>
+        <a href="../../../index.html#about">About</a>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="../../../assets/scripts/site.js"></script>
+</body>
+</html>
