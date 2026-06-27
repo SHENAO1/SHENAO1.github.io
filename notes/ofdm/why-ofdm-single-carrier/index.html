@@ -245,9 +245,10 @@
             <nav class="note-toc" aria-label="本文目录">
               <a class="level-2" href="#multipath">一、无线信道的多径效应</a>
               <a class="level-2" href="#single-carrier">二、单载波的困境</a>
-              <a class="level-2" href="#ofdm-idea">三、OFDM 的破局思路</a>
-              <a class="level-2" href="#parameters">四、OFDM 的关键参数</a>
-              <a class="level-2" href="#summary">五、本讲小结</a>
+              <a class="level-2" href="#symbols-iq">三、bit、符号与 I/Q 调制</a>
+              <a class="level-2" href="#ofdm-idea">四、OFDM 的破局思路</a>
+              <a class="level-2" href="#parameters">五、OFDM 的关键参数</a>
+              <a class="level-2" href="#summary">六、本讲小结</a>
             </nav>
           </details>
         </aside>
@@ -276,7 +277,7 @@
                 <p>从频域的角度看，多径效应会导致<span class="ofdm-term">频率选择性衰落<span class="ofdm-mark">✦</span></span>（Frequency Selective Fading）。什么意思呢？由于不同频率的信号经过多径叠加后相位不同，某些<span class="ofdm-term">频率点<span class="ofdm-mark">✦</span></span>上的信号会相互增强，而另一些频率点上的信号会相互抵消。结果就是，信道的<span class="ofdm-term">频率响应<span class="ofdm-mark">✦</span></span>变得“坑坑洼洼”——某些频段信号质量很好，某些频段信号几乎完全消失。</p>
 
                 <figure>
-                  <img src="assets/figures/multipath-channel-delay-spread.png" alt="多径信道中基站、建筑反射、用户终端和冲激响应示意图">
+                  <img src="assets/figures/multipath-frequency-selective-fading-redraw.png" alt="多径传播导致信道冲激响应时延扩展和频率选择性衰落示意图">
                 </figure>
 
                 <p>我们可以用一个简单的<span class="ofdm-term">数学模型<span class="ofdm-mark">✦</span></span>来描述<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>。信道的<span class="ofdm-term">冲激响应<span class="ofdm-mark">✦</span></span>可以表示为：</p>
@@ -284,7 +285,44 @@
 h(t)=\sum_{l=0}^{L-1}\alpha_l\cdot\delta(t-\tau_l)
 \]</span></p>
 
-                <p>其中 $\alpha_l$ 是第 $l$ 条路径的<span class="ofdm-term">衰减系数<span class="ofdm-mark">✦</span></span>，$\tau_l$ 是第 $l$ 条路径的时延。所有路径中最大时延与最小时延之差，叫做<span class="ofdm-term">时延扩展<span class="ofdm-mark">✦</span></span>（Delay Spread），通常记为 $\tau_{max}$。</p>
+                <p>这个式子的意思是：多径信道可以看成若干条“延迟 + 衰减/相位旋转”的路径叠加起来。其中 $L$ 是路径数量，$\tau_l$ 是第 $l$ 条路径的传播时延，$\delta(t-\tau_l)$ 表示这一条路径会把信号延迟 $\tau_l$。</p>
+                <p>更准确地说，$\alpha_l$ 通常不是单纯的实数衰减，而是第 $l$ 条路径的<span class="ofdm-term">复增益<span class="ofdm-mark">✦</span></span>，既包含幅度衰减，也包含相位旋转：</p>
+                <p><span class="math display">\[
+\alpha_l=|\alpha_l|e^{j\phi_l}
+\]</span></p>
+
+                <h3>从冲激响应到接收信号</h3>
+                <p>如果发射信号是 $x(t)$，接收信号就是发射信号和信道冲激响应的卷积：</p>
+                <p><span class="math display">\[
+y(t)=x(t)*h(t)
+\]</span></p>
+                <p>把多径信道的 $h(t)$ 代入进去：</p>
+                <p><span class="math display">\[
+y(t)
+=x(t)*\sum_{l=0}^{L-1}\alpha_l\delta(t-\tau_l)
+\]</span></p>
+                <p>利用卷积的线性性，可以把每条路径的贡献拆开：</p>
+                <p><span class="math display">\[
+y(t)
+=\sum_{l=0}^{L-1}\alpha_l\left[x(t)*\delta(t-\tau_l)\right]
+\]</span></p>
+                <p>而和延迟冲激卷积，只会把信号整体延迟：</p>
+                <p><span class="math display">\[
+x(t)*\delta(t-\tau_l)=x(t-\tau_l)
+\]</span></p>
+                <p>所以接收信号可以写成：</p>
+                <p><span class="math display">\[
+y(t)=\sum_{l=0}^{L-1}\alpha_l x(t-\tau_l)
+\]</span></p>
+                <p>这就是多径模型的核心含义：<strong>接收信号是发射信号的多个副本叠加而成；每个副本有不同的时延、不同的幅度衰减，通常还带有不同的相位旋转。</strong></p>
+
+                <p>再从频域看，对 $h(t)$ 做傅里叶变换，可以得到信道频率响应：</p>
+                <p><span class="math display">\[
+H(f)=\sum_{l=0}^{L-1}\alpha_l e^{-j2\pi f\tau_l}
+\]</span></p>
+                <p>不同路径在某个频率 $f$ 上会以不同相位叠加。有些频率点相位接近，叠加后会增强；有些频率点相位相反，叠加后会抵消。于是 $H(f)$ 在频域上出现高低起伏和深陷，这就是<span class="ofdm-term">频率选择性衰落<span class="ofdm-mark">✦</span></span>。</p>
+
+                <p>所有路径中最大时延与最小时延之差，叫做<span class="ofdm-term">时延扩展<span class="ofdm-mark">✦</span></span>（Delay Spread），通常记为 $\tau_{max}$。</p>
                 <p>时延扩展直接决定了信道的<span class="ofdm-term">相干带宽<span class="ofdm-mark">✦</span></span>（Coherence Bandwidth）：</p>
                 <p><span class="math display">\[
 B_c\approx\frac{1}{5\tau_{max}}
@@ -292,8 +330,33 @@ B_c\approx\frac{1}{5\tau_{max}}
 
                 <p>这是一个非常重要的概念。如果信号带宽 $B$ 远大于 $B_c$（即 $B\gg B_c$），信号的不同频率分量会经历不同的衰落——这就是频率选择性衰落。反之，如果 $B\ll B_c$，整个信号带宽内的衰落近似一致，叫做<strong>平坦衰落（Flat Fading）</strong>。</p>
 
+                <h3>相干带宽里的“相干”到底指什么</h3>
+                <p>这里的“相干”不是接收机里的<span class="ofdm-term">相干积分<span class="ofdm-mark">✦</span></span>。相干积分说的是：在已知相位或已经相位对齐的前提下，对不同时刻的复数 I/Q 样本直接累加，不先取模，也不先做 $I^2+Q^2$。它关心的是<strong>时间上的信号样本能不能保持相位关系</strong>。</p>
+                <p>相干带宽里的“相干”，说的是<strong>不同频率点上的信道响应是否仍然相似、相关</strong>。如果两个频率点 $f_1$ 和 $f_2$ 的间隔小于相干带宽，通常可以认为：</p>
+                <p><span class="math display">\[
+H(f_1)\approx H(f_2)
+\]</span></p>
+                <p>也就是说，这两个频率分量看到的信道增益和相位变化差不多。如果频率间隔超过相干带宽，一个频点可能处在深衰落，另一个频点可能信道很好，它们就不再“相干”。</p>
+                <p>因此，这里的“带宽”也不是发射信号本身的带宽，而是<strong>信道在频域上还能近似保持平坦的频率范围</strong>。相干带宽越大，说明信道频率响应变化越慢；相干带宽越小，说明信道频率响应起伏越快，越容易出现频率选择性衰落。</p>
+
+                <h3>教材和讲义中的常见说法</h3>
+                <p>无线通信教材里通常把相干带宽描述为一个统计量：它衡量的是“信道可以被认为是平坦的频率范围”。在这个范围内，各频率分量通过信道时会经历近似相同的幅度增益和相位变化。换句话说，相干带宽也可以理解为信道频率响应 $H(f)$ 的相关宽度。</p>
+                <p>更严格地说，可以通过频率相关函数来定义相干带宽：当 $H(f)$ 和 $H(f+\Delta f)$ 的相关性下降到某个阈值，例如 0.5 或 0.9 时，对应的 $\Delta f$ 就可以作为相干带宽。因此，$B_c$ 不是一个唯一的物理常数，它和采用的相关阈值有关。</p>
+                <p>常见教材还会使用 RMS 时延扩展 $\sigma_\tau$ 给出经验关系：</p>
+                <p><span class="math display">\[
+B_c \propto \frac{1}{\sigma_\tau}
+\]</span></p>
+                <p>例如在相关性阈值较宽松时，常见近似是 $B_c\approx 1/(5\sigma_\tau)$；如果要求更高的相关性，也会看到 $B_c\approx 1/(50\sigma_\tau)$ 这样的写法。本讲前面使用 $\tau_{max}$ 是为了用最大时延扩展做直觉解释，核心关系仍然是：<strong>时延扩展越大，相干带宽越小。</strong></p>
+                <p>可以参考这些教材和讲义的文字解释：</p>
+                <ul>
+                  <li><a href="https://www.winlab.rutgers.edu/~narayan/Course/WSID/Lectures02/lect5.pdf" target="_blank" rel="noopener">Rutgers WINLAB Wireless Communications lecture notes</a>：把相干带宽解释为信道可近似认为平坦的频率范围，并说明超过 $B_c$ 的两个频率分量会被信道以明显不同的方式影响。</li>
+                  <li><a href="https://web.xidian.edu.cn/jpzheng/files/603cb1b94ec8b.pdf" target="_blank" rel="noopener">Tse &amp; Viswanath, <em>Fundamentals of Wireless Communication</em></a>：从“delay spread ↔ coherence bandwidth”的对偶关系解释 $W_c\sim 1/T_d$。</li>
+                  <li><a href="https://sites.gatech.edu/ece-sarl/wp-content/uploads/sites/488/2016/09/22-CoherenceBandwidth.pdf" target="_blank" rel="noopener">Georgia Tech Coherence Bandwidth notes</a>：强调时延扩展和相干带宽近似成反比，并用它判断平坦衰落和频率选择性衰落。</li>
+                  <li><a href="https://opendl.ifip-tc6.org/db/conf/ifip6-2/ihn2007/TlichAZ07.pdf" target="_blank" rel="noopener">Tlich et al., Coherence Bandwidth and RMS Delay Spread</a>：从信道传输函数的频率相关性角度估计相干带宽。</li>
+                </ul>
+
                 <figure>
-                  <img src="assets/figures/frequency-selective-vs-flat-fading.png" alt="频率选择性衰落和平坦衰落对比图">
+                  <img src="assets/figures/frequency-selective-vs-flat-fading-redraw.png" alt="信号带宽和相干带宽决定频率选择性衰落或平坦衰落的对比图">
                 </figure>
               </section>
 
@@ -302,10 +365,78 @@ B_c\approx\frac{1}{5\tau_{max}}
 
                 <p>既然信道是频率选择性的，那最直接的想法就是：<strong>用均衡器把信道的畸变补偿回来。</strong></p>
                 <p><span class="ofdm-term">单载波系统<span class="ofdm-mark">✦</span></span>中，接收端使用时域<span class="ofdm-term">均衡器<span class="ofdm-mark">✦</span></span>（通常是线性横向均衡器 FIR 或判决反馈均衡器 DFE）来消除多径造成的<span class="ofdm-term">码间干扰<span class="ofdm-mark">✦</span></span>（ISI）。</p>
-                <p>均衡器的原理听起来简单：设计一个<span class="ofdm-term">滤波器<span class="ofdm-mark">✦</span></span>，使其频率响应恰好是信道频率响应的倒数，两者串联后总响应就恢复平坦了。</p>
+
+                <h3>先从时域理解 ISI</h3>
+                <p>ISI 可以从时域上理解为：<strong>一个符号经过信道后，时域波形被拉长、拖尾，跑进了前后符号的判决时刻里，从而干扰了其他符号。</strong>如果信道和接收滤波后的等效脉冲响应只在一个符号周期内有效，那么每个判决时刻只看到当前符号；如果响应拖尾跨越多个符号周期，那么一个判决时刻就会混入前后符号的贡献。</p>
+                <p>把发射符号序列记为 $a[n]$，把发射滤波器、无线多径信道、接收滤波器和采样合在一起，得到一个<span class="ofdm-term">等效离散信道冲激响应<span class="ofdm-mark">✦</span></span> $g[n]$。如果发送一个单位冲激符号，接收端在不同采样时刻看到的响应就是：</p>
+                <p><span class="math display">\[
+g[0],\ g[1],\ g[2],\ldots
+\]</span></p>
+                <p>因此当前接收采样可以写成：</p>
+                <p><span class="math display">\[
+r[n]=a[n]g[0]+a[n-1]g[1]+a[n-2]g[2]+\cdots
+\]</span></p>
+                <p>这里 $a[n]g[0]$ 是当前符号对当前采样点的贡献；$a[n-1]g[1]$、$a[n-2]g[2]$ 则是过去符号的拖尾对当前采样点的干扰。只要 $g[1]$、$g[2]$ 等非主抽头不为零，当前判决就不再只取决于当前符号，这就是 ISI。</p>
+
+                <blockquote>
+                  <p><strong>补充：为什么前一个符号对应 $g[1]$，不是 $g[-1]$？</strong></p>
+                  <p>离散卷积可以写成 $r[n]=\sum_m a[n-m]g[m]$。这里 $g[m]$ 的索引表示信道延迟了 $m$ 个采样/符号间隔，而不是第几个符号。当前采样 $r[n]$ 中的 $a[n-1]g[1]$ 表示：前一个符号 $a[n-1]$ 经过 1 个单位延迟后到达当前采样点，所以对应 $g[1]$。</p>
+                  <p>只有当等效脉冲响应相对于判决时刻存在“提前分量”时，才会写出 $g[-1]$。例如 $a[n+1]g[-1]$ 表示未来符号提前影响当前判决点，这类项通常叫前游 ISI（precursor ISI）。在严格因果、并且把主到达路径对齐到 $g[0]$ 的简化模型里，过去符号拖尾对应的是正索引 $g[1],g[2],\ldots$。</p>
+                </blockquote>
+
+                <h3>线性横向均衡器 FIR：用一个滤波器反向补偿拖尾</h3>
+                <p>线性横向均衡器本质上就是一个 FIR 滤波器，也叫 tapped-delay-line equalizer，抽头延迟线均衡器。它把当前和过去若干个接收样本取出来，分别乘以一组系数，再加权求和：</p>
+                <p><span class="math display">\[
+z[n]=\sum_{k=0}^{N-1}c_k r[n-k]
+\]</span></p>
+                <p>其中 $c_k$ 是均衡器系数，$N$ 是抽头数。所谓“横向”，可以理解为实现结构中一排延迟单元横向展开：$r[n]$、$r[n-1]$、$r[n-2]$ 依次经过延迟链，每一路乘一个系数，最后加起来。</p>
+                <p>从 $z$ 域看，FIR 滤波器的系统函数是 $z^{-1}$ 的多项式：</p>
+                <p><span class="math display">\[
+C(z)=c_0+c_1z^{-1}+c_2z^{-2}+\cdots+c_{N-1}z^{-(N-1)}
+\]</span></p>
+
+                <blockquote>
+                  <p><strong>补充：FIR 多项式里的 $z^{-1}$ 怎么理解？</strong></p>
+                  <p>$z^{-1}$ 就是一个单位延迟：在 $z$ 域中，$z^{-1}X(z)$ 对应时域里的 $x[n-1]$；$z^{-2}X(z)$ 对应 $x[n-2]$；一般地，$z^{-k}$ 表示延迟 $k$ 个采样周期。也就是说，FIR 不是普通代数变量的多项式，而是关于“延迟算子” $z^{-1}$ 的多项式。</p>
+                  <p>例如 $C(z)=c_0+c_1z^{-1}+c_2z^{-2}$ 对应 $z[n]=c_0r[n]+c_1r[n-1]+c_2r[n-2]$。实现时就是延迟器、乘法器和加法器，所以把 FIR 理解为“由乘法和加法实现的延迟多项式”是正确的。</p>
+                </blockquote>
+
+                <p>均衡器的目标是让“信道 + 均衡器”的总响应尽量接近一个冲激。若接收信号为：</p>
+                <p><span class="math display">\[
+r[n]=a[n]*g[n]
+\]</span></p>
+                <p>均衡器输出为：</p>
+                <p><span class="math display">\[
+z[n]=r[n]*c[n]=a[n]*g[n]*c[n]
+\]</span></p>
+                <p>那么我们希望：</p>
+                <p><span class="math display">\[
+g[n]*c[n]\approx\delta[n]
+\]</span></p>
+                <p>也就是把信道拖尾尽量“压回”一个主采样点。从频域看，均衡器的原理听起来更简单：设计一个<span class="ofdm-term">滤波器<span class="ofdm-mark">✦</span></span>，使其频率响应尽量接近信道频率响应的倒数，两者串联后总响应就恢复平坦：</p>
                 <p><span class="math display">\[
 H_{EQ}(f)=\frac{1}{H(f)}
 \]</span></p>
+                <p>但线性均衡器有一个现实问题：如果某些频率点上的 $H(f)$ 很小，直接取倒数会把这些频率点的噪声也一起放大，这叫<span class="ofdm-term">噪声增强<span class="ofdm-mark">✦</span></span>（noise enhancement）。</p>
+
+                <h3>判决反馈均衡器 DFE：用已判决符号抵消拖尾</h3>
+                <p>DFE 全称是 Decision Feedback Equalizer，判决反馈均衡器。它的核心想法是：<strong>已经判决出来的过去符号，可以用来估计它们对当前符号造成的 ISI，然后把这部分干扰减掉。</strong></p>
+                <p>DFE 通常由两部分组成：前馈滤波器 FFE 处理接收采样，反馈滤波器 FBE 使用已经判决出的符号来抵消后游 ISI。一个简化表达是：</p>
+                <p><span class="math display">\[
+z[n]=\sum_k f_k r[n-k]-\sum_m b_m\hat{a}[n-m]
+\]</span></p>
+                <p>其中 $f_k$ 是前馈滤波器系数，$b_m$ 是反馈滤波器系数，$\hat{a}[n-m]$ 是过去已经判决出来的符号。第二项的作用就是把过去符号拖尾造成的干扰从当前输出里减掉。</p>
+                <blockquote>
+                  <p><strong>补充：DFE 的优势和代价</strong></p>
+                  <p>DFE 的优势是不用对所有深衰落频点硬做倒数，因此相比纯线性均衡器，噪声增强通常更轻。但它的代价是误差传播：如果过去某个符号判错了，反馈滤波器会把这个错误当成真实符号继续用于抵消 ISI，错误就可能向后传递。</p>
+                </blockquote>
+
+                <h3>抽头数：均衡器能覆盖多长的信道记忆</h3>
+                <p>均衡器的<span class="ofdm-term">抽头数<span class="ofdm-mark">✦</span></span>就是 FIR/均衡器里有多少个延迟分支，也就是有多少个系数。例如：</p>
+                <p><span class="math display">\[
+z[n]=c_0r[n]+c_1r[n-1]+c_2r[n-2]+c_3r[n-3]
+\]</span></p>
+                <p>这是一个 4 抽头均衡器。抽头数越多，均衡器能够覆盖的信道记忆越长，也就越有能力补偿长拖尾、多径严重的信道。但每增加一个抽头，通常就多一个复数乘法器和一条加法路径，硬件面积、功耗、运算延迟和自适应收敛难度都会增加。</p>
 
                 <p>但问题是——<strong>这个均衡器<span class="ofdm-mark">✦</span>有多复杂？</strong></p>
                 <p>在实际系统中，均衡器的<span class="ofdm-term">抽头数<span class="ofdm-mark">✦</span></span>大约与时延扩展（以符号周期为单位）成正比。一个<span class="ofdm-term">经验公式<span class="ofdm-mark">✦</span></span>是：需要大约 2 ～ 3 倍时延扩展（归一化到<span class="ofdm-term">符号周期<span class="ofdm-mark">✦</span></span>）的抽头数。</p>
@@ -359,8 +490,196 @@ H_{EQ}(f)=\frac{1}{H(f)}
                 </figure>
               </section>
 
+              <section id="symbols-iq" class="level2">
+                <h2>三、先厘清：bit、调制符号、OFDM 符号与 I/Q 调制</h2>
+
+                <p>在继续讲 OFDM 之前，需要先把“bit”“符号”“OFDM 符号”和“I/Q 调制”这几个词分开。它们经常同时出现，但并不在同一个层次上。</p>
+                <p>最常用的层次关系是：</p>
+                <p><span class="math display">\[
+\text{bit}\ \longrightarrow\ \text{调制符号}\ \longrightarrow\ \text{OFDM 符号}\ \longrightarrow\ \text{射频波形}
+\]</span></p>
+
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>层次</th>
+                        <th>它是什么</th>
+                        <th>典型表示</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>bit</td>
+                        <td>最原始的信息单位，只取 0 或 1</td>
+                        <td>$0,1$</td>
+                      </tr>
+                      <tr>
+                        <td>调制符号</td>
+                        <td>若干 bit 映射成的星座点，也就是一个实数或复数值</td>
+                        <td>$a_k=I_k+jQ_k$</td>
+                      </tr>
+                      <tr>
+                        <td>OFDM 符号</td>
+                        <td>一组子载波调制符号经过 IFFT 后形成的一整段时域信号，实际发送时还要加 CP</td>
+                        <td>$\text{CP}+\text{IFFT}\{X[k]\}$</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <h3>1. 调制符号不是一开始就是一段时域波形</h3>
+                <p>在 BPSK、QPSK、QAM 里，一个“调制符号”严格来说首先是星座图上的一个点。BPSK 的符号可以写成：</p>
+                <p><span class="math display">\[
+a_k\in\{+1,-1\}
+\]</span></p>
+                <p>QPSK 或 QAM 的符号通常是复数：</p>
+                <p><span class="math display">\[
+a_k=I_k+jQ_k
+\]</span></p>
+                <p>它本身是一个抽象的调制值，表示一组 bit 被映射到了哪个幅度和相位。要真正发出去，还需要经过脉冲成形，变成连续时间基带波形：</p>
+                <p><span class="math display">\[
+s(t)=\sum_k a_k p(t-kT_s)
+\]</span></p>
+                <p>其中 $p(t)$ 是脉冲成形波形，$T_s$ 是符号周期。所以第 $k$ 个调制符号在时域中对应的是 $a_kp(t-kT_s)$ 这一段被缩放、移位后的波形。换句话说：<strong>调制符号严格说是一个星座点；从发射波形角度看，它经过脉冲成形后，才占用一个符号周期并表现为一段时域波形。</strong></p>
+
+                <p>不同调制方式下，一个调制符号携带的 bit 数不同：</p>
+                <div class="ofdm-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>调制方式</th>
+                        <th>星座点数量</th>
+                        <th>每个调制符号携带 bit 数</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>BPSK</td>
+                        <td>2</td>
+                        <td>1 bit</td>
+                      </tr>
+                      <tr>
+                        <td>QPSK</td>
+                        <td>4</td>
+                        <td>2 bit</td>
+                      </tr>
+                      <tr>
+                        <td>16QAM</td>
+                        <td>16</td>
+                        <td>4 bit</td>
+                      </tr>
+                      <tr>
+                        <td>64QAM</td>
+                        <td>64</td>
+                        <td>6 bit</td>
+                      </tr>
+                      <tr>
+                        <td>256QAM</td>
+                        <td>256</td>
+                        <td>8 bit</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <h3>2. OFDM 符号是一整段多载波时域信号</h3>
+                <p>OFDM 里的“符号”又高了一层。一个 OFDM 符号不是一个 QPSK/QAM 星座点，而是很多个子载波上的调制符号共同组成的一段时域波形。</p>
+                <p>先把一批调制符号放到不同子载波上：</p>
+                <p><span class="math display">\[
+X[0],X[1],\ldots,X[N-1]
+\]</span></p>
+                <p>这里每个 $X[k]$ 都可以是一个 QPSK、16QAM 或 64QAM 星座点。发射端对这一组频域数据做 IFFT：</p>
+                <p><span class="math display">\[
+x[n]=\mathrm{IFFT}\{X[k]\}
+\]</span></p>
+                <p>得到的一段时域采样序列 $x[0],x[1],\ldots,x[N-1]$，就是 OFDM 符号的主体。实际发送时还会在前面复制一段尾部样本作为循环前缀：</p>
+                <p><span class="math display">\[
+\text{OFDM symbol}=\text{CP}+\text{IFFT output}
+\]</span></p>
+                <p>因此，一个 OFDM 符号通常同时承载很多 bit。例如 1200 个有效子载波都使用 16QAM 时，一个 OFDM 符号承载的编码后 bit 数是：</p>
+                <p><span class="math display">\[
+1200\times4=4800\ \text{bit}
+\]</span></p>
+                <p>如果再考虑编码率为 $1/2$，那么其中有效信息 bit 大约是 $2400$ bit。</p>
+
+                <h3>3. 为什么基带信号常写成复数</h3>
+                <p>QPSK、QAM 和 OFDM 的数字基带通常写成复信号：</p>
+                <p><span class="math display">\[
+s(t)=I(t)+jQ(t)
+\]</span></p>
+                <p>这并不是说天线上真的能发射“复数电压”。复数只是一个非常自然的数学表示：它把窄带信号的两个独立自由度写在一起。</p>
+                <p>从直角坐标看，$I(t)$ 和 $Q(t)$ 是复平面上的两个正交坐标；从极坐标看，同一个信号也可以写成：</p>
+                <p><span class="math display">\[
+s(t)=A(t)e^{j\phi(t)}
+\]</span></p>
+                <p>也就是幅度 $A(t)$ 和相位 $\phi(t)$。所以复数既可以看成二维向量，也可以看成“幅度 + 相位”。这正好适合表示 QPSK/QAM 星座点和 OFDM 中每个子载波上的复数数据。</p>
+
+                <h3>4. 发射端 I/Q 调制：把复基带变成真实射频波形</h3>
+                <p>发射端真正要送到天线的是实数射频信号。复基带到射频的搬移可以写成：</p>
+                <p><span class="math display">\[
+s_{RF}(t)=\Re\{s(t)e^{j2\pi f_ct}\}
+\]</span></p>
+                <p>把 $s(t)=I(t)+jQ(t)$ 代入，并使用欧拉公式：</p>
+                <p><span class="math display">\[
+e^{j2\pi f_ct}=\cos(2\pi f_ct)+j\sin(2\pi f_ct)
+\]</span></p>
+                <p>展开后取实部，可以得到硬件真正实现的形式：</p>
+                <p><span class="math display">\[
+s_{RF}(t)=I(t)\cos(2\pi f_ct)-Q(t)\sin(2\pi f_ct)
+\]</span></p>
+                <p>也就是说，发射机不是“发射一个复数”，而是用 I/Q 调制器完成两路正交调制：</p>
+                <pre><code>I(t) ── DAC ── LPF ── × cos(2πfct) ──┐
+                                      ├── 加法器 ── RF 输出
+Q(t) ── DAC ── LPF ── × -sin(2πfct) ─┘</code></pre>
+                <p>这里选择 $\sin$ 和 $\cos$ 的根本原因就是正交性。在合适的积分区间内：</p>
+                <p><span class="math display">\[
+\int \cos(2\pi f_ct)\sin(2\pi f_ct)\,dt=0
+\]</span></p>
+                <p>因此 I 路和 Q 路虽然被合成到同一个真实射频波形里，接收端仍然可以通过相干解调把它们分开。</p>
+
+                <h3>5. 为什么发射端不只用一路</h3>
+                <p>如果只用一路实信号，例如：</p>
+                <p><span class="math display">\[
+s_{RF}(t)=A(t)\cos(2\pi f_ct)
+\]</span></p>
+                <p>那就只有一个实数自由度，最多表达一维星座，比如 PAM 或 BPSK。BPSK 可以用 $+1$ 和 $-1$ 表示，也可以理解成载波相位 $0^\circ$ 和 $180^\circ$，但它仍然只是在一条线上取点。</p>
+                <p>QPSK 和 QAM 则需要二维星座。例如 QPSK 的点可以写成：</p>
+                <p><span class="math display">\[
+1+j,\quad -1+j,\quad -1-j,\quad 1-j
+\]</span></p>
+                <p>如果只有 I 路，就无法区分 $1+j$ 和 $1-j$，因为它们的 I 分量相同，差别完全在 Q 分量上。16QAM、64QAM 更明显，它们需要同时控制 I 和 Q 两个坐标。</p>
+                <p>OFDM 也是如此。IFFT 输出的基带采样通常是复数：</p>
+                <p><span class="math display">\[
+x[n]=I[n]+jQ[n]
+\]</span></p>
+                <p>所以发射端需要 I/Q 两路来把这个复基带序列搬到射频。工程上也可以用高速 DAC 直接生成实数 IF/RF 波形，或者用极坐标发射机分别控制幅度和相位，但本质上仍然要控制两个自由度：幅度/相位，或者等价的 I/Q。</p>
+                <p>I/Q 调制还天然适合做单边带调制和镜像抑制。原因是复基带频谱不必共轭对称，可以区分正频率和负频率；而纯实信号的频谱必须共轭对称，容易同时带出上下两个边带。</p>
+
+                <h3>6. 接收端为什么也要恢复 I/Q 两路</h3>
+                <p>接收机收到的是一个真实射频信号，但它里面同时携带了 I 和 Q 两个正交分量。常见零中频接收机用两路正交本振混频：</p>
+                <pre><code>RF 信号 ── × cos(2πfct) ── LPF ── ADC ── I[n]
+       └─ × -sin(2πfct) ─ LPF ── ADC ── Q[n]</code></pre>
+                <p>如果只用 $\cos$ 这一路，低通后只能得到 I 分量；再用 $-\sin$ 这一路，低通后才能得到 Q 分量。两路合起来，才能恢复复基带：</p>
+                <p><span class="math display">\[
+r[n]=I[n]+jQ[n]
+\]</span></p>
+                <p>这并不意味着所有接收机物理上都必须有两颗 ADC。也可以用单路高速 ADC 先采样 IF/RF，再在数字域产生 I/Q。但无论采用哪种架构，后续同步、FFT、信道估计、均衡和解调都需要恢复出复基带的两个分量。</p>
+
+                <h3>7. 这和 OFDM 接收端 FFT 有什么关系</h3>
+                <p>OFDM 中每个子载波上的数据 $X[k]$ 通常都是复数 QAM 符号，信道响应 $H[k]$ 也是复数。加入循环前缀并满足同步条件后，接收端去 CP、做 FFT，可以得到近似关系：</p>
+                <p><span class="math display">\[
+Y[k]=H[k]X[k]+W[k]
+\]</span></p>
+                <p>于是每个子载波只需要做一次复数除法就能均衡：</p>
+                <p><span class="math display">\[
+\hat X[k]=\frac{Y[k]}{H[k]}
+\]</span></p>
+                <p>这就是前面说“FFT 之后，频域信号天然就是各子载波上的独立数据”的意思。它不是说这些数据在统计意义上一定独立，而是说在理想 OFDM 条件下，第 $k$ 个 FFT 输出主要只和第 $k$ 个子载波上的 $X[k]$ 有关，不再像单载波时域均衡那样需要用很多抽头去拆开前后符号的混叠。</p>
+              </section>
+
               <section id="ofdm-idea" class="level2">
-                <h2>三、OFDM 的破局思路：<span class="ofdm-term">分而治之<span class="ofdm-mark">✦</span></span></h2>
+                <h2>四、OFDM 的破局思路：<span class="ofdm-term">分而治之<span class="ofdm-mark">✦</span></span></h2>
 
                 <p>OFDM 的核心思想，用一句话概括就是：</p>
                 <blockquote>
@@ -382,7 +701,7 @@ X[k]=\mathrm{DFT}\{x[n]\}=\sum_{n=0}^{N-1}x[n]\cdot e^{-j\frac{2\pi}{N}kn}
               </section>
 
               <section id="parameters" class="level2">
-                <h2>四、OFDM 的关键参数：一窥究竟</h2>
+                <h2>五、OFDM 的关键参数：一窥究竟</h2>
 
                 <p>为了让这个“分而治之”的方案切实可行，OFDM 在设计上做了几个关键选择：</p>
 
@@ -407,7 +726,7 @@ X[k]=\mathrm{DFT}\{x[n]\}=\sum_{n=0}^{N-1}x[n]\cdot e^{-j\frac{2\pi}{N}kn}
               </section>
 
               <section id="summary" class="level2">
-                <h2>五、本讲小结</h2>
+                <h2>六、本讲小结</h2>
 
                 <p>让我们用一张表来总结单载波和 OFDM 的核心区别：</p>
 
