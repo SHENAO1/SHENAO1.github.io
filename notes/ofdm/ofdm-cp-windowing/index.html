@@ -305,11 +305,11 @@
               <section id="introduction" class="level2">
                 <h2>引言</h2>
 
-                <p>上一讲我们聊了 <span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span> 的硬件实现，搞清楚了如何把频域数据高效地变成时域的 OFDM 信号。那么现在信号已经生成了，接下来就面临一个”看似简单、实则棘手”的工程问题——<strong>带外泄漏</strong>。</p>
+                <p>上一讲我们聊了 <span class="ofdm-term">IFFT<span class="ofdm-mark"></span></span> 的硬件实现，搞清楚了如何把频域数据高效地变成时域的 OFDM 信号。那么现在信号已经生成了，接下来就面临一个”看似简单、实则棘手”的工程问题——<strong>带外泄漏</strong>。</p>
 
-                <p>什么是带外泄漏？简单说，就是你的信号跑到了别人的”地盘”上。无线通信里频谱是稀缺资源，运营商花了几十亿买来的一块频谱，如果信号跑出去干扰隔壁频段，那就是违反监管规定的大事。3GPP 对每个频段都有严苛的<span class="ofdm-term">频谱模板<span class="ofdm-mark">✦</span></span>（Spectrum Emission Mask）要求，信号功率在带外必须衰减到规定值以下。</p>
+                <p>什么是带外泄漏？简单说，就是你的信号跑到了别人的”地盘”上。无线通信里频谱是稀缺资源，运营商花了几十亿买来的一块频谱，如果信号跑出去干扰隔壁频段，那就是违反监管规定的大事。3GPP 对每个频段都有严苛的<span class="ofdm-term">频谱模板<span class="ofdm-mark"></span></span>（Spectrum Emission Mask）要求，信号功率在带外必须衰减到规定值以下。</p>
 
-                <p>造成带外泄漏的主要原因，出乎意料地简单：<span class="ofdm-term">矩形脉冲<span class="ofdm-mark">✦</span></span>。</p>
+                <p>造成带外泄漏的主要原因，出乎意料地简单：<span class="ofdm-term">矩形脉冲<span class="ofdm-mark"></span></span>。</p>
 
                 <p>这一讲，我们就来彻底搞清楚：矩形脉冲为什么旁瓣高？加窗如何解决这个问题？以及5G NR是怎么配置 CP 和加窗的？</p>
 
@@ -322,7 +322,7 @@
                 <section id="time-domain-shape" class="level3">
                   <h3>1.1 OFDM 符号的时域形态</h3>
 
-                  <p>一个标准的OFDM符号由两部分组成：<span class="ofdm-term">循环前缀<span class="ofdm-mark">✦</span></span>（CP）+ 有效数据段。加入 CP 之后，时域信号大致如下：</p>
+                  <p>一个标准的OFDM符号由两部分组成：<span class="ofdm-term">循环前缀<span class="ofdm-mark"></span></span>（CP）+ 有效数据段。加入 CP 之后，时域信号大致如下：</p>
 
                   <pre><code>|&lt;--- CP (Ncp samples) ---&gt;|&lt;-------- 有效数据 (N samples) ---------&gt;|
 |        复制自数据末尾     |          IFFT输出                       |
@@ -396,7 +396,7 @@ W_{\text{rect}}(f)=\frac{\sin(\pi fNT_s)}{\pi fT_s}e^{-j\pi f(N-1)T_s}
                 <section id="raised-cosine" class="level3">
                   <h3>2.2 升余弦（Raised Cosine）窗</h3>
 
-                  <p>最常用的窗函数之一是<span class="ofdm-term">升余弦窗<span class="ofdm-mark">✦</span></span>，其过渡段的形状由余弦曲线定义：</p>
+                  <p>最常用的窗函数之一是<span class="ofdm-term">升余弦窗<span class="ofdm-mark"></span></span>，其过渡段的形状由余弦曲线定义：</p>
 
                   <p><span class="math display">\[
 w[n]=
@@ -552,7 +552,7 @@ title('OFDM加窗前后频谱对比'); legend; grid on;</code></pre>
 
                   <p>过渡段总长度不得超过 CP 长度。这是加窗设计的铁律。</p>
 
-                  <p><strong>问题2： <span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>下的影响</strong></p>
+                  <p><strong>问题2： <span class="ofdm-term">多径信道<span class="ofdm-mark"></span></span>下的影响</strong></p>
 
                   <p>在多径信道中，由于信号存在时延扩展，CP能抵御的最大时延为 $N_{cp}$ 个采样点。加窗后，实际可用的CP”保护区间”缩短为 $N_{cp}-2\beta$，因此：</p>
 
@@ -592,7 +592,7 @@ title('OFDM加窗前后频谱对比'); legend; grid on;</code></pre>
                 <h2>4. 5G NR中的CP与SCS配置</h2>
 
                 <section id="numerology" class="level3">
-                  <h3>4.1 <span class="ofdm-term">灵活参数集<span class="ofdm-mark">✦</span></span>（Flexible Numerology）</h3>
+                  <h3>4.1 <span class="ofdm-term">灵活参数集<span class="ofdm-mark"></span></span>（Flexible Numerology）</h3>
 
                   <p>5G NR引入了灵活参数集（Numerology），子载波间隔（SCS）可以是 15/30/60/120/240 kHz，对应关系为：</p>
 
@@ -671,7 +671,7 @@ title('OFDM加窗前后频谱对比'); legend; grid on;</code></pre>
 
                   <ol>
                     <li><strong>CP加窗：</strong>如前所述，利用 CP 边缘做升余弦过渡</li>
-                    <li><strong>数字滤波：</strong>发射滤波器对整个带宽做成形滤波（<span class="ofdm-term">Root-Raised Cosine<span class="ofdm-mark">✦</span></span> 或 FIR滤波）</li>
+                    <li><strong>数字滤波：</strong>发射滤波器对整个带宽做成形滤波（<span class="ofdm-term">Root-Raised Cosine<span class="ofdm-mark"></span></span> 或 FIR滤波）</li>
                     <li><strong>功放线性化：</strong>通过数字预失真（DPD）减小非线性造成的带外泄漏</li>
                   </ol>
 

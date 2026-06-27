@@ -310,25 +310,25 @@
             <section id="ofdm-cyclic-prefix" class="level1">
               <h1>第5讲：循环前缀 CP——OFDM 的”护城河”</h1>
 
-              <p class="ofdm-author">作者：码农 | <span class="ofdm-term">无线通信算法工程师<span class="ofdm-mark">✦</span></span> | 6 年 <span class="ofdm-term">OFDM<span class="ofdm-mark">✦</span></span> 系统研发经验</p>
+              <p class="ofdm-author">作者：码农 | <span class="ofdm-term">无线通信算法工程师<span class="ofdm-mark"></span></span> | 6 年 <span class="ofdm-term">OFDM<span class="ofdm-mark"></span></span> 系统研发经验</p>
 
               <section id="introduction" class="level2">
                 <h2>引言</h2>
 
-                <p>如果你在实验室里搭过一个完整的 OFDM 链路仿真，你会发现一个有趣的现象：把循环前缀（Cyclic Prefix, CP）去掉之后，BER 曲线会瞬间崩塌，哪怕信道已经做了完美的<span class="ofdm-term">信道估计<span class="ofdm-mark">✦</span></span>。</p>
+                <p>如果你在实验室里搭过一个完整的 OFDM 链路仿真，你会发现一个有趣的现象：把循环前缀（Cyclic Prefix, CP）去掉之后，BER 曲线会瞬间崩塌，哪怕信道已经做了完美的<span class="ofdm-term">信道估计<span class="ofdm-mark"></span></span>。</p>
 
-                <p>CP 就是这么一个”不起眼但没了它就不行”的角色。它像是 OFDM 系统的<span class="ofdm-term">护城河<span class="ofdm-mark">✦</span></span>——不显山露水，却守护着整个系统的稳定性。</p>
+                <p>CP 就是这么一个”不起眼但没了它就不行”的角色。它像是 OFDM 系统的<span class="ofdm-term">护城河<span class="ofdm-mark"></span></span>——不显山露水，却守护着整个系统的稳定性。</p>
 
                 <p>本讲，我们深入拆解 CP 的工作原理、设计要点，以及它在工程实现中的各种权衡。</p>
               </section>
 
               <section id="without-cp" class="level2">
-                <h2>一、没有 CP 时，<span class="ofdm-term">多径<span class="ofdm-mark">✦</span></span>会造成什么灾难？</h2>
+                <h2>一、没有 CP 时，<span class="ofdm-term">多径<span class="ofdm-mark"></span></span>会造成什么灾难？</h2>
 
                 <section id="isi" class="level3">
                   <h3>1.1 ISI：符号间的”串扰”</h3>
 
-                  <p>在<span class="ofdm-term">单载波<span class="ofdm-mark">✦</span></span>系统中，<span class="ofdm-term">多径效应<span class="ofdm-mark">✦</span></span>会导致接收信号的时域扩散，前一个符号的尾部”拖”到下一个符号的时间里，这就是<span class="ofdm-term">码间干扰<span class="ofdm-mark">✦</span></span>（ISI, Inter-Symbol Interference）。</p>
+                  <p>在<span class="ofdm-term">单载波<span class="ofdm-mark"></span></span>系统中，<span class="ofdm-term">多径效应<span class="ofdm-mark"></span></span>会导致接收信号的时域扩散，前一个符号的尾部”拖”到下一个符号的时间里，这就是<span class="ofdm-term">码间干扰<span class="ofdm-mark"></span></span>（ISI, Inter-Symbol Interference）。</p>
 
                   <p>在 OFDM 系统中，一条 OFDM 符号的时域长度为 $T_{sym}$。如果没有任何保护间隔，多径时延为 $\tau_{max}$ 的信道会让第 $n$ 个符号的尾部 $\tau_{max}$ 时间段内混进第 $n+1$ 个符号的能量，造成 ISI。</p>
 
@@ -338,17 +338,17 @@
 y(t)=\sum_{k=0}^{L-1}h_k\cdot x(t-\tau_k)+n(t)
 \]</span></p>
 
-                  <p>其中 $h_k$ 是第 $k$ 条路径的<span class="ofdm-term">复增益<span class="ofdm-mark">✦</span></span>，$\tau_k$ 是对应的时延，$L$ 是可分辨路径数。</p>
+                  <p>其中 $h_k$ 是第 $k$ 条路径的<span class="ofdm-term">复增益<span class="ofdm-mark"></span></span>，$\tau_k$ 是对应的时延，$L$ 是可分辨路径数。</p>
 
-                  <p>当 $\tau_{max}&gt;0$ 时，相邻 OFDM 符号在时域上发生混叠，直接破坏了<span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>间的正交性。</p>
+                  <p>当 $\tau_{max}&gt;0$ 时，相邻 OFDM 符号在时域上发生混叠，直接破坏了<span class="ofdm-term">子载波<span class="ofdm-mark"></span></span>间的正交性。</p>
                 </section>
 
                 <section id="ici" class="level3">
-                  <h3>1.2 ICI：<span class="ofdm-term">子载波间<span class="ofdm-mark">✦</span></span>的”互相干扰”</h3>
+                  <h3>1.2 ICI：<span class="ofdm-term">子载波间<span class="ofdm-mark"></span></span>的”互相干扰”</h3>
 
-                  <p>更致命的是，<strong><span class="ofdm-term">子载波间干扰<span class="ofdm-mark">✦</span></span>（ICI, Inter-Carrier Interference）</strong>。</p>
+                  <p>更致命的是，<strong><span class="ofdm-term">子载波间干扰<span class="ofdm-mark"></span></span>（ICI, Inter-Carrier Interference）</strong>。</p>
 
-                  <p>OFDM 的子载波正交性要求：在 FFT 积分区间内，子载波之间精确正交。多径引起的时延，相当于在时域上对每个子载波做了一个<span class="ofdm-term">相位旋转<span class="ofdm-mark">✦</span></span>，而且这个<span class="ofdm-term">旋转量<span class="ofdm-mark">✦</span></span>在 FFT 积分区间内不是常数——结果就是子载波之间不再正交，出现 ICI。</p>
+                  <p>OFDM 的子载波正交性要求：在 FFT 积分区间内，子载波之间精确正交。多径引起的时延，相当于在时域上对每个子载波做了一个<span class="ofdm-term">相位旋转<span class="ofdm-mark"></span></span>，而且这个<span class="ofdm-term">旋转量<span class="ofdm-mark"></span></span>在 FFT 积分区间内不是常数——结果就是子载波之间不再正交，出现 ICI。</p>
 
                   <p>数学上，第 $m$ 个子载波上的接收信号为：</p>
 
@@ -361,7 +361,7 @@ Y_m=\int_0^T y(t)e^{-j2\pi m\Delta f t}\,dt
               </section>
 
               <section id="cp-core" class="level2">
-                <h2>二、CP 的核心魔法：把<span class="ofdm-term">线性卷积<span class="ofdm-mark">✦</span></span>变成循环卷积</h2>
+                <h2>二、CP 的核心魔法：把<span class="ofdm-term">线性卷积<span class="ofdm-mark"></span></span>变成循环卷积</h2>
 
                 <section id="why-cp-removes-isi" class="level3">
                   <h3>2.1 为什么 CP 能消除 ISI？</h3>
@@ -383,35 +383,35 @@ Y_m=\int_0^T y(t)e^{-j2\pi m\Delta f t}\,dt
 └────┴─────────────────────────────┘
           ↓ CP区域内，多径拖尾不影响FFT积分</code></pre>
 
-                  <p>关键在于：在<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>的最大时延扩展 $\tau_{max}$ 范围内，接收端做 FFT 积分的区间<strong>完全落在符号的”周期延伸”区域内</strong>。只要 $\tau_{max}&lt;T_{cp}$，FFT 积分区间内的信号就等价于原始符号的<strong>循环移位版本</strong>，线性卷积就被转化为了循环卷积。</p>
+                  <p>关键在于：在<span class="ofdm-term">多径信道<span class="ofdm-mark"></span></span>的最大时延扩展 $\tau_{max}$ 范围内，接收端做 FFT 积分的区间<strong>完全落在符号的”周期延伸”区域内</strong>。只要 $\tau_{max}&lt;T_{cp}$，FFT 积分区间内的信号就等价于原始符号的<strong>循环移位版本</strong>，线性卷积就被转化为了循环卷积。</p>
                 </section>
 
                 <section id="frequency-equalization" class="level3">
-                  <h3>2.2 <span class="ofdm-term">频域均衡<span class="ofdm-mark">✦</span></span>成为可能</h3>
+                  <h3>2.2 <span class="ofdm-term">频域均衡<span class="ofdm-mark"></span></span>成为可能</h3>
 
-                  <p>循环卷积在频域对应<span class="ofdm-term">逐点乘法<span class="ofdm-mark">✦</span></span>：</p>
+                  <p>循环卷积在频域对应<span class="ofdm-term">逐点乘法<span class="ofdm-mark"></span></span>：</p>
 
                   <p>时域：$y[n]=h[n]\circledast x[n]$（循环卷积）</p>
 
                   <p>频域：$Y[k]=H[k]\cdot X[k]$</p>
 
-                  <p>这就是为什么 CP 如此重要——<strong>它使得频域均衡变成了一个简单的<span class="ofdm-term">复数除法<span class="ofdm-mark">✦</span></span></strong>：</p>
+                  <p>这就是为什么 CP 如此重要——<strong>它使得频域均衡变成了一个简单的<span class="ofdm-term">复数除法<span class="ofdm-mark"></span></span></strong>：</p>
 
                   <p><span class="math display">\[
 \hat{X}[k]=\frac{Y[k]}{H[k]}
 \]</span></p>
 
-                  <p>如果没有 CP，<span class="ofdm-term">时域<span class="ofdm-mark">✦</span></span>是线性卷积，频域不再是<span class="ofdm-term">对角矩阵<span class="ofdm-mark">✦</span></span>，均衡就变得非常复杂（需要用<span class="ofdm-term">时域均衡<span class="ofdm-mark">✦</span></span>器，复杂度高得多）。</p>
+                  <p>如果没有 CP，<span class="ofdm-term">时域<span class="ofdm-mark"></span></span>是线性卷积，频域不再是<span class="ofdm-term">对角矩阵<span class="ofdm-mark"></span></span>，均衡就变得非常复杂（需要用<span class="ofdm-term">时域均衡<span class="ofdm-mark"></span></span>器，复杂度高得多）。</p>
                 </section>
               </section>
 
               <section id="cp-length" class="level2">
-                <h2>三、<span class="ofdm-term">CP 长度<span class="ofdm-mark">✦</span></span>怎么选？——工程上的权衡</h2>
+                <h2>三、<span class="ofdm-term">CP 长度<span class="ofdm-mark"></span></span>怎么选？——工程上的权衡</h2>
 
                 <section id="theory-requirement" class="level3">
                   <h3>3.1 理论要求</h3>
 
-                  <p>CP 长度 $T_{cp}$ 必须<strong>大于信道的最大<span class="ofdm-term">多径时延扩展<span class="ofdm-mark">✦</span></span></strong> $\tau_{max}$：</p>
+                  <p>CP 长度 $T_{cp}$ 必须<strong>大于信道的最大<span class="ofdm-term">多径时延扩展<span class="ofdm-mark"></span></span></strong> $\tau_{max}$：</p>
 
                   <p><span class="math display">\[
 T_{cp}&gt;\tau_{max}
@@ -440,7 +440,7 @@ T_{cp}&gt;\tau_{max}
                           <td>短 CP</td>
                         </tr>
                         <tr>
-                          <td>城市<span class="ofdm-term">宏蜂窝<span class="ofdm-mark">✦</span></span></td>
+                          <td>城市<span class="ofdm-term">宏蜂窝<span class="ofdm-mark"></span></span></td>
                           <td>~5 μs</td>
                           <td>普通 CP</td>
                         </tr>
@@ -465,9 +465,9 @@ T_{cp}&gt;\tau_{max}
                   <p><strong>LTE（4G）：</strong></p>
 
                   <ul>
-                    <li>普通 CP（Normal CP）：长度约 4.7 μs，占用前 160 个<span class="ofdm-term">采样点<span class="ofdm-mark">✦</span></span>（20MHz 带宽，2048 点 FFT）</li>
-                    <li>支持每时隙 7 个 <span class="ofdm-term">OFDM 符号<span class="ofdm-mark">✦</span></span></li>
-                    <li><span class="ofdm-term">扩展CP<span class="ofdm-mark">✦</span></span>（Extended CP）：长度约 16.7 μs，支持 6个OFDM符号/时隙</li>
+                    <li>普通 CP（Normal CP）：长度约 4.7 μs，占用前 160 个<span class="ofdm-term">采样点<span class="ofdm-mark"></span></span>（20MHz 带宽，2048 点 FFT）</li>
+                    <li>支持每时隙 7 个 <span class="ofdm-term">OFDM 符号<span class="ofdm-mark"></span></span></li>
+                    <li><span class="ofdm-term">扩展CP<span class="ofdm-mark"></span></span>（Extended CP）：长度约 16.7 μs，支持 6个OFDM符号/时隙</li>
                   </ul>
 
                   <p><strong>5G NR:</strong></p>
@@ -488,7 +488,7 @@ T_{cp}&gt;\tau_{max}
 \eta_{loss}=\frac{T_{cp}}{T_{sym}+T_{cp}}
 \]</span></p>
 
-                  <p>以 LTE 为例，$T_{sym}=66.7\,\mu s$，$T_{cp}=4.7\,\mu s$，<span class="ofdm-term">频谱效率<span class="ofdm-mark">✦</span></span>损失约 <strong>7%</strong>。</p>
+                  <p>以 LTE 为例，$T_{sym}=66.7\,\mu s$，$T_{cp}=4.7\,\mu s$，<span class="ofdm-term">频谱效率<span class="ofdm-mark"></span></span>损失约 <strong>7%</strong>。</p>
 
                   <p>在 5G 高频（120 kHz SCS）场景下，CP 占比更小，频谱效率更高——这也是 5G 选择更大 SCS 的原因之一。</p>
                 </section>
@@ -498,7 +498,7 @@ T_{cp}&gt;\tau_{max}
                 <h2>四、CP 在接收端怎么处理？</h2>
 
                 <section id="remove-cp-timing" class="level3">
-                  <h3>4.1 <span class="ofdm-term">去 CP<span class="ofdm-mark">✦</span></span>的时机</h3>
+                  <h3>4.1 <span class="ofdm-term">去 CP<span class="ofdm-mark"></span></span>的时机</h3>
 
                   <p>接收端的处理流程：</p>
 
@@ -512,11 +512,11 @@ T_{cp}&gt;\tau_{max}
     ↓
 频域均衡</code></pre>
 
-                  <p>关键点：<strong>FFT 窗口的起始位置必须在 CP 区域内，但不一定要在 CP 的最开头。</strong> 实际上，只要 FFT 窗口完全落在符号的”无 ISI 区间”内，均衡就能正常工作。这也是为什么符号定时同步允许一定的<span class="ofdm-term">误差容限<span class="ofdm-mark">✦</span></span>。</p>
+                  <p>关键点：<strong>FFT 窗口的起始位置必须在 CP 区域内，但不一定要在 CP 的最开头。</strong> 实际上，只要 FFT 窗口完全落在符号的”无 ISI 区间”内，均衡就能正常工作。这也是为什么符号定时同步允许一定的<span class="ofdm-term">误差容限<span class="ofdm-mark"></span></span>。</p>
                 </section>
 
                 <section id="timing-benefit" class="level3">
-                  <h3>4.2 CP 带来的额外好处：<span class="ofdm-term">符号边界模糊化<span class="ofdm-mark">✦</span></span></h3>
+                  <h3>4.2 CP 带来的额外好处：<span class="ofdm-term">符号边界模糊化<span class="ofdm-mark"></span></span></h3>
 
                   <p>由于 CP 是符号尾部的复制，它在时域上提供了一个”缓冲带”。即便定时同步有一点偏差，只要偏差在 CP 范围内，FFT 积分区间仍然落在正确的符号周期内，系统性能不会恶化。</p>
 
@@ -529,17 +529,17 @@ T_{cp}&gt;\tau_{max}
 
                 <p>标准 CP 需要占用额外的时域资源，在追求极致频谱效率的场景下，研究者提出了几种替代方案：</p>
 
-                <h3>5.1 零前缀（Zero Prefix, ZP<span class="ofdm-mark">✦</span>）</h3>
+                <h3>5.1 零前缀（Zero Prefix, ZP<span class="ofdm-mark"></span>）</h3>
 
-                <p>用全零序列代替 CP。优点是峰均比更低（没有重复的信号段），缺点是失去了 CP 提供的”循环卷积”特性，需要特殊的<span class="ofdm-term">信号处理技术<span class="ofdm-mark">✦</span></span>来恢复正交性。</p>
+                <p>用全零序列代替 CP。优点是峰均比更低（没有重复的信号段），缺点是失去了 CP 提供的”循环卷积”特性，需要特殊的<span class="ofdm-term">信号处理技术<span class="ofdm-mark"></span></span>来恢复正交性。</p>
 
-                <h3>5.2 已知符号前缀（Known Symbol Prefix, KSP<span class="ofdm-mark">✦</span>）</h3>
+                <h3>5.2 已知符号前缀（Known Symbol Prefix, KSP<span class="ofdm-mark"></span>）</h3>
 
                 <p>用已知的固定序列作为前缀。可以同时用于符号定时同步和信道估计，但同样需要额外的信号处理复杂度。</p>
 
                 <h3>5.3 实际应用</h3>
 
-                <p>在主流标准（LTE、5G NR、WiFi）中，CP <strong>仍然是不二之选</strong>。它的简单性和<span class="ofdm-term">鲁棒性<span class="ofdm-mark">✦</span></span>远超各种变种方案。只有在一些特殊的<span class="ofdm-term">低功耗<span class="ofdm-mark">✦</span></span>物联网场景中，才会考虑 ZP 等替代方案。</p>
+                <p>在主流标准（LTE、5G NR、WiFi）中，CP <strong>仍然是不二之选</strong>。它的简单性和<span class="ofdm-term">鲁棒性<span class="ofdm-mark"></span></span>远超各种变种方案。只有在一些特殊的<span class="ofdm-term">低功耗<span class="ofdm-mark"></span></span>物联网场景中，才会考虑 ZP 等替代方案。</p>
               </section>
 
               <section id="implementation" class="level2">
@@ -548,9 +548,9 @@ T_{cp}&gt;\tau_{max}
                 <p>在实际芯片实现中，CP 的处理有几个值得注意的细节：</p>
 
                 <ol>
-                  <li><strong><span class="ofdm-term">CP 长度的配置灵活性<span class="ofdm-mark">✦</span></span>：</strong>5G NR 支持多种 CP 长度，基站通过系统消息通知 UE 当前使用的 CP类型，UE <span class="ofdm-term">接收机<span class="ofdm-mark">✦</span></span>据此调整 FFT 窗口长度。</li>
+                  <li><strong><span class="ofdm-term">CP 长度的配置灵活性<span class="ofdm-mark"></span></span>：</strong>5G NR 支持多种 CP 长度，基站通过系统消息通知 UE 当前使用的 CP类型，UE <span class="ofdm-term">接收机<span class="ofdm-mark"></span></span>据此调整 FFT 窗口长度。</li>
                   <li><strong>定点实现中的 CP 复制：</strong>发送端 IFFT 输出的是定点复数序列，CP复制就是一段简单的存储器读写操作，但要注意定点溢出问题（时域信号幅度可能因 IFFT 而增大）。</li>
-                  <li><strong><span class="ofdm-term">CP 与同步的联合优化<span class="ofdm-mark">✦</span></span>：</strong>在接收端，利用 CP 与符号尾部的相似性做符号定时同步（经典算法如 Schmidl &amp; Cox），CP 同时承担了”保护间隔”和”同步辅助”双重角色。</li>
+                  <li><strong><span class="ofdm-term">CP 与同步的联合优化<span class="ofdm-mark"></span></span>：</strong>在接收端，利用 CP 与符号尾部的相似性做符号定时同步（经典算法如 Schmidl &amp; Cox），CP 同时承担了”保护间隔”和”同步辅助”双重角色。</li>
                 </ol>
               </section>
 
@@ -570,7 +570,7 @@ T_{cp}&gt;\tau_{max}
 
                 <hr class="ofdm-divider">
 
-                <p><em>下一篇预告：[第6讲] QAM调制与子载波映射——<span class="ofdm-term">比特<span class="ofdm-mark">✦</span></span>怎么变成子载波?</em></p>
+                <p><em>下一篇预告：[第6讲] QAM调制与子载波映射——<span class="ofdm-term">比特<span class="ofdm-mark"></span></span>怎么变成子载波?</em></p>
               </section>
 
               <section id="questions" class="level2">
@@ -581,7 +581,7 @@ T_{cp}&gt;\tau_{max}
                 <ol>
                   <li>如果一个系统的 CP 长度是 5 μs，但实际部署环境的最大多径时延扩展是 7 μs，BER 性能会如何变化？为什么？</li>
                   <li>5G NR 为什么要把子载波间隔做得更大（如 120 kHz）？从 CP 的角度分析其优势。</li>
-                  <li>如果让你设计一个适用于高铁场景（<span class="ofdm-term">多普勒频移<span class="ofdm-mark">✦</span></span>很大）的 OFDM 系统，CP 长度应该怎么考虑？</li>
+                  <li>如果让你设计一个适用于高铁场景（<span class="ofdm-term">多普勒频移<span class="ofdm-mark"></span></span>很大）的 OFDM 系统，CP 长度应该怎么考虑？</li>
                 </ol>
               </section>
             </section>

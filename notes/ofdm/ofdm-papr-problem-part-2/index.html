@@ -302,7 +302,7 @@
               <section id="intro" class="level2">
                 <p>上一讲我们把 PAPR 的底裤扒了个干净——它为什么存在、有多严重、对 PA 和 ADC 有什么灾难性影响。今天趁热打铁，直接来看工程师们是怎么跟这些“峰值”掰手腕的。</p>
 
-                <p><span class="ofdm-term">PAPR 抑制技术<span class="ofdm-mark">✦</span></span>五花八门，但可以归纳为三大流派：<span class="ofdm-term">信号预畸变<span class="ofdm-mark">✦</span></span>（简单粗暴但有效）、<span class="ofdm-term">信号编码<span class="ofdm-mark">✦</span></span>（巧妙的数学游戏）、<span class="ofdm-term">概率类<span class="ofdm-mark">✦</span></span>（预留后门曲线救国）。每种方法都有取舍，工程上往往是几种技术组合使用。</p>
+                <p><span class="ofdm-term">PAPR 抑制技术<span class="ofdm-mark"></span></span>五花八门，但可以归纳为三大流派：<span class="ofdm-term">信号预畸变<span class="ofdm-mark"></span></span>（简单粗暴但有效）、<span class="ofdm-term">信号编码<span class="ofdm-mark"></span></span>（巧妙的数学游戏）、<span class="ofdm-term">概率类<span class="ofdm-mark"></span></span>（预留后门曲线救国）。每种方法都有取舍，工程上往往是几种技术组合使用。</p>
 
                 <hr class="ofdm-divider">
               </section>
@@ -311,7 +311,7 @@
                 <h2>一、信号预畸变类——”砍掉它，然后擦干净”</h2>
 
                 <section id="clipping-filtering" class="level3">
-                  <h3>1.1 <span class="ofdm-term">限幅滤波<span class="ofdm-mark">✦</span></span>（Clipping + Filtering）</h3>
+                  <h3>1.1 <span class="ofdm-term">限幅滤波<span class="ofdm-mark"></span></span>（Clipping + Filtering）</h3>
 
                   <p>这是最简单、最直观、也是<strong>工程中使用最普遍</strong>的 PAPR 抑制方法。思路就两个字：<strong>削峰</strong>。</p>
 
@@ -404,7 +404,7 @@ end</code></pre>
                 </section>
 
                 <section id="peak-windowing" class="level3">
-                  <h3>1.2 <span class="ofdm-term">峰值加窗<span class="ofdm-mark">✦</span></span>（Peak Windowing）</h3>
+                  <h3>1.2 <span class="ofdm-term">峰值加窗<span class="ofdm-mark"></span></span>（Peak Windowing）</h3>
 
                   <p>限幅的硬削平相当于乘以矩形窗，频谱旁瓣很高。<strong>峰值加窗</strong>的思路是用<strong>光滑窗函数</strong>（如升余弦窗、Kaiser窗）替代硬削，让削峰过渡更平滑，从而减少带外泄漏。</p>
 
@@ -420,7 +420,7 @@ end</code></pre>
                 <h2>二、信号编码类——”换个说法，峰值就小了”</h2>
 
                 <section id="slm" class="level3">
-                  <h3>2.1 <span class="ofdm-term">选择性映射<span class="ofdm-mark">✦</span></span>（SLM, Selected Mapping）</h3>
+                  <h3>2.1 <span class="ofdm-term">选择性映射<span class="ofdm-mark"></span></span>（SLM, Selected Mapping）</h3>
 
                   <p>SLM 的核心思想很巧妙：<strong>同一个数据，用不同的“随机种子”生成多个等效的 OFDM 符号，挑 PAPR 最小的那个发出去。</strong></p>
 
@@ -485,7 +485,7 @@ fprintf('SLM (U=%d): 平均PAPR = %.2f dB\n', U, mean(papr_slm));</code></pre>
                 </section>
 
                 <section id="pts" class="level3">
-                  <h3>2.2 <span class="ofdm-term">部分传输序列<span class="ofdm-mark">✦</span></span>（PTS, Partial Transmit Sequences）</h3>
+                  <h3>2.2 <span class="ofdm-term">部分传输序列<span class="ofdm-mark"></span></span>（PTS, Partial Transmit Sequences）</h3>
 
                   <p>PTS是 SLM 的”精细化升级版”。不是对整个频域数据旋转，而是<strong>把 N 个子载波分成 V 组”子块”，每组独立旋转，然后组合</strong>：</p>
 
@@ -630,7 +630,7 @@ x[n]=
                 </section>
 
                 <section id="ti" class="level3">
-                  <h3>3.2 <span class="ofdm-term">时域注入<span class="ofdm-mark">✦</span></span>（TI, Tone Injection）</h3>
+                  <h3>3.2 <span class="ofdm-term">时域注入<span class="ofdm-mark"></span></span>（TI, Tone Injection）</h3>
 
                   <p>TI 是 TR 的“扩星座版”。不预留空子载波，而是在某些子载波上<strong>故意把 QAM 点映射到等价星座点的扩展位置上</strong>，利用星座扩展产生的自由度来抵消时域峰值。</p>
 
@@ -746,7 +746,7 @@ x[n]=
                 </section>
 
                 <section id="sc-fdma" class="level3">
-                  <h3>5.2 终端方案：<span class="ofdm-term">SC-FDMA<span class="ofdm-mark">✦</span></span>的根本性解决</h3>
+                  <h3>5.2 终端方案：<span class="ofdm-term">SC-FDMA<span class="ofdm-mark"></span></span>的根本性解决</h3>
 
                   <p>LTE/NR上行采用 SC-FDMA（又称 DFT-s-OFDM），本质上在IFFT之前加了一步 DFT 预编码：</p>
 

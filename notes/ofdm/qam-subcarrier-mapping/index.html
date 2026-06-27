@@ -299,39 +299,39 @@
               <h1>第 6讲： QAM调制与子载波映射——比特怎么变成子载波?</h1>
 
               <section id="introduction" class="level2">
-                <h2>引言：从<span class="ofdm-term">比特流<span class="ofdm-mark">✦</span></span>到频域符号的旅程</h2>
+                <h2>引言：从<span class="ofdm-term">比特流<span class="ofdm-mark"></span></span>到频域符号的旅程</h2>
 
-                <p>做了这么多年OFDM，我发现很多人对发射机的理解是”<span class="ofdm-term">断层<span class="ofdm-mark">✦</span></span>”的：知道最终要发出<span class="ofdm-term">射频信号<span class="ofdm-mark">✦</span></span>，也知道中间要做<span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span>，但<strong>比特是怎么一步步变成 IFFT 输入的复数符号的</strong>，这段逻辑往往含糊不清。</p>
+                <p>做了这么多年OFDM，我发现很多人对发射机的理解是”<span class="ofdm-term">断层<span class="ofdm-mark"></span></span>”的：知道最终要发出<span class="ofdm-term">射频信号<span class="ofdm-mark"></span></span>，也知道中间要做<span class="ofdm-term">IFFT<span class="ofdm-mark"></span></span>，但<strong>比特是怎么一步步变成 IFFT 输入的复数符号的</strong>，这段逻辑往往含糊不清。</p>
 
                 <p>这一讲，我们来填上这个断层。</p>
 
                 <p>一个OFDM系统的发射端，在做IFFT之前，要完成两件关键的事：</p>
 
                 <ol>
-                  <li><strong>QAM调制：</strong>把0/1比特流映射成<span class="ofdm-term">复平面<span class="ofdm-mark">✦</span></span>上的星座点</li>
-                  <li><strong><span class="ofdm-term">子载波映射<span class="ofdm-mark">✦</span></span>：</strong>把这些星座点按规则分配到各个子载波上</li>
+                  <li><strong>QAM调制：</strong>把0/1比特流映射成<span class="ofdm-term">复平面<span class="ofdm-mark"></span></span>上的星座点</li>
+                  <li><strong><span class="ofdm-term">子载波映射<span class="ofdm-mark"></span></span>：</strong>把这些星座点按规则分配到各个子载波上</li>
                 </ol>
 
-                <p>这两步合起来，才能生成IFFT所需的频域输入<span class="ofdm-term">向量<span class="ofdm-mark">✦</span></span>。理解了这里，你对OFDM 发射机的理解就真正连贯了。</p>
+                <p>这两步合起来，才能生成IFFT所需的频域输入<span class="ofdm-term">向量<span class="ofdm-mark"></span></span>。理解了这里，你对OFDM 发射机的理解就真正连贯了。</p>
 
                 <hr class="ofdm-divider">
               </section>
 
               <section id="qam" class="level2">
-                <h2>一、 <span class="ofdm-term">QAM 调制<span class="ofdm-mark">✦</span></span>：比特 → 复数符号</h2>
+                <h2>一、 <span class="ofdm-term">QAM 调制<span class="ofdm-mark"></span></span>：比特 → 复数符号</h2>
 
                 <section id="complex-symbol" class="level3">
                   <h3>1.1 为什么用复数表示信号?</h3>
 
-                  <p>在数字通信里，我们在 I（同相）和 Q（<span class="ofdm-term">正交<span class="ofdm-mark">✦</span></span>）两个维度上同时携带信息。一个复数符号 $s=I+jQ$，既代表了幅度，也代表<span class="ofdm-term">相位<span class="ofdm-mark">✦</span></span>，是对两路独立信号的紧凑表示。</p>
+                  <p>在数字通信里，我们在 I（同相）和 Q（<span class="ofdm-term">正交<span class="ofdm-mark"></span></span>）两个维度上同时携带信息。一个复数符号 $s=I+jQ$，既代表了幅度，也代表<span class="ofdm-term">相位<span class="ofdm-mark"></span></span>，是对两路独立信号的紧凑表示。</p>
 
-                  <p>这就是所谓的”<span class="ofdm-term">正交调制<span class="ofdm-mark">✦</span></span>”——I和Q两路信号频率相同、<span class="ofdm-term">相位相差<span class="ofdm-mark">✦</span></span>90°，彼此互不干扰，合在一起可以把<span class="ofdm-term">传输效率<span class="ofdm-mark">✦</span></span>翻倍。</p>
+                  <p>这就是所谓的”<span class="ofdm-term">正交调制<span class="ofdm-mark"></span></span>”——I和Q两路信号频率相同、<span class="ofdm-term">相位相差<span class="ofdm-mark"></span></span>90°，彼此互不干扰，合在一起可以把<span class="ofdm-term">传输效率<span class="ofdm-mark"></span></span>翻倍。</p>
                 </section>
 
                 <section id="constellation" class="level3">
                   <h3>1.2 QPSK、16QAM、64QAM 星座图</h3>
 
-                  <p>QAM（Quadrature Amplitude Modulation，<span class="ofdm-term">正交幅度调制<span class="ofdm-mark">✦</span></span>）的核心思想是：用<strong>幅度和相位的联合变化</strong>来承载更多比特。</p>
+                  <p>QAM（Quadrature Amplitude Modulation，<span class="ofdm-term">正交幅度调制<span class="ofdm-mark"></span></span>）的核心思想是：用<strong>幅度和相位的联合变化</strong>来承载更多比特。</p>
 
                   <p>星座图大小与阶数的关系：</p>
 
@@ -341,8 +341,8 @@
                         <tr>
                           <th>调制方式</th>
                           <th>星座点数</th>
-                          <th>每符号比特数<span class="ofdm-mark">✦</span></th>
-                          <th>理论频谱效率<span class="ofdm-mark">✦</span></th>
+                          <th>每符号比特数<span class="ofdm-mark"></span></th>
+                          <th>理论频谱效率<span class="ofdm-mark"></span></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -380,21 +380,21 @@
                     </table>
                   </div>
 
-                  <p>以 <strong>16QAM</strong> 为例，其星座点分布在 4 × 4 的均匀网格上，<span class="ofdm-term">I轴<span class="ofdm-mark">✦</span></span>和Q轴各有4个<span class="ofdm-term">电平<span class="ofdm-mark">✦</span></span>：$\{-3,-1,+1,+3\}$（归一化后）。</p>
+                  <p>以 <strong>16QAM</strong> 为例，其星座点分布在 4 × 4 的均匀网格上，<span class="ofdm-term">I轴<span class="ofdm-mark"></span></span>和Q轴各有4个<span class="ofdm-term">电平<span class="ofdm-mark"></span></span>：$\{-3,-1,+1,+3\}$（归一化后）。</p>
 
-                  <p><span class="ofdm-term">格雷码映射<span class="ofdm-mark">✦</span></span>是QAM 的标配——相邻星座点之间只有1个比特不同。这样当噪声导致判决错误时，最可能的错误是跳到相邻星座点，而只错1个比特，有效降低<span class="ofdm-term">误比特率<span class="ofdm-mark">✦</span></span>（BER）。</p>
+                  <p><span class="ofdm-term">格雷码映射<span class="ofdm-mark"></span></span>是QAM 的标配——相邻星座点之间只有1个比特不同。这样当噪声导致判决错误时，最可能的错误是跳到相邻星座点，而只错1个比特，有效降低<span class="ofdm-term">误比特率<span class="ofdm-mark"></span></span>（BER）。</p>
                 </section>
 
                 <section id="normalization" class="level3">
                   <h3>1.3 星座点归一化</h3>
 
-                  <p>为了让不同调制方式下的功率可比，通常对星座点做<span class="ofdm-term">平均功率<span class="ofdm-mark">✦</span></span>归一化：</p>
+                  <p>为了让不同调制方式下的功率可比，通常对星座点做<span class="ofdm-term">平均功率<span class="ofdm-mark"></span></span>归一化：</p>
 
                   <p><span class="math display">\[
 E\{|s|^2\}=1
 \]</span></p>
 
-                  <p>对于 16QAM，归一化因子为 $\frac{1}{\sqrt{10}}$；对于 64QAM，<span class="ofdm-term">归一化因子<span class="ofdm-mark">✦</span></span>为 $\frac{1}{\sqrt{42}}$。</p>
+                  <p>对于 16QAM，归一化因子为 $\frac{1}{\sqrt{10}}$；对于 64QAM，<span class="ofdm-term">归一化因子<span class="ofdm-mark"></span></span>为 $\frac{1}{\sqrt{42}}$。</p>
 
                   <p>用 MATLAB 生成标准的16QAM映射表：</p>
 
@@ -403,7 +403,7 @@ E\{|s|^2\}=1
 %   采用格雷码映射，平均功率归一化
 %
 %   输入： bits - 比特行向量（长度须为4的整数倍）
-%   输出： symbols - 复数符号行向量✦
+%   输出： symbols - 复数符号行向量
 %
 % 归一化因子（16QAM平均功率 = 10）
 normFactor = 1 / sqrt(10);
@@ -432,28 +432,28 @@ end</code></pre>
                 <section id="three-subcarriers" class="level3">
                   <h3>2.1 三类子载波</h3>
 
-                  <p>得到<span class="ofdm-term">调制符号<span class="ofdm-mark">✦</span></span>之后，并不是简单地把所有符号依次塞进 IFFT 的每个输入端口。 OFDM 系统中，频域子载波通常分为三类：</p>
+                  <p>得到<span class="ofdm-term">调制符号<span class="ofdm-mark"></span></span>之后，并不是简单地把所有符号依次塞进 IFFT 的每个输入端口。 OFDM 系统中，频域子载波通常分为三类：</p>
 
                   <pre><code>频域资源网格（示意）：
 
 子载波编号：   0   1   2   3   4   5   6   7   8   9  10 11 12 ...
 子载波类型：   P   D   D   D   P   D   D   D   P   D   D  G  ...
 
-P = 导频子载波✦ (Pilot)      — 发已知符号，用于信道估计
-D = 数据子载波✦ (Data)       — 承载实际QAM数据
-G = 保护子载波✦ (Guard)      — 填零，形成频谱边界</code></pre>
+P = 导频子载波 (Pilot)      — 发已知符号，用于信道估计
+D = 数据子载波 (Data)       — 承载实际QAM数据
+G = 保护子载波 (Guard)      — 填零，形成频谱边界</code></pre>
 
                   <ul>
                     <li><strong>数据子载波（Data Subcarrier）：</strong>承载实际用户数据，比例越高，频谱效率越好</li>
                     <li><strong>导频子载波（Pilot Subcarrier）：</strong>发送接收端已知的参考符号，接收端用它来估计信道响应（如同在频域”打标记”）</li>
-                    <li><strong>保护子载波（Guard Subcarrier / Null Subcarrier）：</strong>位于频带两端，置零，防止与相邻<span class="ofdm-term">频段<span class="ofdm-mark">✦</span></span>干扰，也用来容纳 <span class="ofdm-term">DC 分量<span class="ofdm-mark">✦</span></span></li>
+                    <li><strong>保护子载波（Guard Subcarrier / Null Subcarrier）：</strong>位于频带两端，置零，防止与相邻<span class="ofdm-term">频段<span class="ofdm-mark"></span></span>干扰，也用来容纳 <span class="ofdm-term">DC 分量<span class="ofdm-mark"></span></span></li>
                   </ul>
                 </section>
 
                 <section id="resource-grid" class="level3">
                   <h3>2.2 资源网格（Resource Grid）</h3>
 
-                  <p>在LTE/5G <span class="ofdm-term">NR<span class="ofdm-mark">✦</span></span>中，子载波映射被组织成一个<strong>二维资源网格</strong>，横轴是时间（OFDM符号），纵轴是频率（子载波编号）。</p>
+                  <p>在LTE/5G <span class="ofdm-term">NR<span class="ofdm-mark"></span></span>中，子载波映射被组织成一个<strong>二维资源网格</strong>，横轴是时间（OFDM符号），纵轴是频率（子载波编号）。</p>
 
                   <p><strong>LTE（20MHz带宽）的关键参数：</strong></p>
 
@@ -467,7 +467,7 @@ G = 保护子载波✦ (Guard)      — 填零，形成频谱边界</code></pre>
                       </thead>
                       <tbody>
                         <tr>
-                          <td><span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span> $\Delta f$</td>
+                          <td><span class="ofdm-term">子载波间隔<span class="ofdm-mark"></span></span> $\Delta f$</td>
                           <td>15 kHz</td>
                         </tr>
                         <tr>
@@ -581,13 +581,13 @@ end</code></pre>
 \approx 1100\times 6=6600\ \mathrm{bit}\approx 825\ \mathrm{Byte}\ \text{（去掉导频后）}
 \]</span></p>
 
-                <p>LTE下行 14个符号/子帧，1个子帧 = 1ms，理论峰值<span class="ofdm-term">吞吐量<span class="ofdm-mark">✦</span></span>约：</p>
+                <p>LTE下行 14个符号/子帧，1个子帧 = 1ms，理论峰值<span class="ofdm-term">吞吐量<span class="ofdm-mark"></span></span>约：</p>
 
                 <p><span class="math display">\[
 825\times 14\times 1000\approx 11.55\ \mathrm{Mbps}\ \text{（单端口，未含编码码率）}
 \]</span></p>
 
-                <p>实际 LTE Category 4峰值是150 Mbps（含2×2 MIMO、5/6编码率），这里只是单入单出的粗估，但<span class="ofdm-term">数量级<span class="ofdm-mark">✦</span></span>是对的。</p>
+                <p>实际 LTE Category 4峰值是150 Mbps（含2×2 MIMO、5/6编码率），这里只是单入单出的粗估，但<span class="ofdm-term">数量级<span class="ofdm-mark"></span></span>是对的。</p>
               </section>
 
               <section id="implementation" class="level2">
@@ -599,21 +599,21 @@ end</code></pre>
                   <p>导频密度越高，信道估计越准确，但数据承载效率越低。实际工程中是个典型的<strong>准确性 vs 效率</strong>权衡：</p>
 
                   <ul>
-                    <li><strong>时域密度：</strong>取决于信道<span class="ofdm-term">相干时间<span class="ofdm-mark">✦</span></span>（信道变化速度）</li>
-                    <li><strong>频域密度：</strong>取决于信道<span class="ofdm-term">相干带宽<span class="ofdm-mark">✦</span></span>（多径延迟扩展）</li>
+                    <li><strong>时域密度：</strong>取决于信道<span class="ofdm-term">相干时间<span class="ofdm-mark"></span></span>（信道变化速度）</li>
+                    <li><strong>频域密度：</strong>取决于信道<span class="ofdm-term">相干带宽<span class="ofdm-mark"></span></span>（多径延迟扩展）</li>
                   </ul>
 
                   <blockquote>
-                    <p>工程经验：导频间隔不能超过相干带宽对应的子载波数的一半（<span class="ofdm-term">采样定理<span class="ofdm-mark">✦</span></span>在频率维度的应用）。</p>
+                    <p>工程经验：导频间隔不能超过相干带宽对应的子载波数的一半（<span class="ofdm-term">采样定理<span class="ofdm-mark"></span></span>在频率维度的应用）。</p>
                   </blockquote>
                 </section>
 
                 <section id="oversampling" class="level3">
-                  <h3>4.2 <span class="ofdm-term">频域过采样<span class="ofdm-mark">✦</span></span>（零填充）</h3>
+                  <h3>4.2 <span class="ofdm-term">频域过采样<span class="ofdm-mark"></span></span>（零填充）</h3>
 
                   <p>IFFT的点数 $N_{\mathrm{FFT}}$ 通常远大于有效子载波数 $N_{\mathrm{used}}$。比如LTE 20MHz的 2048点FFT，有效子载波只有1200个，其余848个端口全部置零（保护子载波）。</p>
 
-                  <p>这等效于时域信号的<strong>过采样</strong>，让DAC端的模拟<span class="ofdm-term">滤波器设计<span class="ofdm-mark">✦</span></span>更容易。</p>
+                  <p>这等效于时域信号的<strong>过采样</strong>，让DAC端的模拟<span class="ofdm-term">滤波器设计<span class="ofdm-mark"></span></span>更容易。</p>
                 </section>
 
                 <section id="fft-index" class="level3">
@@ -635,7 +635,7 @@ f_k=k\cdot\Delta f,\qquad k=0,1,\cdots,N/2-1,-N/2,\cdots,-1
                 <p>这一讲覆盖了OFDM发射机中”比特→频域向量”的完整路径：</p>
 
                 <ol>
-                  <li><strong>QAM调制</strong>将比特流映射为格雷码星座点，调制阶数越高、每符号携带比特越多，但对<span class="ofdm-term">信噪比<span class="ofdm-mark">✦</span></span>要求也更严</li>
+                  <li><strong>QAM调制</strong>将比特流映射为格雷码星座点，调制阶数越高、每符号携带比特越多，但对<span class="ofdm-term">信噪比<span class="ofdm-mark"></span></span>要求也更严</li>
                   <li><strong>子载波映射</strong>将调制符号分配到数据子载波、导频子载波，保护子载波置零，构成IFFT的输入向量</li>
                   <li><strong>资源网格</strong>是时频二维的资源组织方式，LTE/5G NR以此为基础做多用户调度</li>
                   <li><strong>工程中</strong>需要关注导频设计权衡、零填充过采样、FFT索引与频率的正确对应</li>

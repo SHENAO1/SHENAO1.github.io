@@ -302,7 +302,7 @@
               <section id="channel-stage" class="level2">
                 <h2>一、无线信道：工程师的噩梦与舞台</h2>
 
-                <p>问任何一个做<span class="ofdm-term">基带算法<span class="ofdm-mark">✦</span></span>的工程师：“你最头疼什么？” 十有八九会说：信道。</p>
+                <p>问任何一个做<span class="ofdm-term">基带算法<span class="ofdm-mark"></span></span>的工程师：“你最头疼什么？” 十有八九会说：信道。</p>
 
                 <p>发射机的每一个模块，从 IFFT 到加窗，都是可预期的确定性操作，调通了就是调通了。但信道不一样——它是随机的、时变的、环境相关的。同一栋楼里，从走廊换到会议室，信道特性可能判若云泥。</p>
 
@@ -312,14 +312,14 @@
               </section>
 
               <section id="multipath-model" class="level2">
-                <h2>二、<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>的数学模型</h2>
+                <h2>二、<span class="ofdm-term">多径信道<span class="ofdm-mark"></span></span>的数学模型</h2>
 
                 <section id="impulse-response" class="level3">
                   <h3>2.1 冲激响应描述</h3>
 
                   <p>现实中的无线传播路径不止一条。信号从发射天线出发，经过建筑物、地面、树木的反射、散射、绕射，以多条路径、不同延迟、不同相位到达接收天线。</p>
 
-                  <p>这种多径效应用<span class="ofdm-term">时变冲激响应<span class="ofdm-mark">✦</span></span>（Time-Varying Impulse Response）来描述：</p>
+                  <p>这种多径效应用<span class="ofdm-term">时变冲激响应<span class="ofdm-mark"></span></span>（Time-Varying Impulse Response）来描述：</p>
 
                   <p><span class="math display">\[
 h(\tau,t)=\sum_{l=0}^{L-1}\alpha_l(t)\cdot\delta(\tau-\tau_l)
@@ -413,7 +413,7 @@ W &gt;&gt; Bc  →  频率选择性衰落（Frequency-Selective Fading）：H(f)
                 <h2>三、统计衰落模型</h2>
 
                 <section id="rayleigh-rician" class="level3">
-                  <h3>3.1 瑞利衰落与<span class="ofdm-term">莱斯衰落<span class="ofdm-mark">✦</span></span></h3>
+                  <h3>3.1 瑞利衰落与<span class="ofdm-term">莱斯衰落<span class="ofdm-mark"></span></span></h3>
 
                   <p>当多径分量数量很多、且<strong>无主导路径（直射径LOS）</strong>时，每条路径的实部和虚部各自服从高斯分布，信道包络服从<strong>瑞利分布</strong>（Rayleigh Distribution）：</p>
 
@@ -571,7 +571,7 @@ grid on;</code></pre>
               </section>
 
               <section id="doppler" class="level2">
-                <h2>五、<span class="ofdm-term">多普勒效应<span class="ofdm-mark">✦</span></span>：信道的“时间脸”</h2>
+                <h2>五、<span class="ofdm-term">多普勒效应<span class="ofdm-mark"></span></span>：信道的“时间脸”</h2>
 
                 <p>前面说的多径主要影响频域（频率选择性），而多普勒效应影响的是时域（时间选择性）。</p>
 

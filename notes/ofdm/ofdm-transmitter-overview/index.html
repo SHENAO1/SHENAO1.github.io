@@ -285,21 +285,21 @@
               <h1>第 3 讲： OFDM 发射机框架总览——一张图看懂全貌</h1>
 
               <section id="transmitter-chain" class="level2">
-                <h2>一、完整的<span class="ofdm-term">发射机链路<span class="ofdm-mark">✦</span></span>长什么样</h2>
+                <h2>一、完整的<span class="ofdm-term">发射机链路<span class="ofdm-mark"></span></span>长什么样</h2>
 
-                <p>如果你打开任何一本通信原理教材，或者查看 3GPP 协议中关于 LTE/5G NR <span class="ofdm-term">物理层<span class="ofdm-mark">✦</span></span>的描述，你会看到OFDM 发射机的完整链路大致如下：</p>
+                <p>如果你打开任何一本通信原理教材，或者查看 3GPP 协议中关于 LTE/5G NR <span class="ofdm-term">物理层<span class="ofdm-mark"></span></span>的描述，你会看到OFDM 发射机的完整链路大致如下：</p>
 
-                <p class="ofdm-chain">比特流 → QAM 映射 → <span class="ofdm-term">串并转换<span class="ofdm-mark">✦</span></span>(S/P) → <span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span> → 加循环前缀(CP) → <span class="ofdm-term">并串转换<span class="ofdm-mark">✦</span></span>(P/S)<br>→ <span class="ofdm-term">DAC<span class="ofdm-mark">✦</span></span> → 上变频 → 天线</p>
+                <p class="ofdm-chain">比特流 → QAM 映射 → <span class="ofdm-term">串并转换<span class="ofdm-mark"></span></span>(S/P) → <span class="ofdm-term">IFFT<span class="ofdm-mark"></span></span> → 加循环前缀(CP) → <span class="ofdm-term">并串转换<span class="ofdm-mark"></span></span>(P/S)<br>→ <span class="ofdm-term">DAC<span class="ofdm-mark"></span></span> → 上变频 → 天线</p>
 
                 <p>这 7 个步骤，构成了 OFDM 发射机的全部核心流程。听起来步骤很多，但每一级的作用都非常明确。我们接下来逐一拆解。</p>
               </section>
 
               <section id="qam-mapping" class="level2">
-                <h2>2.1 <span class="ofdm-term">QAM 映射<span class="ofdm-mark">✦</span></span>——比特到复数符号的翻译官</h2>
+                <h2>2.1 <span class="ofdm-term">QAM 映射<span class="ofdm-mark"></span></span>——比特到复数符号的翻译官</h2>
 
-                <p><span class="ofdm-term">二进制<span class="ofdm-mark">✦</span></span>比特流进入发射机的第一个处理环节，就是 QAM 映射。QAM（Quadrature Amplitude Modulation，<span class="ofdm-term">正交幅度调制<span class="ofdm-mark">✦</span></span>）是一种同时利用载波的幅度和<span class="ofdm-term">相位<span class="ofdm-mark">✦</span></span>来承载信息的方式。</p>
+                <p><span class="ofdm-term">二进制<span class="ofdm-mark"></span></span>比特流进入发射机的第一个处理环节，就是 QAM 映射。QAM（Quadrature Amplitude Modulation，<span class="ofdm-term">正交幅度调制<span class="ofdm-mark"></span></span>）是一种同时利用载波的幅度和<span class="ofdm-term">相位<span class="ofdm-mark"></span></span>来承载信息的方式。</p>
 
-                <p>以 16QAM 为例，每个符号可以承载 $\log_2 16 = 4$ 个比特。一个 16QAM 星座图上有 16 个点，每个点对应一种独特的幅度-<span class="ofdm-term">相位组合<span class="ofdm-mark">✦</span></span>。接收端只需要判断接收信号落在了哪个点附近，就能还原出对应的 4 个比特。</p>
+                <p>以 16QAM 为例，每个符号可以承载 $\log_2 16 = 4$ 个比特。一个 16QAM 星座图上有 16 个点，每个点对应一种独特的幅度-<span class="ofdm-term">相位组合<span class="ofdm-mark"></span></span>。接收端只需要判断接收信号落在了哪个点附近，就能还原出对应的 4 个比特。</p>
 
                 <pre><code class="language-python">import numpy as np
 
@@ -309,9 +309,9 @@ constellation = np.array([
     -3+1j, -1+1j,  1+1j,  3+1j,
     -3-3j, -1-3j,  1-3j,  3-3j,
     -3-1j, -1-1j,  1-1j,  3-1j
-]) / np.sqrt(10)  # <span class="ofdm-term">归一化<span class="ofdm-mark">✦</span></span>，保证<span class="ofdm-term">平均功率<span class="ofdm-mark">✦</span></span>为1
+]) / np.sqrt(10)  # <span class="ofdm-term">归一化<span class="ofdm-mark"></span></span>，保证<span class="ofdm-term">平均功率<span class="ofdm-mark"></span></span>为1
 
-# <span class="ofdm-term">比特到符号映射<span class="ofdm-mark">✦</span></span>（Gray编码）
+# <span class="ofdm-term">比特到符号映射<span class="ofdm-mark"></span></span>（Gray编码）
 bit_to_symbol = {
     '00': -3+3j, '01': -1+3j, '11':  1+3j, '10':  3+3j,
     '10': -3+1j, '11': -1+1j, '01':  1+1j, '00':  3+1j,
@@ -319,50 +319,50 @@ bit_to_symbol = {
     '01': -3-1j, '00': -1-1j, '10':  1-1j, '11':  3-1j,
 }</code></pre>
 
-                <p>从工程角度看，QAM 映射实际上完成了从<span class="ofdm-term">信息域<span class="ofdm-mark">✦</span></span>（比特）到信号域（复数符号）的转换。映射完成后，每个 <span class="ofdm-term">OFDM 子载波<span class="ofdm-mark">✦</span></span>上都会承载一个 QAM 符号。</p>
+                <p>从工程角度看，QAM 映射实际上完成了从<span class="ofdm-term">信息域<span class="ofdm-mark"></span></span>（比特）到信号域（复数符号）的转换。映射完成后，每个 <span class="ofdm-term">OFDM 子载波<span class="ofdm-mark"></span></span>上都会承载一个 QAM 符号。</p>
               </section>
 
               <section id="sp-ifft" class="level2">
-                <h2>2.2 串并转换(S/P)与 IFFT——从频域到<span class="ofdm-term">时域<span class="ofdm-mark">✦</span></span>的魔法</h2>
+                <h2>2.2 串并转换(S/P)与 IFFT——从频域到<span class="ofdm-term">时域<span class="ofdm-mark"></span></span>的魔法</h2>
 
                 <p>这是 OFDM 发射机中最关键的两个环节，理解它们，你就理解了一半的 OFDM。</p>
 
                 <p><strong>串并转换（Serial-to-Parallel, S/P）</strong>的作用，是将串行的 QAM 符号流转换成 $N$ 路并行。$N$ 是 FFT/IFFT 的点数，在 LTE 中常取 $N=2048$（20MHz 带宽）。这意味着每 $N$ 个 QAM 符号被组织为一组，共同经历一次 IFFT 变换。</p>
 
-                <p><strong>IFFT（Inverse Fast Fourier Transform，<span class="ofdm-term">逆快速傅里叶变换<span class="ofdm-mark">✦</span></span>）</strong>的数学本质是：从频域采样还原时域连续信号。从<span class="ofdm-term">信号处理<span class="ofdm-mark">✦</span></span>的角度，OFDM 系统中的 IFFT 完成了这样的操作：</p>
+                <p><strong>IFFT（Inverse Fast Fourier Transform，<span class="ofdm-term">逆快速傅里叶变换<span class="ofdm-mark"></span></span>）</strong>的数学本质是：从频域采样还原时域连续信号。从<span class="ofdm-term">信号处理<span class="ofdm-mark"></span></span>的角度，OFDM 系统中的 IFFT 完成了这样的操作：</p>
 
                 <p><span class="math display">\[
 x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\cdots,N-1
 \]</span></p>
 
-                <p>其中 $X[k]$ 是第 $k$ 个子载波上承载的 QAM 符号，而 $x[n]$ 是 IFFT 输出的第 $n$ 个<span class="ofdm-term">时域采样<span class="ofdm-mark">✦</span></span>。可以看到，<strong>每一个输出采样 $x[n]$，实际上是所有 $N$ 个子载波符号的加权和</strong>——这正是 OFDM“<span class="ofdm-term">多载波<span class="ofdm-mark">✦</span></span>”的数学体现。</p>
+                <p>其中 $X[k]$ 是第 $k$ 个子载波上承载的 QAM 符号，而 $x[n]$ 是 IFFT 输出的第 $n$ 个<span class="ofdm-term">时域采样<span class="ofdm-mark"></span></span>。可以看到，<strong>每一个输出采样 $x[n]$，实际上是所有 $N$ 个子载波符号的加权和</strong>——这正是 OFDM“<span class="ofdm-term">多载波<span class="ofdm-mark"></span></span>”的数学体现。</p>
 
                 <blockquote>
-                  <p>💡 一个直观的理解：你可以把 IFFT 想象成一场”大合唱”。$N$ 个子载波符号是 $N$ 个歌手，每个人唱一个音调（频率），IFFT 就是把他们同时发出的声音混叠成一个综合的声波<span class="ofdm-term">信号<span class="ofdm-mark">✦</span></span>（时域采样）。接收端只需要用 FFT 做一次”声纹分离”，就能把每个人的声音（每个子载波的数据）单独提取出来。</p>
+                  <p>💡 一个直观的理解：你可以把 IFFT 想象成一场”大合唱”。$N$ 个子载波符号是 $N$ 个歌手，每个人唱一个音调（频率），IFFT 就是把他们同时发出的声音混叠成一个综合的声波<span class="ofdm-term">信号<span class="ofdm-mark"></span></span>（时域采样）。接收端只需要用 FFT 做一次”声纹分离”，就能把每个人的声音（每个子载波的数据）单独提取出来。</p>
                 </blockquote>
               </section>
 
               <section id="cyclic-prefix" class="level2">
-                <h2>2.3 循环前缀(CP)——OFDM 的<span class="ofdm-term">保护间隔<span class="ofdm-mark">✦</span></span></h2>
+                <h2>2.3 循环前缀(CP)——OFDM 的<span class="ofdm-term">保护间隔<span class="ofdm-mark"></span></span></h2>
 
                 <p>IFFT 输出的 $N$ 个时域采样，经过并串转换（P/S）变成连续的采样流。在正式发送之前，还需要插入<strong>循环前缀（Cyclic Prefix, CP）</strong>。</p>
 
                 <p>CP的实质是：将 OFDM 符号末尾的一段采样，复制并粘贴到符号的开头。如果 $T_{CP}$ 表示 CP 的长度（以采样数计），那么发送的完整 OFDM 符号长度为 $N + N_{CP}$ 个采样。</p>
 
-                <p>CP 在 OFDM 中扮演着”<span class="ofdm-term">护城河<span class="ofdm-mark">✦</span></span>”的角色，其核心作用是<strong>对抗<span class="ofdm-term">多径效应<span class="ofdm-mark">✦</span></span>引起的<span class="ofdm-term">符号间干扰<span class="ofdm-mark">✦</span></span>(ISI)</strong>。关于 CP 的详细原理，我会在第 5 讲做深入讲解。这里先记住：CP 长度必须大于信道的最大多径时延扩展，否则保护效果会大打折扣。</p>
+                <p>CP 在 OFDM 中扮演着”<span class="ofdm-term">护城河<span class="ofdm-mark"></span></span>”的角色，其核心作用是<strong>对抗<span class="ofdm-term">多径效应<span class="ofdm-mark"></span></span>引起的<span class="ofdm-term">符号间干扰<span class="ofdm-mark"></span></span>(ISI)</strong>。关于 CP 的详细原理，我会在第 5 讲做深入讲解。这里先记住：CP 长度必须大于信道的最大多径时延扩展，否则保护效果会大打折扣。</p>
               </section>
 
               <section id="dac-upconversion" class="level2">
                 <h2>2.4 DAC与上变频——从数字到射频</h2>
 
-                <p>经过以上处理后的信号还是基带<span class="ofdm-term">数字信号<span class="ofdm-mark">✦</span></span>。要让它能够通过天线发射出去，还需要两个环节：</p>
+                <p>经过以上处理后的信号还是基带<span class="ofdm-term">数字信号<span class="ofdm-mark"></span></span>。要让它能够通过天线发射出去，还需要两个环节：</p>
 
                 <ul>
-                  <li><strong>DAC（数模转换器）：</strong>将数字采样流转换为模拟<span class="ofdm-term">连续时间信号<span class="ofdm-mark">✦</span></span></li>
-                  <li><strong><span class="ofdm-term">上变频<span class="ofdm-mark">✦</span></span>：</strong>将基带信号乘以载波 $\cos(2\pi f_c t)$ 或 $e^{j2\pi f_c t}$，把信号”搬移”到指定的<span class="ofdm-term">射频频段<span class="ofdm-mark">✦</span></span></li>
+                  <li><strong>DAC（数模转换器）：</strong>将数字采样流转换为模拟<span class="ofdm-term">连续时间信号<span class="ofdm-mark"></span></span></li>
+                  <li><strong><span class="ofdm-term">上变频<span class="ofdm-mark"></span></span>：</strong>将基带信号乘以载波 $\cos(2\pi f_c t)$ 或 $e^{j2\pi f_c t}$，把信号”搬移”到指定的<span class="ofdm-term">射频频段<span class="ofdm-mark"></span></span></li>
                 </ul>
 
-                <p>最终，从天线发射出去的是一个带宽为 $B$（由子载波间隔 $\Delta f$ 和<span class="ofdm-term">子载波数<span class="ofdm-mark">✦</span></span> $N$ 决定）、<span class="ofdm-term">中心频率<span class="ofdm-mark">✦</span></span>为 $f_c$ 的<span class="ofdm-term">射频信号<span class="ofdm-mark">✦</span></span>。</p>
+                <p>最终，从天线发射出去的是一个带宽为 $B$（由子载波间隔 $\Delta f$ 和<span class="ofdm-term">子载波数<span class="ofdm-mark"></span></span> $N$ 决定）、<span class="ofdm-term">中心频率<span class="ofdm-mark"></span></span>为 $f_c$ 的<span class="ofdm-term">射频信号<span class="ofdm-mark"></span></span>。</p>
               </section>
 
               <section id="time-frequency-view" class="level2">
@@ -371,8 +371,8 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\cdots,N-1
                 <p>理解 OFDM 系统的一个重要技巧，是习惯在时域和频域之间自由切换。</p>
 
                 <ul>
-                  <li><strong>频域视角：</strong>在频域里，OFDM 是一组等间隔排列的窄带<span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>，每个子载波承载一个 QAM 符号。信道对每个子载波的影响是独立的复数增益——这就是 OFDM 的核心优势所在。</li>
-                  <li><strong>时域视角：</strong>在时域里，OFDM 是一个个带有 CP 的时域脉冲序列。每个 OFDM 符号看起来像被”矩形窗”截断的连续信号，CP 的添加使得符号边界处形成了天然的<span class="ofdm-term">周期性<span class="ofdm-mark">✦</span></span>。</li>
+                  <li><strong>频域视角：</strong>在频域里，OFDM 是一组等间隔排列的窄带<span class="ofdm-term">子载波<span class="ofdm-mark"></span></span>，每个子载波承载一个 QAM 符号。信道对每个子载波的影响是独立的复数增益——这就是 OFDM 的核心优势所在。</li>
+                  <li><strong>时域视角：</strong>在时域里，OFDM 是一个个带有 CP 的时域脉冲序列。每个 OFDM 符号看起来像被”矩形窗”截断的连续信号，CP 的添加使得符号边界处形成了天然的<span class="ofdm-term">周期性<span class="ofdm-mark"></span></span>。</li>
                 </ul>
 
                 <p>两种视角各有优势：设计信道估计和均衡算法时，用频域视角更直观；分析峰均比(PAPR)和带外辐射时，用时域视角更方便。</p>
@@ -381,7 +381,7 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\cdots,N-1
               <section id="lte-20mhz" class="level2">
                 <h2>四、以 LTE 20MHz为例：参数走一遍</h2>
 
-                <p>学了理论，我们用实际系统参数来验证一下。LTE 20MHz 带宽对应的<span class="ofdm-term">关键参数<span class="ofdm-mark">✦</span></span>如下：</p>
+                <p>学了理论，我们用实际系统参数来验证一下。LTE 20MHz 带宽对应的<span class="ofdm-term">关键参数<span class="ofdm-mark"></span></span>如下：</p>
 
                 <div class="ofdm-table">
                   <table>
@@ -394,12 +394,12 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\cdots,N-1
                     </thead>
                     <tbody>
                       <tr>
-                        <td><span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span> $\Delta f$</td>
+                        <td><span class="ofdm-term">子载波间隔<span class="ofdm-mark"></span></span> $\Delta f$</td>
                         <td>15 kHz</td>
                         <td>LTE 标准规定的子载波间隔</td>
                       </tr>
                       <tr>
-                        <td><span class="ofdm-term">FFT 点数<span class="ofdm-mark">✦</span></span> $N_{FFT}$</td>
+                        <td><span class="ofdm-term">FFT 点数<span class="ofdm-mark"></span></span> $N_{FFT}$</td>
                         <td>2048</td>
                         <td>20MHz / 15kHz ≈ 1333，用 2048 留余量</td>
                       </tr>
@@ -416,12 +416,12 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\cdots,N-1
                       <tr>
                         <td>一个子帧时长</td>
                         <td>1 ms</td>
-                        <td>包含14个<span class="ofdm-term">OFDM 符号<span class="ofdm-mark">✦</span></span>（常规 CP）</td>
+                        <td>包含14个<span class="ofdm-term">OFDM 符号<span class="ofdm-mark"></span></span>（常规 CP）</td>
                       </tr>
                       <tr>
-                        <td><span class="ofdm-term">总带宽<span class="ofdm-mark">✦</span></span></td>
+                        <td><span class="ofdm-term">总带宽<span class="ofdm-mark"></span></span></td>
                         <td>30.72 MHz</td>
-                        <td><span class="ofdm-term">采样率<span class="ofdm-mark">✦</span></span> = $N_{FFT}\times\Delta f / 2$</td>
+                        <td><span class="ofdm-term">采样率<span class="ofdm-mark"></span></span> = $N_{FFT}\times\Delta f / 2$</td>
                       </tr>
                     </tbody>
                   </table>
@@ -440,12 +440,12 @@ Tu = 1 / subcarrier_spacing  # 66.7 us
 # CP开销
 cp_overhead = cp_length / (fft_size + cp_length)  # 约 7.2%
 
-# <span class="ofdm-term">有效数据速率<span class="ofdm-mark">✦</span></span>估算（假设1个资源块=12子载波x7符号，全带宽100个RB）
+# <span class="ofdm-term">有效数据速率<span class="ofdm-mark"></span></span>估算（假设1个资源块=12子载波x7符号，全带宽100个RB）
 n_rb_dl = 100
 n_subcarriers_per_rb = 12
 modulation_order = 6  # 64QAM -> 每个符号 6 比特
 coded_bits_per_subframe = n_rb_dl * n_subcarriers_per_rb * (total_symbols_per_subframe - 2) * modulation_order
-# 减去2是因为每个<span class="ofdm-term">子帧<span class="ofdm-mark">✦</span></span>的首符号需要更长的扩展CP</code></pre>
+# 减去2是因为每个<span class="ofdm-term">子帧<span class="ofdm-mark"></span></span>的首符号需要更长的扩展CP</code></pre>
               </section>
 
               <section id="summary" class="level2">
@@ -459,7 +459,7 @@ coded_bits_per_subframe = n_rb_dl * n_subcarriers_per_rb * (total_symbols_per_su
                   <li><strong>IFFT：</strong>将频域并行符号变换为时域采样——这是 OFDM 的核心</li>
                   <li><strong>加CP：</strong>在时域符号前插入循环前缀，对抗多径干扰</li>
                   <li><strong>P/S 并串转换：</strong>将并行时域采样合并为串行流</li>
-                  <li><strong>DAC：</strong>数模转换，得到基带<span class="ofdm-term">模拟信号<span class="ofdm-mark">✦</span></span></li>
+                  <li><strong>DAC：</strong>数模转换，得到基带<span class="ofdm-term">模拟信号<span class="ofdm-mark"></span></span></li>
                   <li><strong>上变频：</strong>搬移到射频频率，通过天线发射</li>
                 </ul>
               </section>

@@ -317,50 +317,50 @@
               <section id="introduction" class="level2">
                 <h2>引言：发射机里最关键的那一步</h2>
 
-                <p>在上一讲，我们走过了完整的 OFDM 发射机框图：<span class="ofdm-term">QAM<span class="ofdm-mark">✦</span></span> 映射 → <span class="ofdm-term">串并转换<span class="ofdm-mark">✦</span></span> → <span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span> → 加 CP → <span class="ofdm-term">并串转换<span class="ofdm-mark">✦</span></span> → DAC → <span class="ofdm-term">上变频<span class="ofdm-mark">✦</span></span>。如果让我在这条流水线里圈出最核心的模块，我会毫不犹豫地圈住 IFFT。</p>
+                <p>在上一讲，我们走过了完整的 OFDM 发射机框图：<span class="ofdm-term">QAM<span class="ofdm-mark"></span></span> 映射 → <span class="ofdm-term">串并转换<span class="ofdm-mark"></span></span> → <span class="ofdm-term">IFFT<span class="ofdm-mark"></span></span> → 加 CP → <span class="ofdm-term">并串转换<span class="ofdm-mark"></span></span> → DAC → <span class="ofdm-term">上变频<span class="ofdm-mark"></span></span>。如果让我在这条流水线里圈出最核心的模块，我会毫不犹豫地圈住 IFFT。</p>
 
-                <p>为什么？因为正是这个模块，让”<span class="ofdm-term">多载波调制<span class="ofdm-mark">✦</span></span>”这件事情在工程上变成了可能。</p>
+                <p>为什么？因为正是这个模块，让”<span class="ofdm-term">多载波调制<span class="ofdm-mark"></span></span>”这件事情在工程上变成了可能。</p>
 
-                <p>没有 IFFT，要同时发送 $N$ 路子载波，你需要 $N$ 个独立的振荡器和<span class="ofdm-term">混频器<span class="ofdm-mark">✦</span></span>——这是上世纪模拟<span class="ofdm-term">多载波系统<span class="ofdm-mark">✦</span></span>的做法，复杂度、成本、<span class="ofdm-term">功耗<span class="ofdm-mark">✦</span></span>都高得离谱。而有了 IFFT，$N$ 路子载波的<span class="ofdm-term">时域<span class="ofdm-mark">✦</span></span>叠加，被一个算法、几百个<span class="ofdm-term">加法器<span class="ofdm-mark">✦</span></span>轻松搞定。</p>
+                <p>没有 IFFT，要同时发送 $N$ 路子载波，你需要 $N$ 个独立的振荡器和<span class="ofdm-term">混频器<span class="ofdm-mark"></span></span>——这是上世纪模拟<span class="ofdm-term">多载波系统<span class="ofdm-mark"></span></span>的做法，复杂度、成本、<span class="ofdm-term">功耗<span class="ofdm-mark"></span></span>都高得离谱。而有了 IFFT，$N$ 路子载波的<span class="ofdm-term">时域<span class="ofdm-mark"></span></span>叠加，被一个算法、几百个<span class="ofdm-term">加法器<span class="ofdm-mark"></span></span>轻松搞定。</p>
 
-                <p>这一讲，我们从数学本质出发，把 DFT/IDFT<span class="ofdm-mark">✦</span> 与 OFDM <span class="ofdm-term">子载波<span class="ofdm-mark">✦</span></span>的关系彻底讲清楚。理解了这个，你就理解了 OFDM 的灵魂。</p>
+                <p>这一讲，我们从数学本质出发，把 DFT/IDFT<span class="ofdm-mark"></span> 与 OFDM <span class="ofdm-term">子载波<span class="ofdm-mark"></span></span>的关系彻底讲清楚。理解了这个，你就理解了 OFDM 的灵魂。</p>
               </section>
 
               <section id="dft-idft" class="level2">
-                <h2>一、 DFT/IDFT：<span class="ofdm-term">离散时间信号<span class="ofdm-mark">✦</span></span>的频域工具</h2>
+                <h2>一、 DFT/IDFT：<span class="ofdm-term">离散时间信号<span class="ofdm-mark"></span></span>的频域工具</h2>
 
                 <section id="dft-definition" class="level3">
                   <h3>1.1 DFT 的定义</h3>
 
-                  <p>设一个长度为 $N$ 的<span class="ofdm-term">离散时间序列<span class="ofdm-mark">✦</span></span> $x[n]$，$n=0,1,\cdots,N-1$，其<span class="ofdm-term">离散傅里叶变换<span class="ofdm-mark">✦</span></span>（DFT）定义为：</p>
+                  <p>设一个长度为 $N$ 的<span class="ofdm-term">离散时间序列<span class="ofdm-mark"></span></span> $x[n]$，$n=0,1,\cdots,N-1$，其<span class="ofdm-term">离散傅里叶变换<span class="ofdm-mark"></span></span>（DFT）定义为：</p>
 
                   <p><span class="math display">\[
 X[k]=\sum_{n=0}^{N-1}x[n]\cdot e^{-j\frac{2\pi}{N}kn},\qquad k=0,1,\cdots,N-1
 \]</span></p>
 
-                  <p>直觉上，$X[k]$ 就是”信号 $x[n]$ 在频率 $f_k=k/(NT_s)$ 处的复振幅”，其中 $T_s$ 是<span class="ofdm-term">采样间隔<span class="ofdm-mark">✦</span></span>。</p>
+                  <p>直觉上，$X[k]$ 就是”信号 $x[n]$ 在频率 $f_k=k/(NT_s)$ 处的复振幅”，其中 $T_s$ 是<span class="ofdm-term">采样间隔<span class="ofdm-mark"></span></span>。</p>
 
-                  <p>对应地，<span class="ofdm-term">逆离散傅里叶变换<span class="ofdm-mark">✦</span></span>（IDFT）为：</p>
+                  <p>对应地，<span class="ofdm-term">逆离散傅里叶变换<span class="ofdm-mark"></span></span>（IDFT）为：</p>
 
                   <p><span class="math display">\[
 x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn},\qquad n=0,1,\cdots,N-1
 \]</span></p>
 
-                  <p>注意这里的对称性：DFT 是”时域 → 频域”，IDFT 是”频域 → 时域”，两者互为逆运算，差一个<span class="ofdm-term">归一化系数<span class="ofdm-mark">✦</span></span> $1/N$。</p>
+                  <p>注意这里的对称性：DFT 是”时域 → 频域”，IDFT 是”频域 → 时域”，两者互为逆运算，差一个<span class="ofdm-term">归一化系数<span class="ofdm-mark"></span></span> $1/N$。</p>
                 </section>
 
                 <section id="ofdm-idft-relation" class="level3">
                   <h3>1.2 OFDM 发送信号与 IDFT 的关系</h3>
 
-                  <p>现在来看 OFDM。设第 $k$ 个子载波上映射的 QAM 符号为 $X[k]$，OFDM 符号的<span class="ofdm-term">连续时域<span class="ofdm-mark">✦</span></span>信号为：</p>
+                  <p>现在来看 OFDM。设第 $k$ 个子载波上映射的 QAM 符号为 $X[k]$，OFDM 符号的<span class="ofdm-term">连续时域<span class="ofdm-mark"></span></span>信号为：</p>
 
                   <p><span class="math display">\[
 s(t)=\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi k\Delta f\cdot t},\qquad 0\le t&lt;T
 \]</span></p>
 
-                  <p>其中 $\Delta f=1/T$ 是<span class="ofdm-term">子载波间隔<span class="ofdm-mark">✦</span></span>，$T=NT_s$ 是 OFDM 符号持续时间。</p>
+                  <p>其中 $\Delta f=1/T$ 是<span class="ofdm-term">子载波间隔<span class="ofdm-mark"></span></span>，$T=NT_s$ 是 OFDM 符号持续时间。</p>
 
-                  <p>在 $t=nT_s$ 处采样，得到<span class="ofdm-term">离散时域<span class="ofdm-mark">✦</span></span>序列：</p>
+                  <p>在 $t=nT_s$ 处采样，得到<span class="ofdm-term">离散时域<span class="ofdm-mark"></span></span>序列：</p>
 
                   <p><span class="math display">\[
 s[n]=s(nT_s)=\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi k\Delta f\cdot nT_s}
@@ -382,7 +382,7 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn}
               </section>
 
               <section id="matrix-form" class="level2">
-                <h2>二、 <span class="ofdm-term">矩阵<span class="ofdm-mark">✦</span></span>形式：看清 OFDM 的线性结构<span class="ofdm-mark">✦</span></h2>
+                <h2>二、 <span class="ofdm-term">矩阵<span class="ofdm-mark"></span></span>形式：看清 OFDM 的线性结构<span class="ofdm-mark"></span></h2>
 
                 <p>用矩阵语言写出来会更清晰。定义 $N\times N$ 的 DFT 矩阵 $\mathbf{F}$，其 $(n,k)$ 元素为：</p>
 
@@ -397,7 +397,7 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn}
                   <li><strong>IDFT（综合）：</strong>$\mathbf{x}=\mathbf{F}^{H}\mathbf{X}/N$</li>
                 </ul>
 
-                <p>其中 $\mathbf{F}^{H}$ 是 $\mathbf{F}$ 的<span class="ofdm-term">共轭转置<span class="ofdm-mark">✦</span></span>（Hermitian 转置）。</p>
+                <p>其中 $\mathbf{F}^{H}$ 是 $\mathbf{F}$ 的<span class="ofdm-term">共轭转置<span class="ofdm-mark"></span></span>（Hermitian 转置）。</p>
 
                 <p>OFDM 发射机发送信号：</p>
 
@@ -428,24 +428,24 @@ x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]\cdot e^{j\frac{2\pi}{N}kn}
 
                   <ul>
                     <li>复数乘法：$N^2$ 次</li>
-                    <li><span class="ofdm-term">复数加法<span class="ofdm-mark">✦</span></span>：$N(N-1)$ 次</li>
+                    <li><span class="ofdm-term">复数加法<span class="ofdm-mark"></span></span>：$N(N-1)$ 次</li>
                   </ul>
 
-                  <p>对于 LTE 20MHz 系统，$N=2048$，直接 DFT 需要约 <strong>400 万次复数乘法</strong>——每个 OFDM 符号都要算一遍，以 LTE 14 个符号/ms 计算，每秒需要 560 亿次复数乘法。这在 2000 年代的<span class="ofdm-term">数字芯片<span class="ofdm-mark">✦</span></span>里根本不可能实时跑起来。</p>
+                  <p>对于 LTE 20MHz 系统，$N=2048$，直接 DFT 需要约 <strong>400 万次复数乘法</strong>——每个 OFDM 符号都要算一遍，以 LTE 14 个符号/ms 计算，每秒需要 560 亿次复数乘法。这在 2000 年代的<span class="ofdm-term">数字芯片<span class="ofdm-mark"></span></span>里根本不可能实时跑起来。</p>
                 </section>
 
                 <section id="fft-divide-conquer" class="level3">
                   <h3>3.2 FFT 的分治思想</h3>
 
-                  <p><span class="ofdm-term">快速傅里叶变换<span class="ofdm-mark">✦</span></span>（FFT），核心是 Cooley-Tukey <span class="ofdm-term">算法<span class="ofdm-mark">✦</span></span>，利用 DFT 的对称性和周期性，将 $N$ 点 DFT 分解为两个 $N/2$ 点 DFT：</p>
+                  <p><span class="ofdm-term">快速傅里叶变换<span class="ofdm-mark"></span></span>（FFT），核心是 Cooley-Tukey <span class="ofdm-term">算法<span class="ofdm-mark"></span></span>，利用 DFT 的对称性和周期性，将 $N$ 点 DFT 分解为两个 $N/2$ 点 DFT：</p>
 
                   <p><span class="math display">\[
 X[k]=\sum_{n\ \text{偶}}x[n]W_N^{kn}+W_N^k\sum_{n\ \text{奇}}x[n]W_N^{kn}
 \]</span></p>
 
-                  <p>其中 $W_N=e^{-j2\pi/N}$ 为<span class="ofdm-term">旋转因子<span class="ofdm-mark">✦</span></span>（Twiddle Factor）。</p>
+                  <p>其中 $W_N=e^{-j2\pi/N}$ 为<span class="ofdm-term">旋转因子<span class="ofdm-mark"></span></span>（Twiddle Factor）。</p>
 
-                  <p><span class="ofdm-term">递归<span class="ofdm-mark">✦</span></span>应用这个分解（当 $N=2^m$ 时最优），计算复杂度降为：</p>
+                  <p><span class="ofdm-term">递归<span class="ofdm-mark"></span></span>应用这个分解（当 $N=2^m$ 时最优），计算复杂度降为：</p>
 
                   <p><span class="math display">\[
 \text{复数乘法次数}\approx\frac{N}{2}\log_2N
@@ -459,7 +459,7 @@ X[k]=\sum_{n\ \text{偶}}x[n]W_N^{kn}+W_N^k\sum_{n\ \text{奇}}x[n]W_N^{kn}
                         <tr>
                           <th>方法</th>
                           <th>复数乘法次数</th>
-                          <th>相对倍数<span class="ofdm-mark">✦</span></th>
+                          <th>相对倍数<span class="ofdm-mark"></span></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -477,11 +477,11 @@ X[k]=\sum_{n\ \text{偶}}x[n]W_N^{kn}+W_N^k\sum_{n\ \text{奇}}x[n]W_N^{kn}
                     </table>
                   </div>
 
-                  <p>372倍的加速！这就是为什么现代<span class="ofdm-term">基带芯片<span class="ofdm-mark">✦</span></span>能实时处理 5G NR 的 1 个 OFDM 符号（3296个子载波 @120kHz SCS）的底气。</p>
+                  <p>372倍的加速！这就是为什么现代<span class="ofdm-term">基带芯片<span class="ofdm-mark"></span></span>能实时处理 5G NR 的 1 个 OFDM 符号（3296个子载波 @120kHz SCS）的底气。</p>
                 </section>
 
                 <section id="butterfly" class="level3">
-                  <h3>3.3 <span class="ofdm-term">蝶形运算<span class="ofdm-mark">✦</span></span>：FFT 的基本单元</h3>
+                  <h3>3.3 <span class="ofdm-term">蝶形运算<span class="ofdm-mark"></span></span>：FFT 的基本单元</h3>
 
                   <p>FFT 的基本计算单元是<strong>蝶形（Butterfly）运算</strong>：</p>
 
@@ -500,7 +500,7 @@ b ───────┴──── a - W·b</code></pre>
               <section id="python-demo" class="level2">
                 <h2>四、 用 Python 演示 8 点 IFFT 的时域叠加</h2>
 
-                <p>下面用代码直观展示 IFFT 是如何把频域符号合成<span class="ofdm-term">时域波形<span class="ofdm-mark">✦</span></span>的：</p>
+                <p>下面用代码直观展示 IFFT 是如何把频域符号合成<span class="ofdm-term">时域波形<span class="ofdm-mark"></span></span>的：</p>
 
                 <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
@@ -508,13 +508,13 @@ import matplotlib.pyplot as plt
 
 # ===== 8点IFFT演示：OFDM符号时域合成 =====
 
-N = 8  # <span class="ofdm-term">子载波数<span class="ofdm-mark">✦</span></span>（IFFT点数）
+N = 8  # <span class="ofdm-term">子载波数<span class="ofdm-mark"></span></span>（IFFT点数）
 
 # 频域：每个子载波上的QAM符号（这里用简单的+1/-1示意）
 X = np.array([1+0j, -1+0j, 1+0j, -1+0j, 0+0j, 0+0j, 0+0j, 0+0j])
 
 
-# 方法1：直接用<span class="ofdm-term">numpy<span class="ofdm-mark">✦</span></span>的 IFFT
+# 方法1：直接用<span class="ofdm-term">numpy<span class="ofdm-mark"></span></span>的 IFFT
 x_ifft = np.fft.ifft(X)
 
 
@@ -538,7 +538,7 @@ print("\n时域采样点 s[n]:")
 for n in range(N):
     print(f"  s[{n}] = {x_manual[n].real:.4f} + {x_manual[n].imag:.4f}j")</code></pre>
 
-                <p>运行这段代码，你会看到 4 个非零子载波（$k=0,1,2,3$）的时域分量被逐一叠加，最终形成 OFDM 符号的时域波形——这就是 IFFT 在做的事情，只不过用了高效的<span class="ofdm-term">蝶形算法<span class="ofdm-mark">✦</span></span>替代了逐项求和。</p>
+                <p>运行这段代码，你会看到 4 个非零子载波（$k=0,1,2,3$）的时域分量被逐一叠加，最终形成 OFDM 符号的时域波形——这就是 IFFT 在做的事情，只不过用了高效的<span class="ofdm-term">蝶形算法<span class="ofdm-mark"></span></span>替代了逐项求和。</p>
 
                 <figure>
                   <img src="assets/figures/subcarrier-superposition-ifft-output.png" alt="子载波时域分量叠加等于 IFFT 输出示意图">
@@ -588,7 +588,7 @@ for n in range(N):
                         <td>$=f_s/\Delta f=30.72\text{ MHz}/15\text{ kHz}$</td>
                       </tr>
                       <tr>
-                        <td><span class="ofdm-term">采样率<span class="ofdm-mark">✦</span></span> $f_s$</td>
+                        <td><span class="ofdm-term">采样率<span class="ofdm-mark"></span></span> $f_s$</td>
                         <td>30.72 MHz</td>
                         <td>$=2048\times15\text{ kHz}$</td>
                       </tr>
@@ -626,7 +626,7 @@ k=0              k=424           k=1024           k=1424            k=2047
 \hat{X}[k]=\operatorname{FFT}\{r[n]\}=\operatorname{FFT}\{s[n]\}=X[k]
 \]</span></p>
 
-                <p>在实际<span class="ofdm-term">多径信道<span class="ofdm-mark">✦</span></span>下，接收信号为：</p>
+                <p>在实际<span class="ofdm-term">多径信道<span class="ofdm-mark"></span></span>下，接收信号为：</p>
 
                 <p><span class="math display">\[
 r[n]=h[n]\circledast s[n]+w[n]
@@ -640,7 +640,7 @@ r[n]=h[n]\circledast s[n]+w[n]
 \hat{X}[k]=H[k]\cdot X[k]+W[k]
 \]</span></p>
 
-                <p>均衡只需要逐子载波做一次<span class="ofdm-term">复数除法<span class="ofdm-mark">✦</span></span>：$\hat{X}[k]/H[k]$，复杂度仅 $O(N)$——这就是 OFDM 把频率选择性<span class="ofdm-term">均衡<span class="ofdm-mark">✦</span></span>化繁为简<span class="ofdm-mark">✦</span>的核心机制。</p>
+                <p>均衡只需要逐子载波做一次<span class="ofdm-term">复数除法<span class="ofdm-mark"></span></span>：$\hat{X}[k]/H[k]$，复杂度仅 $O(N)$——这就是 OFDM 把频率选择性<span class="ofdm-term">均衡<span class="ofdm-mark"></span></span>化繁为简<span class="ofdm-mark"></span>的核心机制。</p>
               </section>
 
               <section id="summary" class="level2">
@@ -661,7 +661,7 @@ r[n]=h[n]\circledast s[n]+w[n]
                   <li><strong>实际参数：</strong>LTE 20MHz 使用 2048 点 IFFT，每个 OFDM 符号约需 11264 次蝶形运算</li>
                 </ol>
 
-                <p>下一讲（第5讲），我们会聚焦另一个关键模块——<span class="ofdm-term">循环前缀 CP<span class="ofdm-mark">✦</span></span>，理解为什么 OFDM 必须在 IFFT 输出前”头尾相接”地拼上一段尾巴，以及这件事如何让多径信道的频域均衡成为可能。</p>
+                <p>下一讲（第5讲），我们会聚焦另一个关键模块——<span class="ofdm-term">循环前缀 CP<span class="ofdm-mark"></span></span>，理解为什么 OFDM 必须在 IFFT 输出前”头尾相接”地拼上一段尾巴，以及这件事如何让多径信道的频域均衡成为可能。</p>
 
                 <hr class="ofdm-divider">
               </section>

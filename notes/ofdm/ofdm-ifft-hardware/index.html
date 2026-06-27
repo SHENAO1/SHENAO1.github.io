@@ -306,13 +306,13 @@
               <section id="introduction" class="level2">
                 <h2>引言</h2>
 
-                <p>在前面几讲里，我们从数学角度理解了 <span class="ofdm-term">IFFT<span class="ofdm-mark">✦</span></span>（逆快速傅里叶变换）如何把频域的子载波数据变成时域的OFDM符号。理论上，公式推完了，代码跑通了，就完事了。</p>
+                <p>在前面几讲里，我们从数学角度理解了 <span class="ofdm-term">IFFT<span class="ofdm-mark"></span></span>（逆快速傅里叶变换）如何把频域的子载波数据变成时域的OFDM符号。理论上，公式推完了，代码跑通了，就完事了。</p>
 
                 <p>但如果你做过真正的无线通信产品，会发现一个尴尬的现实：<strong>仿真里完美运行的算法，上了硬件就出幺蛾子。</strong></p>
 
                 <p>为什么？因为仿真用的是浮点数，而实际芯片里跑的是定点数。一个1024点的FFT，浮点实现可以精确到小数点后十几位；定点实现可能只有12位、14位量化精度，噪声一积累，系统性能说崩就崩。</p>
 
-                <p>这一讲，我们就从算法走向电路，来聊一聊<strong>IFFT的硬件实现</strong>。我会覆盖 Cooley-Tukey <span class="ofdm-term">FFT<span class="ofdm-mark">✦</span></span> 算法、两种主流硬件架构、以及<span class="ofdm-term">定点量化<span class="ofdm-mark">✦</span></span>那些事儿——这些都是我实际工作中踩过的坑。</p>
+                <p>这一讲，我们就从算法走向电路，来聊一聊<strong>IFFT的硬件实现</strong>。我会覆盖 Cooley-Tukey <span class="ofdm-term">FFT<span class="ofdm-mark"></span></span> 算法、两种主流硬件架构、以及<span class="ofdm-term">定点量化<span class="ofdm-mark"></span></span>那些事儿——这些都是我实际工作中踩过的坑。</p>
 
                 <hr class="ofdm-divider">
               </section>
@@ -321,7 +321,7 @@
                 <h2>1. Cooley-Tukey FFT 算法回顾</h2>
 
                 <section id="dft-to-fft" class="level3">
-                  <h3>1.1 从 <span class="ofdm-term">DFT<span class="ofdm-mark">✦</span></span>到 FFT 的突破</h3>
+                  <h3>1.1 从 <span class="ofdm-term">DFT<span class="ofdm-mark"></span></span>到 FFT 的突破</h3>
 
                   <p>在第4讲里，我们知道OFDM调制的核心是IDFT（逆离散傅里叶变换）：</p>
 
@@ -331,7 +331,7 @@ x_n=\frac{1}{N}\sum_{k=0}^{N-1}X_k e^{j2\pi kn/N},\qquad n=0,1,\ldots,N-1
 
                   <p>直接计算需要 $O(N^2)$ 次复数乘法，对于 $N=2048$（LTE的子载波数），每次OFDM符号生成要做400多万次乘法——这个计算量在硬件上根本吃不消。</p>
 
-                  <p><strong>Cooley-Tukey FFT算法的核心思想是分治法：</strong>把长度为 $N$ 的大DFT拆成多个小DFT的组合，利用旋转因子（<span class="ofdm-term">Twiddle Factor<span class="ofdm-mark">✦</span></span>）的对称性和周期性，把复杂度从 $O(N^2)$ 降到 $O(N\log_2 N)$。</p>
+                  <p><strong>Cooley-Tukey FFT算法的核心思想是分治法：</strong>把长度为 $N$ 的大DFT拆成多个小DFT的组合，利用旋转因子（<span class="ofdm-term">Twiddle Factor<span class="ofdm-mark"></span></span>）的对称性和周期性，把复杂度从 $O(N^2)$ 降到 $O(N\log_2 N)$。</p>
                 </section>
 
                 <section id="dit" class="level3">
@@ -364,7 +364,7 @@ X_k=\sum_{m=0}^{N/2-1}x_{2m}W_N^{2mk}
 
                   <p><strong>第二步：蝶形运算</strong></p>
 
-                  <p>两个子DFT的结果通过蝶形运算（<span class="ofdm-term">Butterfly<span class="ofdm-mark">✦</span></span>）合并：</p>
+                  <p>两个子DFT的结果通过蝶形运算（<span class="ofdm-term">Butterfly<span class="ofdm-mark"></span></span>）合并：</p>
 
                   <pre><code class="language-matlab">% MATLAB实现：基-2 DIT FFT蝶形运算
 function [Y_lo, Y_hi] = butterfly(X_lo, X_hi, W)
@@ -409,7 +409,7 @@ end</code></pre>
                 <section id="pipeline" class="level3">
                   <h3>2.1 流水线（Pipelined）架构</h3>
 
-                  <p><span class="ofdm-term">流水线架构<span class="ofdm-mark">✦</span></span>是<strong>吞吐量大、延迟确定</strong>的实现方式，适合高速通信场景（如5G NR）。</p>
+                  <p><span class="ofdm-term">流水线架构<span class="ofdm-mark"></span></span>是<strong>吞吐量大、延迟确定</strong>的实现方式，适合高速通信场景（如5G NR）。</p>
 
                   <p><strong>典型结构：Radix-2 Single-Path Delay Feedback (R2SDF)</strong></p>
 
@@ -444,7 +444,7 @@ end</code></pre>
                 <section id="parallel" class="level3">
                   <h3>2.2 并行（Parallel）架构</h3>
 
-                  <p><span class="ofdm-term">并行架构<span class="ofdm-mark">✦</span></span>追求<strong>单符号处理时间最短</strong>，通过复制硬件单元实现并发。</p>
+                  <p><span class="ofdm-term">并行架构<span class="ofdm-mark"></span></span>追求<strong>单符号处理时间最短</strong>，通过复制硬件单元实现并发。</p>
 
                   <p><strong>典型结构：Radix-2 Multi-Path Delay Feedback (R2MDF)</strong></p>
 

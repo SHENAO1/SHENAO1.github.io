@@ -298,7 +298,7 @@
               <section id="intro" class="level2">
                 <p>OFDM有一个出了名的“心病”——<strong>高峰均比（PAPR）</strong>。</p>
 
-                <p>做过射频硬件的同学可能会有这样的抱怨： PA（<span class="ofdm-term">功率放大器<span class="ofdm-mark">✦</span></span>）效率低、散热严重、成本贵……追根溯源，很多时候锅都得OFDM来背。本讲我们来深入剖析这个问题：OFDM信号的PAPR到底从哪里来？有多严重？对系统影响几何？</p>
+                <p>做过射频硬件的同学可能会有这样的抱怨： PA（<span class="ofdm-term">功率放大器<span class="ofdm-mark"></span></span>）效率低、散热严重、成本贵……追根溯源，很多时候锅都得OFDM来背。本讲我们来深入剖析这个问题：OFDM信号的PAPR到底从哪里来？有多严重？对系统影响几何？</p>
 
                 <hr class="ofdm-divider">
               </section>
@@ -390,7 +390,7 @@ x[n]=\frac{1}{\sqrt{N}}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\ld
                 <section id="statistics" class="level3">
                   <h3>2.2 实际PAPR：统计特性</h3>
 
-                  <p>实际OFDM信号的子载波符号是随机的QAM点，各子载波相位随机独立。根据<span class="ofdm-term">中心极限定理<span class="ofdm-mark">✦</span></span>，当 $N$ 较大时，时域样本 $x[n]$ 的实部和虚部分别趋近于高斯分布：</p>
+                  <p>实际OFDM信号的子载波符号是随机的QAM点，各子载波相位随机独立。根据<span class="ofdm-term">中心极限定理<span class="ofdm-mark"></span></span>，当 $N$ 较大时，时域样本 $x[n]$ 的实部和虚部分别趋近于高斯分布：</p>
 
                   <p><span class="math display">\[
 \operatorname{Re}\{x[n]\}\sim\mathcal{N}(0,\sigma^2/2),\qquad
@@ -441,7 +441,7 @@ x[n]=\frac{1}{\sqrt{N}}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\ld
                   <p>非线性失真会导致：</p>
 
                   <ol>
-                    <li><strong>信号内部失真：</strong> EVM（<span class="ofdm-term">误差矢量幅度<span class="ofdm-mark">✦</span></span>）恶化，高阶调制（256QAM）无法解调</li>
+                    <li><strong>信号内部失真：</strong> EVM（<span class="ofdm-term">误差矢量幅度<span class="ofdm-mark"></span></span>）恶化，高阶调制（256QAM）无法解调</li>
                     <li><strong>带外辐射（OOB）：</strong> 产生谐波和互调分量，干扰相邻信道，违反频谱模板</li>
                     <li><strong>PA效率大幅下降：</strong> 为保证线性工作，PA必须回退（Back-off）工作点</li>
                   </ol>
@@ -493,7 +493,7 @@ x[n]=\frac{1}{\sqrt{N}}\sum_{k=0}^{N-1}X[k]\cdot e^{j2\pi kn/N},\qquad n=0,1,\ld
                 <section id="evm-analysis" class="level3">
                   <h3>3.3 EVM恶化量化分析</h3>
 
-                  <p>PA非线性可以用3阶截断点（IIP3）模型描述。当输入功率相对IIP3有 $\Delta$ dB 的回退时，<span class="ofdm-term">三阶互调失真<span class="ofdm-mark">✦</span></span>（IMD3）功率与信号之比为：</p>
+                  <p>PA非线性可以用3阶截断点（IIP3）模型描述。当输入功率相对IIP3有 $\Delta$ dB 的回退时，<span class="ofdm-term">三阶互调失真<span class="ofdm-mark"></span></span>（IMD3）功率与信号之比为：</p>
 
                   <p><span class="math display">\[
 \mathrm{IMD3}\approx -2\Delta\ \mathrm{dBc}
@@ -615,7 +615,7 @@ grid on; ylim([1e-4, 1]);</code></pre>
                       <tr>
                         <td>LTE 上行</td>
                         <td>1200</td>
-                        <td>~3.5 dB (<span class="ofdm-term">SC-FDMA<span class="ofdm-mark">✦</span></span>)</td>
+                        <td>~3.5 dB (<span class="ofdm-term">SC-FDMA<span class="ofdm-mark"></span></span>)</td>
                         <td>~3 dB</td>
                         <td>单载波结构天然低PAPR</td>
                       </tr>
