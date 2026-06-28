@@ -1,8 +1,8 @@
 .equation-card {
   position: relative;
   display: block;
-  margin: 16px 0;
-  padding: 20px 112px 20px 20px;
+  margin: 12px 0;
+  padding: 12px 104px 12px 18px;
   border: 1px solid rgba(12, 36, 57, 0.1);
   border-radius: 18px;
   background:
@@ -14,12 +14,13 @@
 .equation-card .equation-render {
   display: block;
   min-width: 0;
+  line-height: 1;
 }
 
 .equation-card .equation-copy {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -75,14 +76,14 @@
 
 .equation-card .equation-number {
   position: absolute;
-  right: 16px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 62px;
-  min-height: 34px;
+  min-width: 56px;
+  min-height: 28px;
   padding: 0 10px;
   border-radius: 999px;
   background: rgba(12, 36, 57, 0.06);
@@ -98,8 +99,9 @@
   display: block;
   overflow-x: auto;
   overflow-y: hidden;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1;
   text-align: center;
 }
 
@@ -118,17 +120,23 @@
 
 .note-prose p > .equation-card,
 .lesson-body p > .equation-card {
-  margin-top: 14px;
+  margin-top: 10px;
+}
+
+.note-prose p.equation-card,
+.lesson-body p.equation-card {
+  margin: 10px 0 0;
+  line-height: 1;
 }
 
 .note-prose li > .equation-card,
 .lesson-body li > .equation-card {
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 @media (max-width: 760px) {
   .equation-card {
-    padding: 48px 18px 18px;
+    padding: 38px 14px 12px;
   }
 
   .equation-card .equation-copy {
@@ -139,11 +147,11 @@
   }
 
   .equation-card .equation-number {
-    top: 11px;
-    right: 98px;
+    top: 9px;
+    right: 94px;
     transform: none;
     min-width: 54px;
-    min-height: 26px;
+    min-height: 24px;
     font-size: 11px;
   }
 }
