@@ -1,5 +1,6 @@
 (function () {
   const DISPLAY_SELECTORS = ["span.math.display", "div.equation"];
+  const PARAGRAPH_DISPLAY_SELECTORS = [".note-prose p", ".lesson-body p"];
   const TAG_PATTERN = /\\tag\*?\{([^}]*)\}/;
 
   function normalizeLabel(label) {
@@ -31,8 +32,22 @@
     return null;
   }
 
+  function collectDisplayMathNodes() {
+    const explicitNodes = Array.from(document.querySelectorAll(DISPLAY_SELECTORS.join(",")));
+    const paragraphNodes = Array.from(document.querySelectorAll(PARAGRAPH_DISPLAY_SELECTORS.join(","))).filter((node) => {
+      if (node.querySelector(DISPLAY_SELECTORS.join(","))) return false;
+      if (node.dataset.eqPrepared === "true") return true;
+      return Boolean(extractDisplaySource(node));
+    });
+
+    return explicitNodes.concat(paragraphNodes).sort((a, b) => {
+      if (a === b) return 0;
+      return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_PRECEDING ? 1 : -1;
+    });
+  }
+
   function preprocessDisplayMath() {
-    const nodes = Array.from(document.querySelectorAll(DISPLAY_SELECTORS.join(",")));
+    const nodes = collectDisplayMathNodes();
     let autoIndex = 1;
 
     nodes.forEach((node) => {
@@ -75,7 +90,7 @@
   }
 
   function enhanceDisplayMath() {
-    const nodes = Array.from(document.querySelectorAll(DISPLAY_SELECTORS.join(",")));
+    const nodes = collectDisplayMathNodes();
 
     nodes.forEach((node) => {
       if (!node.dataset.eqPrepared || node.dataset.eqEnhanced === "true") return;
