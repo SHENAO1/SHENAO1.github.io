@@ -18,14 +18,6 @@
       max-width: 17ch;
     }
 
-    .lfsr-prn-note .note-layout {
-      overflow: visible;
-    }
-
-    .lfsr-prn-note .note-sidebar {
-      overflow: visible;
-    }
-
     .lfsr-prn-note .note-prose :is(p, ul, ol, blockquote, figure, .table-wrap) + h2 {
       margin-top: 76px;
       padding-top: 8px;
@@ -571,40 +563,5 @@
   </div>
 
   <script src="../../../assets/scripts/site.js"></script>
-  <script>
-    (() => {
-      const toc = document.querySelector(".lfsr-prn-note .note-toc");
-      const links = [...document.querySelectorAll(".lfsr-prn-note .note-toc a[href^='#']")];
-      if (!toc || !links.length) return;
-
-      const sections = links
-        .map((link) => {
-          const id = decodeURIComponent(link.getAttribute("href").slice(1));
-          const target = document.getElementById(id);
-          return target ? { link, target } : null;
-        })
-        .filter(Boolean);
-
-      const setActive = () => {
-        let current = sections[0];
-        for (const item of sections) {
-          if (item.target.getBoundingClientRect().top <= 170) current = item;
-        }
-
-        links.forEach((link) => link.classList.toggle("is-active", current && link === current.link));
-
-        if (current) {
-          current.link.scrollIntoView({
-            block: "nearest",
-            inline: "nearest"
-          });
-        }
-      };
-
-      setActive();
-      document.addEventListener("scroll", setActive, { passive: true });
-      window.addEventListener("resize", setActive);
-    })();
-  </script>
 </body>
 </html>

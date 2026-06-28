@@ -78,6 +78,62 @@ const syncScrollState = () => {
 syncScrollState();
 window.addEventListener("scroll", syncScrollState, { passive: true });
 
+const initNoteTocTracking = () => {
+  const tocBlocks = [...document.querySelectorAll(".note-toc")];
+  if (!tocBlocks.length) return;
+
+  tocBlocks.forEach((toc) => {
+    const links = [...toc.querySelectorAll("a[href^='#']")];
+    if (!links.length) return;
+
+    const items = links
+      .map((link) => {
+        const href = link.getAttribute("href") || "";
+        const id = decodeURIComponent(href.slice(1));
+        const target = document.getElementById(id);
+        return target ? { link, target } : null;
+      })
+      .filter(Boolean);
+
+    if (!items.length) return;
+
+    let ticking = false;
+    const updateActive = () => {
+      ticking = false;
+
+      let current = items[0];
+      items.forEach((item) => {
+        if (item.target.getBoundingClientRect().top <= 170) {
+          current = item;
+        }
+      });
+
+      links.forEach((link) => {
+        link.classList.toggle("is-active", current && link === current.link);
+      });
+
+      if (current) {
+        current.link.scrollIntoView({
+          block: "nearest",
+          inline: "nearest"
+        });
+      }
+    };
+
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateActive);
+    };
+
+    updateActive();
+    document.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+  });
+};
+
+initNoteTocTracking();
+
 const revealNodes = [
   ...document.querySelectorAll(
     [
