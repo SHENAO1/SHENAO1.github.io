@@ -354,6 +354,29 @@
 <p><strong>1. 先看一次因子。</strong></p>
 <p>一次因子最容易检查。在 \(GF(2)\) 上，只有两个一次多项式：</p>
 <p>\[x,\qquad x+1\]</p>
+<p>原因是一次多项式一般写成 \(ax+b\)，其中 \(a\ne 0\)。但在 \(GF(2)\) 里非零系数只有 \(1\)，所以一次多项式只能是 \(x\) 或 \(x+1\)。把 \(x\) 代入 \(0\) 和 \(1\)，它们的取值正好覆盖全部可能：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: center;">\(x\)</th>
+<th style="text-align: center;">\(x\)</th>
+<th style="text-align: center;">\(x+1\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+</tr>
+</tbody>
+</table></div>
+<p>因此 \(x\) 对应根 \(0\)，\(x+1\) 对应根 \(1\)。检查一个多项式有没有一次因子，只需要分别代入 \(0\) 和 \(1\)。</p>
 <p>若 \(f(0)=0\)，说明 \(x=0\) 是根，因此 \(x\) 是 \(f(x)\) 的因子。直观上看，这等价于多项式常数项为 0，因为把 \(x=0\) 代进去后只剩常数项。</p>
 <p>若 \(f(1)=0\)，说明 \(x=1\) 是根，因此 \(x-1\) 是因子；但在 \(GF(2)\) 里 \(-1=1\)，所以 \(x-1=x+1\)。因此 \(f(1)=0\) 等价于有因子 \(x+1\)。</p>
 <p>对当前</p>
