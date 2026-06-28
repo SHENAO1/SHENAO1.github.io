@@ -256,11 +256,13 @@
 <p>\[G_2(x)=(1+x^2+x^3)\,(1+x+x^3+x^4+x^5)\]</p>
 <p>即一个 3 阶因子<strong>（阶为 7）</strong>乘一个 5 阶因子<strong>（阶为 31）</strong>。其状态空间不是单一长循环，而是裂成 <strong>217 / 31 / 7 三个周期不同的环</strong></p>
 <blockquote>
-<p>217 / 31 / 7 三个周期不同的环是由\(G_2(x)\)的两个<strong><u>互素不可约</u></strong>因子的周期组合出来的。\(217+31+7=255\)，\(\text{lcm}(7,31)=217\)<strong><span class="note-red">最小公倍数</span></strong></p>
-<p><strong><span> 在</span></strong>\(GF(2)\)<strong><span>上，一个多项式如果不能再分解成两个次数更低的非平凡多项式，就叫不可约多项式。  </span></strong>
-</p>
-<p class="question-note">本原多项式的周期和可约性
-</p>
+<p><strong>概念速查：</strong>这里先把后文会展开的三个词放在一起，避免读到分解式时来回跳转。</p>
+<ul>
+<li><strong>本原多项式：</strong>在 \(GF(2)\) 上不可约，并且由它定义的 \(n\) 级 LFSR 能遍历全部 \(2^n-1\) 个非零状态；所以 8 级本原多项式对应周期 255 的 m 序列。</li>
+<li><strong>可约多项式：</strong>如果一个多项式可以分解成两个次数更低的非平凡多项式，它就是可约的；不能这样分解的叫不可约。本原一定不可约，但不可约不一定本原。</li>
+<li><strong>互素：</strong>两个多项式没有共同的非平凡因子，也就是最大公因子为 1。这里 \(G_2(x)\) 的两个因子互素，所以它们各自的周期会组合出状态空间里的不同循环。</li>
+</ul>
+<p>因此，217 / 31 / 7 三个周期不同的环，是由 \(G_2(x)\) 的两个<strong><u>互素不可约</u></strong>因子的周期组合出来的：\(217+31+7=255\)，且 \(\text{lcm}(7,31)=217\)<strong><span class="note-red">（最小公倍数）</span></strong>。</p>
 </blockquote>
 <p><strong class="result-label"><span class="note-red">结果：</span></strong></p>
 <ul>
